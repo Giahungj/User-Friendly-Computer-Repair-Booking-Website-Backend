@@ -1,40 +1,48 @@
 import db from '../models/index';
 import formatUtils from '../utils/formatUtil';
+import bookingService from '../services/bookingService';
 
-const getBookingsPage = async (req, res) => {
-    const bookings = await db.Booking.findAll({
-        include: [
-            { model: db.Patient },
-            { model: db.Schedule, include: [{ model: db.Doctor, include: [{ model: db.User }] }] }
-        ],
-        raw: true,
-        nest: true
-    })
-    const today = new Date();
-    const formattedToday = formatUtils.formatDate(today);
+// --------------------------------------------------
+const renderManagerBookingPage = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page || 1);
+        const date = req.query.date || '';
+        const timeslot = req.query.timeslot || '';
+        const status = req.query.status || '';
+        const searchTerm = req.query.searchTerm || '';
 
-    const todayBookings = bookings.filter(bo => formatUtils.formatDate(bo.date) === formattedToday);
-    const bookingData = bookings.map(bo => ({
-        ...bo, date: formatUtils.formatDate(bo.date)
-    }))
+        const data = await bookingService.getAllBookings(page, date, timeslot, status, searchTerm);
 
-    return res.render('layouts/layout', {
-        page: `pages/bookingList.ejs`,
-        pageTitle: 'Booking manager',
-        bookings: bookingData,
-        totalBooking: bookings.length,
-        todayBookings: todayBookings
-    })
+        return res.render('layouts/layout', {
+            page: `pages/bookings/managerBookingPage.ejs`,
+            pageTitle: 'Quản lý đặt lịch',
+            bookings: data.DT.bookingData,
+            currentPage: page,
+            timeSlots: data.DT.timeSlots,
+            totalPages: data.DT.totalPages,
+            totalBooking: data.DT.total,
+            todayBookings: data.DT.todayBookings,
+            confirmBookings: data.DT.confirmBookings,
+        })
+    } catch (error) {
+        console.error(error);
+        return res.render('layouts/layout', {
+            page: 'pages/errorPage.ejs',
+            pageTitle: 'Lỗi 404',
+            EM: "Lỗi server ...",
+            EC: -1,
+        })
+    }
 }
 
 // --------------------------------------------------
-const getBookingDetailPage = async (req, res) => {
+const renderBookingDetailPage = async (req, res) => {
     try {
-        const bookingId = req.params.id
+        const bookingId = req.params.id;
         const booking = await db.Booking.findOne({
             where: { id: bookingId },
             include: [
-                { model: db.History },
+                { model: db.History, required: false },
                 {
                     model: db.Patient,
                     include: [{ model: db.User }]
@@ -42,30 +50,60 @@ const getBookingDetailPage = async (req, res) => {
                 {
                     model: db.Schedule,
                     include: [
-                        { model: db.Doctor, include: [{ model: db.User }, { model: db.Specialty }, { model: db.Facility }] },
+                        { model: db.Doctors, include: [{ model: db.User }, { model: db.Specialty }, { model: db.Facility }] },
                         { model: db.Timeslot }
                     ]
                 }
             ],
             raw: true,
             nest: true
-        })
-        
+        });
+
+        // Cập nhật status nếu specialty bị xóa
+        if (booking.Schedule?.Doctor?.Specialty?.deleted === 1) {
+            await db.Booking.update(
+                { status: 0 },
+                { where: { id: bookingId } }
+            );
+        }
+
+        // Lấy danh sách prescriptions
+        const prescriptions = await db.Prescriptions.findAll({
+            where: { bookingId: bookingId },
+            attributes: ['id', 'quantity'],
+            include: [{ model: db.Medicines, attributes: ['id', 'name'] }],
+            raw: true,
+            nest: true
+        });
+
+        // Tạo bookingData, chỉ thêm History nếu tồn tại
         const bookingData = {
             ...booking,
+            Prescriptions: prescriptions,
             date: formatUtils.formatDate(booking.date),
-            status: booking.status === 'pending' ? 'Từ chối' : booking.status === 'aprowaprow' ? 'Đã nhận' : 'Hủy',
             price: formatUtils.formatCurrency(booking.Schedule.Doctor.price),
             createdAt: formatUtils.formatDate(booking.createdAt),
-            updatedAt: formatUtils.formatDate(booking.updatedAt)
-        }
+            updatedAt: formatUtils.formatDate(booking.updatedAt),
+            shift: booking.Schedule.Timeslot.shift === 1 ? 'Ca sáng' : booking.Schedule.Timeslot.shift === 2 ? 'Ca chiều' : 'Ca tối',
+            // Chỉ thêm History nếu booking.History.id tồn tại
+            ...(booking.History.id ? { History: booking.History } : {})
+        };
+
+        console.log(bookingData);
+
         return res.render('layouts/layout', {
-            page: `pages/bookingDetail.ejs`,
+            page: `pages/bookings/bookingDetail.ejs`,
             pageTitle: 'Chi tiết lịch hẹn',
             booking: bookingData
-        }) 
+        });
     } catch (error) {
-        console.error(error)
+        console.error(error);
+        return res.render('layouts/layout', {
+            page: 'pages/errorPage.ejs',
+            pageTitle: 'Lỗi 404',
+            EM: "Lỗi server ...",
+            EC: -1,
+        })
     }
 }
 
@@ -90,6 +128,7 @@ const approveBooking = async (req, res) => {
     }
 }
 
+// --------------------------------------------------
 const rejectBooking = async (req, res) => {
     try {
         const { bookingId } = await req.body
@@ -106,13 +145,20 @@ const rejectBooking = async (req, res) => {
 
         return res.redirect(`/booking-detail/${bookingId}`)
     } catch (error) {
-        console.error(error)
+        console.error(error);
+        return res.render('layouts/layout', {
+            page: 'pages/errorPage.ejs',
+            pageTitle: 'Lỗi 404',
+            EM: "Lỗi server ...",
+            EC: -1,
+        })
     }
 }
 
-module.exports = {
-    getBookingsPage,
-    getBookingDetailPage,
+// --------------------------------------------------
+export default {
+    renderManagerBookingPage,
+    renderBookingDetailPage,
 
     approveBooking,
     rejectBooking

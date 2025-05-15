@@ -1,0 +1,43 @@
+<!-- Modal danh sách đã xóa -->
+<div class="modal fade" id="deletedSpecialtiesModal" tabindex="-1" aria-labelledby="deletedSpecialtiesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deletedSpecialtiesModalLabel">Danh sách chuyên khoa đã xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <% if (deletedspecialties.length === 0) { %>
+                    <div class="text-center my3-5">
+                        <img src="/images/empty-box.png" alt="Không có chuyên khoa nào" style="height: 10em;">
+                        <p class="text-center text-red-500">Không có chuyên khoa nào bị xóa.</p>
+                    </div>
+                    <div class="text-center">
+                        <a href="/specialty/deleted-specialty-list" class="btn btn-outline-info rounded-pill">Xem danh sách </a>
+                    </div>
+                <% } else { %>
+                    <% deletedspecialties.forEach((specialty, index) => { %>
+                        <form action="/specialty/restore" method="post">
+                            <div class="input-group w-100">
+                                <span class="input-group-text"><%= index + 1 %></span>
+                                <input type="text" class="form-control" name="specialtyName" value="<%= specialty.name %>" readonly>
+                                <input type="hidden" name="specialtyId" value="<%= specialty.id %>">
+                                <div class="input-group-append">
+                                    <button type="submit" class="btn btn-link text-primary text-decoration-none">
+                                        <i class="fas fa-undo"></i> Khôi phục
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    <% }) %>
+                    <div class="text-center mt-2">
+                        <a href="/specialty/deleted-specialty-list" class="btn btn-outline-info">Xem thêm ...</a>
+                    </div>
+                <% } %>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>

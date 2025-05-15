@@ -1,0 +1,130 @@
+<header id="mainHeader" class="navbar navbar-expand-lg navbar-light bg-light border-bottom shadow-sm px-3">
+    <div class="container-fluid">
+        <!-- Search Box -->
+        <div id="searchContainer" class="search-box position-relative me-auto w-50">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                </span>
+                <input 
+                    type="text" 
+                    class="form-control border rounded-0" 
+                    id="searchInput" 
+                    placeholder="Tìm kiếm bác sĩ, chuyên khoa, ..." 
+                    aria-label="Search"
+                >
+                <button 
+                    class="btn btn-outline-secondary d-none" 
+                    type="button" 
+                    id="clearSearch"
+                >
+                    <i class="fa-solid fa-circle-xmark clear-icon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- User Info -->
+        <div class="d-flex align-items-center ms-auto" style="z-index: 10;">
+            <div id="userInfo" class="user-info mx-3 p-2 rounded dropdown">
+                <!-- Nút kích hoạt dropdown -->
+                <div class="d-flex align-items-center" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
+                    <i class="fa-solid fa-circle-user me-2"></i>
+                    <span id="adminName">
+                        <%= adminName %>
+                    </span>
+                    <i class="fa-solid fa-caret-down ms-2"></i> <!-- Icon mũi tên xuống -->
+                </div>
+                <!-- Menu dropdown -->
+                <ul class="dropdown-menu dropdown-menu-end shadow" style="min-width: 24em;">
+                    <li>
+                        <a class="dropdown-item" href="/user-detail/<%= adminId %>">
+                            <i class="fa-solid fa-user me-2"></i> Hồ sơ
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="/admin/settings">
+                            <i class="fa-solid fa-gear me-2"></i> Cài đặt
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="/dashboard">
+                            <i class="fa-solid fa-chart-line me-2"></i> Thống kê
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown ps-3 py-2">
+                        <i class="fas fa-database me-2"></i>
+                        <span>Elasticsearch: Đồng bộ dữ liệu</span>
+                        <i class="fa-solid fa-caret-down ms-2"></i> <!-- Icon mũi tên xuống -->
+
+                        <ul class="dropdown-menu border rounded" style="right: 100%; top: 0;  width: 25em;">
+                            <li>
+                                <form action="/sync-doctors-data" method="POST" class="m-0">
+                                    <button class="dropdown-item" type="submit">
+                                        <i class="fas fa-sync-alt me-2"></i>Đồng bộ dữ liệu bác sĩ
+                                    </button>
+                                </form>
+                            </li>
+                            <li>
+                                <form action="/sync-patients-data" method="POST" class="m-0">
+                                    <button class="dropdown-item" type="submit">
+                                        <i class="fas fa-sync-alt me-2"></i>Đồng bộ dữ liệu bệnh nhân
+                                    </button>
+                                </form>
+                            </li>
+                            <li>
+                                <form action="/sync-specialties-data" method="POST" class="m-0">
+                                    <button class="dropdown-item" type="submit">
+                                        <i class="fas fa-sync-alt me-2"></i>Đồng bộ dữ liệu chuyên khoa
+                                    </button>
+                                </form>
+                            </li>
+                            <li>
+                                <form action="/sync-facilities-data" method="POST" class="m-0">
+                                    <button class="dropdown-item" type="submit">
+                                        <i class="fas fa-sync-alt me-2"></i>Đồng bộ dữ liệu phòng khám
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item dropdown ps-3 py-2">
+                        <i class="fas fa-database me-2"></i>
+                        <span>Elasticsearch: Lấy dữ liệu</span>
+                        <i class="fa-solid fa-caret-down ms-2"></i> <!-- Icon mũi tên xuống -->
+                        <ul class="dropdown-menu border rounded"  style="right: 100%; top: 0; width: 25em;">
+                            <li>
+                                <a class="dropdown-item" href="/getAllDoctorsDataOfElasticSearch">
+                                    <i class="fas fa-download me-2"></i>Dữ liệu bác sĩ
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/getAllPatientsDataOfElasticSearch">
+                                    <i class="fas fa-download me-2"></i>Dữ liệu bệnh nhân
+                                </a>
+                            </li>
+                             <li>
+                                <a class="dropdown-item" href="/getAllSpecialtiesDataOfElasticSearch">
+                                    <i class="fas fa-download me-2"></i>Dữ liệu chuyên khoa
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/getAllFacilitiesDataOfElasticSearch">
+                                    <i class="fas fa-download me-2"></i>Dữ liệu phòng khám
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form class="m-0" action="/admin-logout" method="POST">
+                            <a class="dropdown-item text-danger" href="#" onclick="this.closest('form').submit()">
+                                <i class="fa-solid fa-sign-out-alt me-2"></i> Đăng xuất
+                            </a>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</header>

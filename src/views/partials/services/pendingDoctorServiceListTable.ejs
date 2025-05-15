@@ -1,0 +1,127 @@
+<table class="table table-striped table-bordered table-hover">
+    <thead class="table-secondary">
+        <tr class="text-center">
+            <th>STT</th>
+            <th>Tên gói</th>
+            <th>Giá</th>
+            <th>Trạng thái</th>
+            <th>Avatar</th>
+            <th>Tên người ĐK</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody id="serviceTable">
+        <% if (data.pendingServices.length > 0) { %>
+            <% data.pendingServices.forEach((service, index) => { %>
+                <tr>
+                    <td class="text-center align-middle"><%= index + 1 %></td>
+                    <td class="align-middle"><%= service.name %></td>
+                    <td class="align-middle"><%= service.price %></td>
+                    <td class="text-center align-middle">
+                        <span class="badge <%= service.status === 'pending' ? 'bg-warning text-dark' : service.status === 'active' ? 'bg-success' : 'bg-danger' %>">
+                            <%= service.status === 'pending' ? 'Chờ duyệt' : service.status === 'active' ? 'Đã duyệt' : 'Bị từ chối' %>
+                        </span>
+                    </td>
+                    <td class="text-center align-middle">
+                        <img src="/images/uploads/<%= service.avatar %>" alt="Avatar" class="rounded" width="50" height="50">
+                    </td>
+                    <td class="align-middle"><%= service.userName %></td>
+                    <td class="text-center align-middle">
+                        <button type="button" class="btn btn-outline-success approveServiceBtn" data-id="<%= service.id %>">
+                            <i class="fa-solid fa-check-circle"></i> Phê duyệt
+                        </button>
+                    </td>
+                </tr>
+            <% }) %>
+        <% } else { %>
+            <tr>
+                <td colspan="7" class="text-center py-4">
+                    <i class="fa-solid fa-folder-open fa-2x text-muted"></i>
+                    <p class="mt-2 text-muted">Không có đơn dịch vụ nào cần xác nhận</p>
+                </td>
+            </tr>
+        <% } %>
+    </tbody>
+</table>
+
+<script>
+    const approveService = (serviceId) => {
+        const data = {
+            doctorServiceId: serviceId
+        };
+
+        // Gửi yêu cầu POST đến server với body là JSON
+        fetch('/doctor-service/approve', {
+            method: 'POST', // Hoặc 'PUT' tùy vào yêu cầu API của bạn
+            headers: {
+                'Content-Type': 'application/json' // Đặt kiểu nội dung là JSON
+            },
+            body: JSON.stringify(data) // Chuyển đối tượng data thành JSON string
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Nếu yêu cầu thành công
+            if (data.EC === 0) {
+                const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                successModal.show();  // Hiển thị modal
+                setTimeout(() => {
+                    location.reload(); // Tải lại trang sau 5 giây
+                }, 2500);
+            } else {
+                // Nếu có lỗi
+                const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+                errorModal.show();  // Hiển thị modal
+            }
+        })
+        .catch(error => {
+            // Nếu xảy ra lỗi trong quá trình gửi yêu cầu
+            console.error('Error:', error);
+            const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+            errorModal.show();  // Hiển thị modal
+        });
+    };
+
+    // Thêm sự kiện cho nút "Phê duyệt" của mỗi dịch vụ
+    document.querySelectorAll('.approveServiceBtn').forEach(button => {
+        button.addEventListener('click', function() {
+            const serviceId = this.getAttribute('data-id');  // Lấy ID dịch vụ từ thuộc tính data-id
+            approveService(serviceId);
+        });
+    });
+</script>
+
+<!-- Modal -->
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="errorModalLabel">Lỗi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Có lỗi xảy ra. Vui lòng thử lại!
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="errorModalLabel">Hoàn thành</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <i class="fa-solid fa-check-circle text-teal-400"></i>Đã xong
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>

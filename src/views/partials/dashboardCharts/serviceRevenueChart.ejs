@@ -1,0 +1,16 @@
+<canvas id="serviceRevenueChart" class="h-100"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+(() => {
+    const ctx    = document.getElementById('serviceRevenueChart').getContext('2d');
+    const labels = <%- JSON.stringify(serviceChartData.labels) %>;
+    const data   = <%- JSON.stringify(serviceChartData.data) %>;
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: { labels, datasets:[{ label:'Doanh thu (VNĐ)', data }]},
+        options:{ responsive:true, scales:{ y:{ beginAtZero:true }}}
+    });
+})();
+</script>

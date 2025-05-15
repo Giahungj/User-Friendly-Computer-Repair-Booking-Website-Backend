@@ -1,30 +1,34 @@
 import db from "../models/index"
 import bcrypt from 'bcryptjs';
-
 import jwtActions from '../middleware/JWTAction';
-
+import e from "express";
 const salt = bcrypt.genSaltSync(10);
 
+// ---------------------------------------------------------
 const hashPassword = (userPassword) => {
     let hash = bcrypt.hashSync(userPassword, salt);
     return hash
 }
 
+// ---------------------------------------------------------
 const checkEmail = async (userEmail) => {
     let user = await db.User.findOne({
-        where: { email: userEmail }
+        where: { email: userEmail },
+        row: true,
+        nest: true
     })
 
     if (user) {
-        return true;
+        return {EM: '', EC: 0, DT: user};
     }
-    return false;
+    return {EM: 'Email không tồn tại', EC: 1, DT: user};;
 }
 
 const checkPassword = (inputPassord, hashPassword) => {
     return bcrypt.compareSync(inputPassord, hashPassword);
 }
 
+// ---------------------------------------------------------
 const registerNewUser = async (userData) => {
     console.log("check user register: ", userData)
     try {
@@ -67,69 +71,74 @@ const registerNewUser = async (userData) => {
 
 }
 
-const handleUserLogin = async (inputUser) => {
-    // let user = await db.User.findOne({
-
-    //     include: [
-    //         { model: db.Patient, required: false }, // LEFT OUTER JOIN
-    //         { model: db.Doctor, required: false }  // LEFT OUTER JOIN
-    //     ],
-    //     where: { email: inputUser.email },
-    //     raw: true,
-    //     nest: true
-    // })
-
-    // console.log("check user afafa: ", user.Doctors.id)
+// ---------------------------------------------------------
+const handleUserLogin = async ({ email, password }) => {
     try {
-        let user = await db.User.findOne({
-
+        const user = await db.User.findOne({
             include: [
-                { model: db.Patient, required: false }, // LEFT OUTER JOIN
-                { model: db.Doctor, required: false }  // LEFT OUTER JOIN
+                { model: db.Patient, required: false },
+                { model: db.Doctors, required: false }
             ],
-            where: { email: inputUser.email },
+            where: { email },
             raw: true,
             nest: true
-        })
+        });
 
-        if (user) {
-            let isCorrectPassword = checkPassword(inputUser.password, user.password)
-            if (isCorrectPassword === true) {
-                let payload = {
-                    email: user.email,
-                    userType: user.userType,
-                    name: user.name,
-                    id: user.id,
-                    doctorId: user.Doctors.id,
-                    patientId: user.Patients.id
-                }
-                let token = jwtActions.createJWT(payload)
-                return {
-                    EM: 'Đăng nhập thành công!',
-                    EC: 0,
-                    DT: {
-                        access_token: token,
-                        userType: user.userType,
-                        email: user.email,
-                        name: user.name,
-                        doctorId: user.Doctors.id
-                    }
-                }
+        if (!user) {
+            return { EM: 'Email không tồn tại!', EC: 1, DT: "" };
+        }
+
+        if (user && user.userType !== 'doctor' && user.userType !== 'patient') {
+            return { EM: 'Tài khoản không thuộc quyền truy cập này! Vui lòng sử dụng đúng tài khoản.', EC: 1, DT: "" };
+        }
+        
+        if (!checkPassword(password, user.password)) {
+            return { EM: 'Sai Email hoặc mật khẩu!', EC: 1, DT: "" };
+        }
+        
+        let payload = {
+            id: user.id,
+            email: user.email,
+            userType: user.userType,
+            name: user.name,
+            avatar: user.avatar,
+            // serviceId: user.serviceId,
+        };
+        
+        if (user.userType === 'doctor' && user.Doctors) {
+            payload.doctorId = user.Doctors.id;
+            const service = await db.DoctorService.findOne({
+                where: { doctorId: user.Doctors.id, status: 'active' },
+                raw: true,
+                nest: true
+            })
+            if (!service) {
+                payload.serviceId = 0;
+            } else {
+                payload.serviceId = service.serviceId;
             }
+        } else if (user.userType === 'patient' && user.Patients) {
+            payload.patientId = user.Patients.id;
         }
+        console.log("check payload: ", payload)
         return {
-            EM: 'Sai Email hoặc mật khẩu!',
-            EC: 1,
-            DT: ""
-        }
-    } catch (error) {
-        return {
-            EM: "Lỗi hệ thống...",
-            EC: -2
-        }
+            EM: 'Đăng nhập thành công!',
+            EC: 0,
+            DT: {
+                access_token: jwtActions.createJWT(payload),
+                ...payload
+            }
+        };
+    } catch {
+        console.error(error)
+        return { EM: "Lỗi hệ thống... ", EC: -1 };
     }
-}
+};
 
-module.exports = {
-    registerNewUser, handleUserLogin, checkEmail, hashPassword
+// ---------------------------------------------------------
+export default {
+    registerNewUser, 
+    handleUserLogin, 
+    checkEmail, 
+    hashPassword
 }

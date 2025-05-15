@@ -18,6 +18,6 @@ const formatCurrency = (amount, currency = 'VND') => {
     return new Intl.NumberFormat(currency === 'USD' ? 'en-US' : 'vi-VN', options).format(amount)
 }
 
-module.exports = {
+export default {
     formatDate, formatCurrency
 }

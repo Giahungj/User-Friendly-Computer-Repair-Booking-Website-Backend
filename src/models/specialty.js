@@ -12,13 +12,18 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
-            Specialty.hasMany(models.Doctor);
+            Specialty.hasMany(models.Doctors);
         }
     };
     Specialty.init({
         name: DataTypes.STRING,
         description: DataTypes.STRING,
-        image: DataTypes.STRING
+        image: DataTypes.STRING,
+        deleted: {  // Thêm trường deleted
+            type: DataTypes.BOOLEAN,
+            defaultValue: false, // Mặc định là true
+            allowNull: false
+        }
     }, {
         sequelize,
         modelName: 'Specialty',

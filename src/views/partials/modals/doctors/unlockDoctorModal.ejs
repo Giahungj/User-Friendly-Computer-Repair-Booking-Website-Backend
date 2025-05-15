@@ -1,0 +1,56 @@
+<!-- Modal for Unlocking Account -->
+<div class="modal fade" id="unlockAccountModal" tabindex="-1" aria-labelledby="unlockAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.2);">
+            <div class="modal-header" style="border-bottom: 1px solid #e5e7eb;">
+                <h5 class="modal-title" id="unlockAccountModalLabel" style="color: #1e40af; font-weight: 600;">Mở khóa tài khoản</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="unlockAccountForm">
+                    <input type="hidden" name="userId" value="<%= user.id %>">
+                    <div class="mb-3">
+                        <p>Xác nhận mở khỏa cho tài khoản này!</p>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid #e5e7eb;">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 8px;">Hủy</button>
+                <button type="button" class="btn btn-success" id="submitUnlock" style="background: #28a745; color: white; border-radius: 8px;">Xác nhận mở khóa</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    // Xử lý mở khóa tài khoản
+    document.getElementById('submitUnlock').addEventListener('click', async () => {
+        const form = document.getElementById('unlockAccountForm');
+        const formData = new FormData(form);
+        const data = {
+            userId: formData.get('userId'),
+            unlockedBy: formData.get('unlockedBy'),
+            unlockReason: formData.get('unlockReason')
+        };
+
+        try {
+            const response = await fetch('/unlock-account', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (response.ok) {
+                alert('Tài khoản đã được mở khóa thành công!');
+                bootstrap.Modal.getInstance(document.getElementById('unlockAccountModal')).hide();
+                window.location.reload(); // Reload để cập nhật trạng thái
+            } else {
+                const errorData = await response.json();
+                alert(`Lỗi: ${errorData.error || 'Không thể mở khóa tài khoản.'}`);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Lỗi kết nối server.');
+        }
+    });
+</script>

@@ -1,0 +1,59 @@
+<% if (totalPages > 1) { %>
+    <nav aria-label="Pagination">
+        <ul class="pagination justify-content-center mt-4">
+            <!-- Prev -->
+            <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                <a class="page-link" href="<%= baseUrl %>?page=<%= currentPage - 1 %>">Trước</a>
+            </li>
+    
+            <!-- Page 1 -->
+            <li class="page-item <%= currentPage === 1 ? 'active' : '' %>">
+                <a class="page-link" href="<%= baseUrl %>?page=1">1</a>
+            </li>
+    
+            <!-- Left dots -->
+            <% if (currentPage > 4) { %>
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+            <% } %>
+    
+            <!-- Middle pages -->
+            <%
+                let start = Math.max(2, currentPage - 1);
+                let end = Math.min(totalPages - 1, currentPage + 1);
+                if (currentPage <= 3) {
+                    start = 2;
+                    end = 4;
+                }
+                if (currentPage >= totalPages - 2) {
+                    start = totalPages - 3;
+                    end = totalPages - 1;
+                }
+                start = Math.max(2, start);
+                end = Math.min(totalPages - 1, end);
+                for (let i = start; i <= end; i++) {
+            %>
+                <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                    <a class="page-link" href="<%= baseUrl %>?page=<%= i %>"><%= i %></a>
+                </li>
+            <% } %>
+    
+            <!-- Right dots -->
+            <% if (currentPage < totalPages - 3) { %>
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+            <% } %>
+    
+            <!-- Last page -->
+            <% if (totalPages > 1) { %>
+                <li class="page-item <%= currentPage === totalPages ? 'active' : '' %>">
+                    <a class="page-link" href="<%= baseUrl %>?page=<%= totalPages %>"><%= totalPages %></a>
+                </li>
+            <% } %>
+    
+            <!-- Next -->
+            <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                <a class="page-link" href="<%= baseUrl %>?page=<%= currentPage + 1 %>">Tiếp</a>
+            </li>
+        </ul>
+    </nav>
+<% } %>
+    

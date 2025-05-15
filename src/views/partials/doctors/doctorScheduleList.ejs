@@ -1,0 +1,51 @@
+<table class="table table-sm table-hover table-bordered text-center align-middle">
+    <thead class="bg-blue-100">
+        <tr><th>#</th><th>Đã đặt</th><th>Tối đa</th><th>Ngày</th><th>Giờ</th><th>Ca</th><th>Thao tác</th></tr>
+    </thead>
+    <tbody id="tableSchduleOfDoctor">
+        <% if (data.schedules.schedules.length === 0) { %>
+            <tr>
+                <td colspan="7" class="text-center text-secondary">Bác sĩ chưa có làm việc</td>
+            </tr>
+        <% } else { %>
+            <% data.schedules.schedules.forEach((schedule, i) => { %>
+                <tr class="<%= schedule.error === 1 ? 'bg-red-200' : '' %>">
+                    <td><%= ((currentPage - 1) * 5) + i + 1 %></td>
+                    <td><%= schedule.currentNumber %></td>
+                    <td><%= schedule.maxNumber %></td>
+                    <td class="bg-primary  text-white"><%= new Date(schedule.date).toLocaleDateString("vi-VN") %></td>
+                    <td><%= schedule.Timeslot.startTime %> - <%= schedule.Timeslot.endTime %></td>
+                    <td class="<%= schedule.Timeslot.shift == 1 ? 'bg-warning text-dark' : schedule.Timeslot.shift == 2 ? 'bg-secondary text-white' : 'bg-dark text-white' %>">
+                        <%= schedule.Timeslot.shift == 1 ? 'Sáng' : schedule.Timeslot.shift == 2 ? 'Chiều' : 'Tối' %>
+                    </td>
+                    <td>
+                        <% if (schedule.error === 1) { %>
+                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#scheduleModal" onclick="loadScheduleDetail(<%= schedule.id %>)">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-danger ms-2" 
+                                onclick="reportScheduleError(<%= schedule.id %>)"
+                                title="Báo cho người dùng, thiếu thông tin!">
+                                <i class="fa-solid fa-exclamation-triangle"></i>
+                            </button>
+                        <% } else { %>
+                            <button type="button" class="btn btn-outline-secondary w-75" data-bs-toggle="modal" data-bs-target="#scheduleModal" onclick="loadScheduleDetail(<%= schedule.id %>)">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                        <% } %>
+                    </td>
+                </tr>
+            <% }); %>
+        <% } %>
+    </tbody>
+</table>
+
+<!-- Phân trang -->
+<% if (data.schedules.schedules.length > 0) { %>
+    <%- include('../common/pagination', { 
+        currentPage: currentPage, 
+        totalPages: data.schedules.totalPages, 
+        total: data.schedules.total, 
+        baseUrl: `/doctor-detail/${data.doctor.id}` 
+    }) %>
+<% } %>

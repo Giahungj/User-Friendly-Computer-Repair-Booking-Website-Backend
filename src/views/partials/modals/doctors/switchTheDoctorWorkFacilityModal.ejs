@@ -1,0 +1,30 @@
+<!-- Modal chuyển đổi cơ sở làm việc của bác sĩ -->
+<div class="modal fade" id="switchTheDoctorWorkFacilityModal" tabindex="-1" aria-labelledby="switchTheDoctorWorkFacilityModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+            <div class="modal-header bg-purple-500 text-white">
+                <h5 class="modal-title">Chuyển đổi cơ sở làm việc của bác sĩ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <form id="facilitySwitchForm" action="/facility/change-doctor-facility" method="POST">
+                <input type="hidden" name="doctorId" value="<%= data.doctor.id %>">
+                <input type="hidden" name="oldFacilityId" value="<%= data.doctor.facilityId %>">
+                <div class="mb-3">
+                    <label for="facilitySelect" class="form-label">Chọn cơ sở mới</label>
+                    <select class="form-select" id="facilitySelect" name="facilityId">
+                    <option aria-disabled="true"><%= data.doctor.Facility.name %> (Cơ sở y tế hiện tại)</option>
+                    <% facilities.forEach(facility => { %>
+                        <option value="<%= facility.id %>"><%= facility.name %></option>
+                    <% }); %>
+                    </select>
+                </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary rounded-pill" onclick="document.getElementById('facilitySwitchForm').submit()">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>

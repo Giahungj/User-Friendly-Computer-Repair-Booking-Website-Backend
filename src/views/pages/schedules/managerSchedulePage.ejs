@@ -1,0 +1,222 @@
+<style>
+    /* Thêm style cho hiệu ứng động */
+    .card {
+        opacity: 0;
+        transform: translateX(6rem);
+        transition: opacity 1s ease, transform 1s ease;
+    }
+    .card.visible {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    /* Cải thiện giao diện card */
+    .card-header {
+        border-radius: 0.375rem 0.375rem 0 0;
+    }
+    .list-group-item {
+        border: none;
+        border-radius: 0.25rem;
+    }
+/* ======================================================== */
+    .filter-panel select,
+	.filter-panel input {
+		transition: 0.05s ease;
+	}
+    .filter-panel select,
+	.filter-panel input {
+		border-radius: 0.375rem;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	}
+	.filter-panel select:focus,
+	.filter-panel input:focus {
+		border-color: #495057;
+		box-shadow: 0 0 0 0.2rem rgba(108, 117, 125, 0.25);
+	}
+	#filter-btn, #filter-btn-del {
+		transition: 0.3s ease;
+	}
+	#filter-btn:hover, #filter-btn-del:hover {
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) inset;
+        transform: scale(0.9);
+        box-shadow: 0 0 0 0.2rem rgba(108, 117, 125, 0.25);
+	}
+</style>
+
+<div class="row my-2 d-flex align-items-stretch">
+    <div class="col m-2 d-flex">
+        <div class="card shadow-sm flex-fill">
+            <div class="card-header bg-gray-800 text-white font-weight-bold text-center">
+                DANH SÁCH LỊCH LÀM VIỆC
+            </div>
+            
+            <div class="p-3 filter-panel border-bottom">
+                <div class="row g-3 mb-3">
+                    <div class="col-3">
+                        <input type="date" id="filter-date" class="form-control" placeholder="Ngày" required>
+                    </div>
+                    <div class="col">
+                        <select id="filter-facility" class="form-control">
+                            <option value="">-- Cơ sở y tế --</option>
+                            <% facilities.forEach(facility => { %>
+                                <option value="<%= facility.id %>"><%= facility.name %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+                    <div class="col">
+                        <select id="filter-shift" class="form-control">
+                            <option value="">-- Ca --</option>
+                            <option value="1">Ca sáng</option>
+                            <option value="2">Ca chiều</option>
+                            <option value="3">Ca tối</option>
+                        </select>
+                    </div>
+                    <div class="col">
+                        <select id="filter-status" class="form-control">
+                            <option value="">-- Trạng thái --</option>
+                            <option value="available">Còn chỗ</option>
+                            <option value="full">Hết chỗ</option>
+                        </select>
+                    </div>
+                    <div class="col">
+                        <select id="filter-specialty" class="form-control">
+                            <option value="">-- Chuyên khoa --</option>
+                            <% specialties.forEach(specialty => { %>
+                                <option value="<%= specialty.id %>"><%= specialty.name %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+                </div>
+            
+                <div class="row g-3">
+                    <div class="col-9">
+                        <input type="text" id="search-input" class="form-control" placeholder="Tìm bác sĩ, khoa...">
+                    </div>
+                    <div class="col">
+                        <button id="filter-btn" class="btn btn-dark w-100">Lọc</button>
+                    </div>
+                    <div class="col-2">
+                        <button id="filter-btn-del" class="btn btn-secondary w-100">Xóa bộ lọc</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                <%- include('../../partials/schedules/scheduleTable') %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const filterDate = document.getElementById('filter-date');
+        const filterFacility = document.getElementById('filter-facility');
+        const filterSpecialty = document.getElementById('filter-specialty');
+        const filterShift = document.getElementById('filter-shift');
+        const filterStatus = document.getElementById('filter-status');
+        const searchInput = document.getElementById('search-input');
+        const filterBtn = document.getElementById('filter-btn');
+        const filterBtnDel = document.getElementById('filter-btn-del');
+
+        searchInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                filterBtn.click();
+            }
+        });
+        
+        // Thêm class 'visible' cho từng card với độ trễ để tạo hiệu ứng tuần tự
+        const cards = document.querySelectorAll('.card');
+        cards.forEach((card, index) => {
+            setTimeout(() => card.classList.add('visible'), index * 100);
+        });
+
+        // Đọc giá trị từ localStorage và điền lại vào các input/select
+        const date = localStorage.getItem('filterDate');
+        const facilityId = localStorage.getItem('filterFacility');
+        const specialtyId = localStorage.getItem('filterSpecialty');
+        const shift = localStorage.getItem('filterShift');
+        const status = localStorage.getItem('filterStatus');
+        const searchTerm = localStorage.getItem('searchTerm');
+
+        if (date) filterDate.value = date;
+        if (facilityId) filterFacility.value = facilityId;
+        if (specialtyId) filterSpecialty.value = specialtyId;
+        if (shift) filterShift.value = shift;
+        if (status) filterStatus.value = status;
+        if (searchTerm) searchInput.value = searchTerm;
+
+        // Lắng nghe sự kiện khi nhấn nút lọc
+        filterBtn.addEventListener('click', function() {
+            const date = filterDate.value;
+            const facilityId = filterFacility.value;
+            const specialtyId = filterSpecialty.value;
+            const shift = filterShift.value;
+            const status = filterStatus.value;
+            const searchTerm = searchInput.value;
+
+            // Lưu trạng thái vào localStorage
+            localStorage.setItem('filterDate', date);
+            localStorage.setItem('filterFacility', facilityId);
+            localStorage.setItem('filterSpecialty', specialtyId);
+            localStorage.setItem('filterShift', shift);
+            localStorage.setItem('filterStatus', status);
+            localStorage.setItem('searchTerm', searchTerm);
+
+            // Tạo URL với các query parameters
+            const url = new URL(window.location.href);
+            url.searchParams.set('page', 1);
+            url.searchParams.set('date', date);
+            url.searchParams.set('facilityId', facilityId);
+            url.searchParams.set('specialtyId', specialtyId);
+            url.searchParams.set('shift', shift);
+            url.searchParams.set('status', status);
+            url.searchParams.set('searchTerm', searchTerm);
+
+            // Điều hướng đến URL mới
+            window.location.href = url.toString();
+        });
+
+        // Lắng nghe sự kiện khi nhấn nút lọc
+        filterBtnDel.addEventListener('click', function() {
+            const date = '';
+            const facilityId = '';
+            const specialtyId = '';
+            const shift = '';
+            const status = '';
+            const searchTerm = '';
+
+            // Lưu trạng thái vào localStorage
+            localStorage.setItem('filterDate', date);
+            localStorage.setItem('filterFacility', facilityId);
+            localStorage.setItem('filterSpecialty', specialtyId);
+            localStorage.setItem('filterShift', shift);
+            localStorage.setItem('filterStatus', status);
+            localStorage.setItem('searchTerm', searchTerm);
+
+            // Tạo URL với các query parameters
+            const url = new URL(window.location.href);
+            url.searchParams.set('page', 1);
+            url.searchParams.set('date', date);
+            url.searchParams.set('facilityId', facilityId);
+            url.searchParams.set('specialtyId', specialtyId);
+            url.searchParams.set('shift', shift);
+            url.searchParams.set('status', status);
+            url.searchParams.set('searchTerm', searchTerm);
+
+            // Điều hướng đến URL mới
+            window.location.href = url.toString();
+        });
+
+        document.querySelectorAll('.pagination .page-link').forEach(link => {
+            const url = new URL(link.getAttribute('href'), window.location.origin);
+            url.searchParams.set('date', localStorage.getItem('filterDate') || '');
+            url.searchParams.set('facilityId', localStorage.getItem('filterFacility') || '');
+            url.searchParams.set('specialtyId', localStorage.getItem('filterSpecialty') || '');
+            url.searchParams.set('shift', localStorage.getItem('filterShift') || '');
+            url.searchParams.set('status', localStorage.getItem('filterStatus') || '');
+            url.searchParams.set('searchTerm', localStorage.getItem('searchTerm') || '');
+            link.href = url.toString();
+            console.log(url.toString());
+        });
+    });
+</script>

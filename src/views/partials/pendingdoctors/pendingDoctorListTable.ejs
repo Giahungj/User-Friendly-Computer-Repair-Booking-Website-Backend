@@ -1,0 +1,65 @@
+<% if (!data.doctors || data.doctors.length === 0) { %>
+    <div class="col-12 text-center text-secondary fst-italic">
+        Chưa có người đăng ký cần phê duyệt
+    </div>
+<% } else { %>
+    <% data.doctors.forEach((doctor) => { %>
+        <div class="col-12 mb-3">
+            <form action="/pending-doctors/pending" method="POST">
+                <div class="card mb-3 shadow-sm border-0">
+                    <div class="row g-0">
+                        <div class="col-md-4 d-flex align-items-center">
+                            <img src="/images/uploads/<%= doctor.avatar %>" class="img-fluid" alt="Ảnh bác sĩ">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <p class="card-text mt-2"><small class="text-muted">Thông tin bác sĩ</small></p>
+                                <h5 class="card-title"><%= doctor.name %></h5>
+                                <div class="row row-cols-md-2 row-cols-sm-1 mb-2">
+                                    <div class="col-6 text-start border-end">
+                                        <input type="hidden" name="id" value="<%= doctor.id %>">
+                                        <p class="card-text">Email: <%= doctor.email %></p>
+                                        <p class="card-text">Điện thoại: <%= doctor.phone %></p>
+                                        <p class="card-text">Giới tính: <%= doctor.sex %></p>
+                                        <p class="card-text">Ngày sinh: <%= doctor.dateofbirth %></p>
+                                        <p class="card-text">Địa chỉ: <%= doctor.address %></p>
+                                        <p class="card-text">Mô tả: <%= doctor.infor %></p>
+                                    </div>
+                                    <div class="col-6 text-start">
+                                        <label class="form-label">Chuyên khoa: <span class="text-red-500"><%= doctor.specialtyName %></span></label>
+                                        <select class="form-select" name="specialtyId" required>
+                                            <option value="">Chọn chuyên khoa</option>
+                                            <% data.specialties.forEach((spec) => { %>
+                                                <option value="<%= spec.id %>"><%= spec.name %></option>
+                                            <% }) %>
+                                        </select>
+
+                                        <label class="form-label mt-2">Cơ sở y tế: <span class="text-red-500"><%= doctor.facilityName %></span></label>
+                                        <select class="form-select" name="facilityId" required>
+                                            <option value="">Chọn cơ sở</option>
+                                            <% data.facilities.forEach((faci) => { %>
+                                                <option value="<%= faci.id %>"><%= faci.name %></option>
+                                            <% }) %>
+                                        </select>
+
+                                        <p class="card-text mt-2">Kinh nghiệm: <%= doctor.experience %> năm</p>
+                                        <p class="card-text">Giá khám: <%= doctor.price.toLocaleString() %> VNĐ</p>
+                                        <span class="badge bg-warning"><%= doctor.status %></span>
+                                    </div>
+                                </div>
+                                
+                                <input type="hidden" name="action" id="action_<%= doctor.id %>">
+                                <button type="submit" class="btn btn-success btn-sm" onclick="document.getElementById('action_<%= doctor.id %>').value = '1'">
+                                    <i class="fa-solid fa-check-circle"></i> Xác nhận bác sĩ
+                                </button>
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="document.getElementById('action_<%= doctor.id %>').value = '0'">
+                                    <i class="fa-solid fa-times-circle"></i> Từ chối bác sĩ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    <% }) %>
+<% } %>

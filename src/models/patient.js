@@ -9,7 +9,8 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Patient.belongsTo(models.User);
       Patient.hasMany(models.Booking);
-
+      Patient.hasMany(models.DoctorPayments);
+      Patient.hasMany(models.Rating);
     }
   };
   Patient.init({

@@ -1,0 +1,61 @@
+<!-- Modal for Locking Account -->
+<div class="modal fade" id="lockAccountModal" tabindex="-1" aria-labelledby="lockAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.2);">
+            <div class="modal-header" style="border-bottom: 1px solid #e5e7eb;">
+                <h5 class="modal-title" id="lockAccountModalLabel" style="color: #1e40af; font-weight: 600;">Khóa tài khoản</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="lockAccountForm">
+                    <input type="hidden" name="userId" value="<%= user.id %>">
+                    <input type="hidden" name="lockedBy" value="<%= adminId %>">
+                    <div class="mb-3">
+                        <label for="lockReason" class="form-label" style="color: #374151;">Lý do khóa</label>
+                        <textarea class="form-control" id="lockReason" name="lockReason" rows="4" placeholder="Nhập lý do khóa tài khoản" required style="border-radius: 8px; border: 1px solid #d1d5db;"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="lockEndTime" class="form-label" style="color: #374151;">Thời gian hết khóa (tùy chọn)</label>
+                        <input type="datetime-local" class="form-control" id="lockEndTime" name="lockEndTime" style="border-radius: 8px; border: 1px solid #d1d5db;">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid #e5e7eb;">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 8px;">Hủy</button>
+                <button type="button" class="btn btn-danger" id="submitLock" style="background: #cd2323; color: white; border-radius: 8px;">Xác nhận khóa</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('submitLock').addEventListener('click', async () => {
+        const form = document.getElementById('lockAccountForm');
+        const formData = new FormData(form);
+        const data = {
+            userId: formData.get('userId'),
+            lockedBy: formData.get('lockedBy'),
+            lockReason: formData.get('lockReason'),
+            lockEndTime: formData.get('lockEndTime') || null,
+            lockStartTime: new Date().toISOString()
+        };
+
+        try {
+            const response = await fetch('/lock-account', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (response.ok) {
+                alert('Tài khoản đã được khóa thành công!');
+                bootstrap.Modal.getInstance(document.getElementById('lockAccountModal')).hide();
+                window.location.reload(); // Reload để cập nhật trạng thái
+            } else {
+                alert('Có lỗi xảy ra khi khóa tài khoản.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Lỗi kết nối server.');
+        }
+    });
+</script>

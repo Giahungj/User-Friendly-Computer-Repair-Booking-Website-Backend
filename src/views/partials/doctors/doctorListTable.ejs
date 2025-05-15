@@ -1,0 +1,38 @@
+<table class="table table-striped table-bordered table-hover">
+    <thead class="table-info">
+        <tr class="text-center">
+            <th>ID</th>
+            <th>Tên bác sĩ</th>
+            <th>Chuyên khoa</th>
+            <th>Nơi làm việc</th>
+            <th>Kinh nghiệm</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody class="text-center">
+        <% doctors.forEach((doctor, index)=> { %>
+            <tr>
+                <td>
+                    <%= doctor.id %>
+                </td>
+                <td>
+                    <%= doctor.User.name %>
+                </td>
+                <td>
+                    <%= doctor.Specialty.name %>
+                </td>
+                <td>
+                    <%= doctor.Facility.name %>
+                </td>
+                <td>
+                    <%= doctor.experience %>
+                </td>
+                <td class="text-center ">
+                    <a class="btn btn-sm btn-outline-primary" href="/doctor-detail/<%= doctor.id %>?page=1">
+                        <i class="fa-solid fa-circle-info"></i> Thông tin
+                    </a>
+                </td>
+            </tr>
+            <% }) %>
+    </tbody>
+</table>

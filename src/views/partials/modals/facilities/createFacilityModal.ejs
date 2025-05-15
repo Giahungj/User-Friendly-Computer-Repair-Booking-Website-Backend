@@ -1,0 +1,292 @@
+<style>
+    #mainImagePreview, .sub-image-preview {
+        width: 100%;
+        max-width: 20em;
+        height: auto;
+        border-radius: 0.75rem;
+        object-fit: cover;
+        transition: transform 0.1s ease-in-out;
+    }
+    #mainImagePreview:hover, .sub-image-preview:hover {
+        transform: scale(1.05);
+        cursor: pointer;
+    }
+    #subImagePreviewContainer img {
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.1s ease-in-out;
+    }
+    #subImagePreviewContainer img:hover {
+        transform: scale(1.05);
+        cursor: pointer;
+    }
+    .image-container {
+        position: relative;
+        display: inline-block;
+    }
+    .remove-image {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background-color: #ff7474;
+        color: white;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 16px;
+        line-height: 1;
+        transition: background-color 0.1s;
+        z-index: 10;
+    }
+    .remove-image:hover {
+        background-color: #ff3333;
+        transform: scale(1.05);
+    }
+    .modal {
+        transition: all 0.3s ease-in-out;
+    }
+    .error-message {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        display: none;
+    }
+</style>
+
+<!-- Modal Thêm -->
+<div class="modal fade" id="addFacilityModal" tabindex="-1" aria-labelledby="addFacilityModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-purple-500 text-white">
+                <h5 class="modal-title" id="addFacilityModalLabel">THÊM PHÒNG KHÁM</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+             <form id="addFacilityForm" method="post" action="/facility/create" enctype="multipart/form-data">
+                <div class="row">
+                    <!-- Cột trái -->
+                    <div class="col-5">
+                        <div class="mb-3">
+                            <label for="facilityName" class="form-label">Tên phòng khám (<span class="text-danger">*</span>):</label>
+                            <input type="text" class="form-control" id="facilityName" name="facilityName" placeholder="Nhập tên phòng khám" required>
+                            <div class="error-message" id="facilityNameError">Vui lòng nhập tên phòng khám.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="facilityPhone" class="form-label">Liên hệ (<span class="text-danger">*</span>):</label>
+                            <input type="text" class="form-control" id="facilityPhone" name="facilityPhone" placeholder="Nhập số điện thoại (10-11 số)" required>
+                            <div class="error-message" id="facilityPhoneError">Vui lòng nhập số điện thoại hợp lệ (10-11 số).</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="facilityAddress" class="form-label">Địa chỉ (<span class="text-danger">*</span>):</label>
+                            <input type="text" class="form-control" id="facilityAddress" name="facilityAddress" placeholder="Nhập địa chỉ" required>
+                            <div class="error-message" id="facilityAddressError">Vui lòng nhập địa chỉ.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="facilityDescription" class="form-label">Mô tả chuyên khoa (<span class="text-danger">*</span>):</label>
+                            <textarea class="form-control" id="facilityDescription" name="facilityDescription" rows="3" placeholder="Nhập mô tả chuyên khoa" required></textarea>
+                            <div class="error-message" id="facilityDescriptionError">Vui lòng nhập mô tả.</div>
+                        </div>
+                    </div>
+                    <!-- Cột phải -->
+                    <div class="col">
+                        <div class="mb-3">
+                            <label for="mainImage" class="form-label">Ảnh chính (<span class="text-danger">*</span>):</label>
+                            <input type="file" class="form-control" id="mainImage" name="mainImage" accept="image/*" required>
+                            <div class="image-container mt-2">
+                                <img id="mainImagePreview" src="" alt="Ảnh chính" class="img-fluid" style="max-height: 200px; display: none;">
+                                <span class="remove-image" id="removeMainImage" style="display: none;">×</span>
+                            </div>
+                            <div class="error-message" id="mainImageError">Vui lòng chọn ảnh chính.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="subImages" class="form-label">Ảnh phụ (<span class="text-danger">*</span>):</label>
+                            <input type="file" class="form-control" id="subImages" name="subImages" multiple accept="image/*" required>
+                            <div class="row mt-2 g-2" id="subImagePreviewContainer"></div>
+                            <div class="error-message" id="subImagesError">Vui lòng chọn ít nhất một ảnh phụ.</div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Đóng</button>
+                <button type="submit" id="saveButton" class="btn btn-primary rounded-pill" form="addFacilityForm" disabled>Tạo</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../notificationModals') %>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const facilityName = document.getElementById("facilityName");
+        const facilityPhone = document.getElementById("facilityPhone");
+        const facilityAddress = document.getElementById("facilityAddress");
+        const facilityDescription = document.getElementById("facilityDescription");
+        const mainImage = document.getElementById("mainImage");
+        const subImages = document.getElementById("subImages");
+        const mainImagePreview = document.getElementById("mainImagePreview");
+        const removeMainImage = document.getElementById("removeMainImage");
+        const subImagePreviewContainer = document.getElementById("subImagePreviewContainer");
+        const saveButton = document.getElementById("saveButton");
+        const form = document.getElementById("addFacilityForm");
+
+        let subImageFiles = [];
+
+        const validatePhone = (phone) => /^[0-9]{10,11}$/.test(phone);
+
+        const checkChanges = () => {
+            const isNameValid = facilityName.value.trim() !== "";
+            const isPhoneValid = validatePhone(facilityPhone.value.trim());
+            const isAddressValid = facilityAddress.value.trim() !== "";
+            const isDescriptionValid = facilityDescription.value.trim() !== "";
+            const isMainImageValid = mainImage.files.length > 0;
+            const isSubImagesValid = subImageFiles.length > 0;
+
+            document.getElementById("facilityNameError").style.display = isNameValid ? "none" : "block";
+            document.getElementById("facilityPhoneError").style.display = isPhoneValid ? "none" : "block";
+            document.getElementById("facilityAddressError").style.display = isAddressValid ? "none" : "block";
+            document.getElementById("facilityDescriptionError").style.display = isDescriptionValid ? "none" : "block";
+            document.getElementById("mainImageError").style.display = isMainImageValid ? "none" : "block";
+            document.getElementById("subImagesError").style.display = isSubImagesValid ? "none" : "block";
+
+            saveButton.disabled = !(isNameValid && isPhoneValid && isAddressValid && isDescriptionValid && isMainImageValid && isSubImagesValid);
+        };
+
+        facilityName.addEventListener("input", checkChanges);
+        facilityPhone.addEventListener("input", checkChanges);
+        facilityAddress.addEventListener("input", checkChanges);
+        facilityDescription.addEventListener("input", checkChanges);
+
+        // Preview ảnh chính
+        mainImage.addEventListener("change", (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    mainImagePreview.src = event.target.result;
+                    mainImagePreview.style.display = 'block';
+                    removeMainImage.style.display = 'flex';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                mainImagePreview.src = "";
+                mainImagePreview.style.display = 'none';
+                removeMainImage.style.display = 'none';
+            }
+            checkChanges();
+        });
+
+        // Xem ảnh chính
+        mainImagePreview.addEventListener("click", () => {
+            if (mainImage.files[0]) {
+                const url = URL.createObjectURL(mainImage.files[0]);
+                window.open(url, '_blank');
+            }
+        });
+
+        // Xóa ảnh chính
+        removeMainImage.addEventListener("click", () => {
+            mainImage.value = '';
+            mainImagePreview.src = "";
+            mainImagePreview.style.display = 'none';
+            removeMainImage.style.display = 'none';
+            checkChanges();
+        });
+
+        // Cập nhật preview ảnh phụ
+        const updateSubImagePreview = () => {
+            subImagePreviewContainer.innerHTML = '';
+            subImageFiles.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    const col = document.createElement('div');
+                    col.className = 'col-4 col-md-3 text-center';
+                    col.innerHTML = `
+                        <div class="image-container">
+                            <img src="${event.target.result}" class="img-thumbnail sub-image-preview" style="height: 100px;">
+                            <span class="remove-image" data-index="${index}">×</span>
+                        </div>
+                    `;
+                    subImagePreviewContainer.appendChild(col);
+
+                    // Xem ảnh phụ
+                    const img = col.querySelector('img');
+                    img.addEventListener('click', () => {
+                        const url = URL.createObjectURL(file);
+                        window.open(url, '_blank');
+                    });
+
+                    // Xóa ảnh phụ
+                    col.querySelector('.remove-image').addEventListener('click', () => {
+                        subImageFiles.splice(index, 1);
+                        updateSubImagePreview();
+                        checkChanges();
+                    });
+                };
+                reader.readAsDataURL(file);
+            });
+        };
+
+        // Preview ảnh phụ
+        subImages.addEventListener("change", (event) => {
+            const files = Array.from(event.target.files);
+            subImageFiles = subImageFiles.concat(files).slice(0, 10); // Giới hạn tối đa 10 ảnh
+            updateSubImagePreview();
+            checkChanges();
+        });
+
+        // Xử lý submit form
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const formData = new FormData();
+            formData.append('facilityName', facilityName.value.trim());
+            formData.append('facilityPhone', facilityPhone.value.trim());
+            formData.append('facilityAddress', facilityAddress.value.trim());
+            formData.append('facilityDescription', facilityDescription.value.trim());
+
+            if (mainImage.files[0]) {
+                formData.append('mainImage', mainImage.files[0]);
+            }
+
+            subImageFiles.forEach((file) => {
+                formData.append(`subImages`, file);
+            });
+
+            const logData = {
+                facilityName: formData.get('facilityName'),
+                facilityPhone: formData.get('facilityPhone'),
+                facilityAddress: formData.get('facilityAddress'),
+                facilityDescription: formData.get('facilityDescription'),
+                mainImage: formData.get('mainImage') ? formData.get('mainImage').name : 'No main image',
+                subImages: subImageFiles.map(file => file.name)
+            };
+
+            console.log('Form Data:', logData);
+            for (let [key, value] of formData.entries()) {
+                console.log(`${key}: ${value.name || value}`);
+            }
+            try {
+                const response = await fetch('/facility/create', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response;
+                console.log('Dữ liệu được trả về: ', data)
+                // Kiểm tra EC và hiển thị thông báo tương ứng
+                var successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                successModal.show();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Đã xảy ra lỗi: ' + error.message);
+            }
+        });
+    });
+</script>

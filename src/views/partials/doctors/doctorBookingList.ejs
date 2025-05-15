@@ -1,0 +1,32 @@
+<table class="table table-sm table-hover table-bordered text-center align-middle ">
+    <thead class="bg-blue-100">
+        <tr><th>#</th><th>ID</th><th>Ngày</th><th>Bệnh nhân</th><th>Thời gian</th><th>Thao tác</th></tr>
+    </thead>
+    <tbody>
+        <% if (data.bookings.length === 0 ) { %>
+            <tr>
+                <td colspan="6" class="text-center text-secondary">Bác sĩ chưa có lịch hẹn</td>
+            </tr>
+        <% } else { %>
+            <% data.bookings.forEach((bo, i) => { %>
+                <tr>
+                    <td><%= i++ %></td>
+                    <td><%= bo.id %></td>
+                    <td><%= new Date(bo.date).toLocaleDateString("vi-VN") %></td>
+                    <td><%= bo.Patient.User.name %></td>
+                    <td><%= bo.Schedule.Timeslot.startTime %></td>
+                    <td>
+                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#scheduleModal" onclick="loadScheduleDetail()">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </td>
+                </tr>
+            <% }) %>
+        <% } %>
+    </tbody>
+</table>
+
+<!-- Phân trang -->
+<% if (data.bookings.length > 0) { %>
+    <%- include('../common/paginationmall', { currentPage, totalPages, baseUrl: `/doctor-detail/${data.doctor.id}` }) %>
+<% } %>

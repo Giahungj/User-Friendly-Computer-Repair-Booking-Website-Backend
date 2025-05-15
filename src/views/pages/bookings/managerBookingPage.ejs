@@ -1,0 +1,211 @@
+<style>
+    /* Thêm style cho hiệu ứng động */
+    .card {
+        opacity: 0;
+        transform: translateX(6rem);
+        transition: opacity 1s ease, transform 1s ease;
+    }
+    .card.visible {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    /* Cải thiện giao diện card */
+    .card-header {
+        border-radius: 0.375rem 0.375rem 0 0;
+    }
+    .list-group-item {
+        border: none;
+        border-radius: 0.25rem;
+    }
+</style>
+
+<div class="row my-2 d-flex align-items-stretch">
+    <div class="col m-2 d-flex">
+        <div class="card shadow-sm flex-fill">
+            <div class="card-header bg-teal-700 text-white font-weight-bold text-center">
+                THÔNG TIN TỔNG QUÁT
+            </div>
+            <div class="card-body">
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="shadow-sm border-0 rounded p-3 text-center bg-teal-500 text-white">
+                            <h3 class="fw-bold" id="totalBookings"><%= totalBooking %></h3>
+                            <p class="text-light mb-0 small">LỊCH HẸN</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="shadow-sm border-0 rounded p-3 text-center bg-teal-500 text-white">
+                            <h3 class="fw-bold" id="totalAppointmentsToday"><%= todayBookings %></h3>
+                            <p class="text-light mb-0 small">LỊCH HẸN HÔM NAY</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="shadow-sm border-0 rounded p-3 text-center bg-teal-500 text-white">
+                            <h3 class="fw-bold" id="totalApprovedAppointments"><%= confirmBookings %></h3>
+                            <p class="text-light mb-0 small">ĐÃ KHÁM</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        
+</div>
+<div class="row my-2 d-flex align-items-stretch">
+    <div class="col m-2 d-flex">
+        <div class="card shadow-sm flex-fill">
+            <div class="card-header bg-teal-700 text-white font-weight-bold text-center">
+                DANH SÁCH BOOKING
+            </div>
+
+            <div class="p-3 filter-panel border-bottom">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-3">
+                        <input type="date" id="filter-date" class="form-control" placeholder="Ngày" required>
+                    </div>
+                    <div class="col-md">
+                        <select id="filter-timeslot" class="form-control">
+                            <option value="">-- Khung giờ --</option>
+                            <optgroup label="Ca sáng">
+                                <% timeSlots['1'].forEach((time) => { %>
+                                    <option value="<%= time.id %>"><%= time.startTime.slice(0, 5) %> - <%= time.endTime.slice(0, 5) %></option>
+                                <% }) %>
+                            </optgroup>
+                            <optgroup label="Ca chiều">
+                                <% timeSlots['2'].forEach((time) => { %>
+                                    <option value="<%= time.id %>"><%= time.startTime.slice(0, 5) %> - <%= time.endTime.slice(0, 5) %></option>
+                                <% }) %>
+                            </optgroup>
+                            <optgroup label="Ca tối">
+                                <% timeSlots['3'].forEach((time) => { %>
+                                    <option value="<%= time.id %>"><%= time.startTime.slice(0, 5) %> - <%= time.endTime.slice(0, 5) %></option>
+                                <% }) %>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="col-md">
+                        <select id="filter-status" class="form-control">
+                            <option value="">-- Trạng thái --</option>
+                            <option value="completed">Đã khám xong</option>
+                            <option value="confirmed">Xác nhận</option>
+                            <option value="canceled">Hủy</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-9">
+                        <input type="text" id="search-input" class="form-control" placeholder="Tìm bác sĩ">
+                    </div>
+                    <div class="col-md">
+                        <button id="filter-btn" class="btn btn-dark w-100">Lọc</button>
+                    </div>
+                    <div class="col-md-2">
+                        <button id="filter-btn-del" class="btn btn-secondary w-100">Xóa bộ lọc</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <%- include('../../partials/bookings/bookingListTable') %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Lấy các phần tử input/select/button
+    const filterDate = document.getElementById('filter-date');
+    const filterTimeslot = document.getElementById('filter-timeslot');
+    const filterStatus = document.getElementById('filter-status');
+    const searchInput = document.getElementById('search-input');
+    const filterBtn = document.getElementById('filter-btn');
+    const filterBtnDel = document.getElementById('filter-btn-del');
+
+    // Xử lý sự kiện nhấn Enter trên search input
+    searchInput.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+            filterBtn.click();
+        }
+    });
+
+    // Thêm class 'visible' cho card với hiệu ứng tuần tự
+    const cards = document.querySelectorAll('.card');
+    cards.forEach((card, index) => {
+        setTimeout(() => card.classList.add('visible'), index * 100);
+    });
+
+    // Đọc giá trị từ localStorage và điền lại vào các input/select
+    const date = localStorage.getItem('filterDate');
+    const timeslot = localStorage.getItem('filterTimeslot');
+    const status = localStorage.getItem('filterStatus');
+    const searchTerm = localStorage.getItem('searchTerm');
+
+    if (date) filterDate.value = date;
+    if (timeslot) filterTimeslot.value = timeslot;
+    if (status) filterStatus.value = status;
+    if (searchTerm) searchInput.value = searchTerm;
+
+    // Xử lý sự kiện khi nhấn nút Lọc
+    filterBtn.addEventListener('click', () => {
+        const date = filterDate.value;
+        const timeslot = filterTimeslot.value;
+        const status = filterStatus.value;
+        const searchTerm = searchInput.value;
+
+        // Lưu trạng thái vào localStorage
+        localStorage.setItem('filterDate', date);
+        localStorage.setItem('filterTimeslot', timeslot);
+        localStorage.setItem('filterStatus', status);
+        localStorage.setItem('searchTerm', searchTerm);
+
+        // Tạo URL với query parameters
+        const url = new URL(window.location.href);
+        url.searchParams.set('page', 1);
+        url.searchParams.set('date', date);
+        url.searchParams.set('timeslot', timeslot);
+        url.searchParams.set('status', status);
+        url.searchParams.set('searchTerm', searchTerm);
+
+        // Điều hướng đến URL mới
+        window.location.href = url.toString();
+    });
+
+    // Xử lý sự kiện khi nhấn nút Xóa bộ lọc
+    filterBtnDel.addEventListener('click', () => {
+        const date = '';
+        const timeslot = '';
+        const status = '';
+        const searchTerm = '';
+
+        // Lưu trạng thái rỗng vào localStorage
+        localStorage.setItem('filterDate', date);
+        localStorage.setItem('filterTimeslot', timeslot);
+        localStorage.setItem('filterStatus', status);
+        localStorage.setItem('searchTerm', searchTerm);
+
+        // Tạo URL với query parameters rỗng
+        const url = new URL(window.location.href);
+        url.searchParams.set('page', 1);
+        url.searchParams.set('date', date);
+        url.searchParams.set('timeslot', timeslot);
+        url.searchParams.set('status', status);
+        url.searchParams.set('searchTerm', searchTerm);
+
+        // Điều hướng đến URL mới
+        window.location.href = url.toString();
+    });
+
+    // Cập nhật href của các link phân trang
+    document.querySelectorAll('.pagination .page-link').forEach(link => {
+        const url = new URL(link.getAttribute('href'), window.location.origin);
+        url.searchParams.set('date', localStorage.getItem('filterDate') || '');
+        url.searchParams.set('timeslot', localStorage.getItem('filterTimeslot') || '');
+        url.searchParams.set('status', localStorage.getItem('filterStatus') || '');
+        url.searchParams.set('searchTerm', localStorage.getItem('searchTerm') || '');
+        link.href = url.toString();
+    });
+});
+</script>

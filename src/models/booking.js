@@ -3,20 +3,27 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Booking extends Model {
     static associate(models) {
-      // Booking liên kết với Patient
       Booking.belongsTo(models.Patient, { foreignKey: 'patientId' });
-
-      // Booking liên kết với Schedule
+      Booking.hasMany(models.DoctorPayments);
       Booking.belongsTo(models.Schedule, { foreignKey: 'scheduleId' });
-
-      // Booking liên kết với History
       Booking.hasOne(models.History, { foreignKey: 'bookingId' });
+      Booking.hasMany(models.Prescriptions, { foreignKey: 'bookingId' });
+      // Quan hệ với Rating
+      Booking.hasOne(models.Rating, { foreignKey: 'bookingId' });
     }
-  };
+  }
+
   Booking.init({
-    status: DataTypes.STRING,
+    status: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     date: {
       type: DataTypes.DATEONLY
+    },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: true 
     },
     patientId: {
       type: DataTypes.INTEGER
@@ -28,5 +35,6 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Booking'
   });
+
   return Booking;
 };

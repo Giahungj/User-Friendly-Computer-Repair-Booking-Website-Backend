@@ -1,0 +1,31 @@
+<!-- Modal chuyển đổi chuyên khoa cho bác sĩ -->
+<div class="modal fade" id="switchTheDoctorSpecialtyModal" tabindex="-1" aria-labelledby="switchTheDoctorSpecialtyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+            <div class="modal-header bg-cyan-500 text-white">
+                <h5 class="modal-title" id="switchTheDoctorSpecialtyModalLabel">Chuyển đổi chuyên khoa của bác sĩ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <form id="specialtySwitchForm" action="/specialty/change-doctor-specialty" method="POST">
+                    <input type="hidden" name="doctorId" value="<%= data.doctor.id %>">
+                    <input type="hidden" name="oldSpecialtyId" value="<%= data.doctor.specialtyId %>">
+                    <div class="mb-3">
+                    <label for="specialtySelect" class="form-label">Chọn chuyên khoa mới</label>
+                    <select class="form-select" id="specialtySelect" name="specialtyId">
+                        <option aria-disabled="true"><%= data.doctor.Specialty.name %> (Chuyên khoa hiện tại)</option>
+                        <% specialties.forEach(specialty => { %>
+                        <option value="<%= specialty.id %>"><%= specialty.name %></option>
+                        <% }); %>
+                    </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary rounded-pill" onclick="document.getElementById('specialtySwitchForm').submit()">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+  

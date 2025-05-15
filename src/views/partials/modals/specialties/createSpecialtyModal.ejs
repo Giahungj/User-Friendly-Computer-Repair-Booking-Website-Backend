@@ -1,0 +1,84 @@
+<!-- Modal Tạo mới -->
+<div class="modal fade" id="createSpecialtyModal" tabindex="-1" aria-label="createSpecialtyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createSpecialtyModalLabel">Tạo mới chuyên khoa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createSpecialtyForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <div class="row">
+                            <div class="col">
+                                <label for="specialtyName" class="form-label">Tên chuyên khoa:</label>
+                                <input type="text" class="form-control" id="specialtyName" name="specialtyName" required>
+                            </div>
+                            <div class="col">
+                                <label for="specialtyImage" class="form-label">Ảnh:</label>
+                                <input type="file" class="form-control" id="specialtyImage" name="specialtyImage" accept="image/*" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="specialtyDescription" class="form-label">Mô tả chuyên khoa:</label>
+                        <textarea class="form-control" id="specialtyDescription" name="specialtyDescription" rows="2" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Đóng</button>
+                <button type="submit" id="saveButton" class="btn btn-primary rounded-pill" form="createSpecialtyForm" disabled>Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("createSpecialtyForm"),
+            saveButton = document.getElementById("saveButton");
+        form.addEventListener("input", () => {
+            saveButton.disabled = !form.checkValidity();
+        });
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const formData = new FormData(form);
+            saveButton.disabled = true;
+            saveButton.textContent = "Đang lưu...";
+            try {
+                const res = await fetch("/specialty/create", { method: "POST", body: formData });
+                const result = await res.json();
+                const EC = result.EC;
+                const iconMap = { '0': 'success', '-1': 'error', '1': 'warning', '2': 'info', '3': 'question' };
+                const iconType = iconMap[EC] || 'info';
+                Swal.fire({title: 'Thông báo!',text: result.EM, icon: iconType, confirmButtonText: 'OK' }).then(() => setTimeout(() => location.reload(), 5000));
+            } catch (err) {
+                console.error("Lỗi:", err);
+            } finally {
+                saveButton.disabled = false;
+                saveButton.textContent = "Lưu thay đổi";
+            }
+        });
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const specialtyName = document.getElementById("specialtyName");
+        const specialtyDescription = document.getElementById("specialtyDescription");
+        const saveButton = document.getElementById("saveButton");
+        const originalName = specialtyName.value;
+        const originalDescription = specialtyDescription.value;
+        const checkChanges = () => {
+            if (
+                specialtyName.value !== originalName ||
+                specialtyDescription.value !== originalDescription
+            ) {
+                saveButton.disabled = false;
+            } else {
+                saveButton.disabled = true;
+            }
+        };
+        specialtyName.addEventListener("input", checkChanges);
+        specialtyDescription.addEventListener("input", checkChanges);
+    });
+</script>

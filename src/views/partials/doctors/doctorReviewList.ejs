@@ -1,0 +1,17 @@
+
+<% if (ratings.length === 0) { %>
+    <div class="alert alert-warning" role="alert">
+        Chưa có đánh giá nào.
+    </div>
+<% } else { %>
+        <% ratings.forEach((item) => { %>
+            <div class="py-2 border-bottom">
+                <p class="m-0"><strong>Bệnh nhân <%= item.Patient.User.name %></strong> - <span class="text-blue-600"><%= item.score %> ⭐</span></p>
+                <p class="text-gray-600 small m-0"><%= item.comment || "Không có nhận xét" %></p>
+                <p class="text-end m-0"><small class="text-muted">
+                    <%= new Date(item.createdAt).toLocaleDateString("vi-VN") %>
+                </small></p>
+            </div>
+        <% }); %>
+    </div>
+<% } %>

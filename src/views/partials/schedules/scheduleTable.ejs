@@ -1,0 +1,76 @@
+<div class="table-responsive">
+	<table id="schedule-table" class="table table-hover table-sm table-bordered align-middle">
+		<thead class="table-dark text-center">
+			<tr>
+				<th>#</th>
+				<th>Bác sĩ</th>
+				<th>Trạng thái</th>
+				<th>Khoa</th>
+				<th>Cơ sở</th>
+				<th>Giờ</th>
+				<th>Ngày</th>
+				<th>Ca</th>
+			</tr>
+		</thead>
+		<tbody>
+            <% if (!schedules || schedules.length === 0) { %>
+                <tr>
+                    <td colspan="8" class="text-center text-muted p-5 fs-5 fst-italic">
+                        <i class="fa-solid fa-folder-open fa-2x mb-2"></i>
+                        <p class="">Không có lịch làm việc nào!</p>
+                    </td>
+                </tr>
+            <% } else { %>
+                <% schedules.forEach((schedule, index) => { %>
+                    <tr data-href="/doctor-detail/<%= schedule.Doctor.id %>" style="cursor: pointer;">
+                        <td class="text-center"><%= schedule.id %></td>
+                        <td class="text-center"><%= schedule.Doctor.User.name || 'Không rõ' %></td>
+                        <td class="text-end
+                            <%= schedule.currentNumber < schedule.maxNumber ? 'bg-success text-white' : 'bg-danger text-white' %>">
+                            <%= schedule.currentNumber < schedule.maxNumber ? 'Còn chỗ' : 'Hết chỗ' %>
+                            <span class="ms-2"><%= schedule.currentNumber %>/<%= schedule.maxNumber %></span>
+                        </td>
+                        <td class="text-center"><%= schedule.Doctor.Specialty.name || 'Không rõ' %></td>
+                        <td class="text-center"><%= schedule.Doctor.Facility.name || 'Không rõ' %></td>
+                        <td class="text-center bg-info"><%= schedule.Timeslot.startTime %> - <%= schedule.Timeslot.endTime %></td>
+                        <td class="text-center"><%= schedule.date %></td>
+                        <td class="text-center 
+                            <% if (schedule.Timeslot.shift === 1) { %> bg-warning 
+                            <% } else if (schedule.Timeslot.shift === 2) { %> bg-success text-white 
+                            <% } else if (schedule.Timeslot.shift === 3) { %> bg-secondary text-white 
+                            <% } %>">
+                            
+                            <% if (schedule.Timeslot.shift === 1) { %>
+                                Ca sáng
+                            <% } else if (schedule.Timeslot.shift === 2) { %>
+                                Ca chiều
+                            <% } else if (schedule.Timeslot.shift === 3) { %>
+                                Ca tối
+                            <% } else { %>
+                                Không rõ
+                            <% } %>
+                        </td>
+                    </tr>
+                <% }) %>
+            <% } %>
+		</tbody>
+	</table>
+</div>
+
+<script>
+    document.querySelectorAll('tr[data-href]').forEach(tr => {
+        tr.addEventListener('click', () => {
+            window.location.href = tr.getAttribute('data-href');
+        });
+    });
+</script>
+
+<!-- Phân trang -->
+<% if (schedules && schedules.length > 0) { %>
+    <%- include('../../partials/common/pagination', { 
+        currentPage: currentPage, 
+        totalPages: totalPages, 
+        baseUrl: `/manager-schedule` 
+    }) %>
+<% } %>
+        

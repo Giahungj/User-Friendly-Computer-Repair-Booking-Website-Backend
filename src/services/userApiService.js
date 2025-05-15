@@ -1,8 +1,8 @@
 import { asIs } from "sequelize"
 import db from "../models"
-import { checkEmail, hashPassword } from './loginService'
+import { hashPassword } from './loginService'
 import { where } from "sequelize/lib/sequelize"
-
+import syncData from "../utils/syncData"
 const getAllUser = async () => {
     try {
         let users = await db.User.findAll({
@@ -35,7 +35,7 @@ const getAllUser = async () => {
 const getUserPaginate = async (page, limit) => {
     try {
         let offset = (page - 1) * limit
-        let { count, rows } = await db.Doctor.findAndCountAll({
+        let { count, rows } = await db.Doctors.findAndCountAll({
             offset: offset,
             limit: limit,
             attributes: ['infor', 'price'],
@@ -93,37 +93,15 @@ const createNewUser = async (data) => {
     }
 }
 
-const updateUser = async (data) => {
+const updateUser = async (dataUser) => {
     try {
-        if (!data.groupId) {
-            return {
-                EM: "Error with groupId!",
-                EC: 1,
-                DT: 'group'
-            }
-        }
-
-        let user = await db.User.findOne({
-            where: { id: data.id }
-        })
+        let user = await db.User.findOne({ where: { email: dataUser.email } });
         if (user) {
-            await user.update({
-                phone: data.phone,
-                username: data.username,
-                sex: data.sex,
-                groupId: data.groupId
-            })
-            return {
-                EM: "Update user success!",
-                EC: 0,
-                DT: ''
-            }
+            await user.update({ name: dataUser.name, sex: dataUser.sex, address: dataUser.address, avatar: dataUser.avatar });
+            await syncData.syncPatientsData();
+            return { EM: "Update user success!", EC: 0, DT: await db.User.findOne({ where: { email: dataUser.email } }) };
         } else {
-            return {
-                EM: "User not found!",
-                EC: 2,
-                DT: ''
-            }
+            return { EM: "User not found!", EC: 2, DT: '' };
         }
     } catch (error) {
         return {
@@ -164,6 +142,42 @@ const deleteUser = async (id) => {
     }
 }
 
-module.exports = {
-    getAllUser, updateUser, createNewUser, deleteUser, getUserPaginate
+// ---------------------------------------------------------
+const checkEmail = async (email) => {
+    try {
+        let user = await db.User.findOne({
+            where: { email: email }
+        })
+
+        let doctor = await db.PendingDoctors.findOne({
+            where: { email: email}
+        })
+
+        if (user || doctor) {
+            return {
+                EM: "Email đã tồn tại",
+                EC: 1,
+                DT: ""
+            }
+        }
+
+        return {
+            EM: "Email hợp lệ",
+            EC: 0,
+            DT: ""
+        }
+    } catch (error) {
+        console.log(error)
+        return {
+            EM: "Lỗi hệ thống...",
+            EC: -1,
+            DT: ""
+        }
+    }
+
+}
+
+export default {
+    getAllUser, updateUser, createNewUser, deleteUser, getUserPaginate,
+    checkEmail
 }

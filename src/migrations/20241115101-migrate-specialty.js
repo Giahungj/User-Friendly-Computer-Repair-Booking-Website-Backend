@@ -1,5 +1,5 @@
 'use strict';
-module.exports = {
+export default {
     up: async (queryInterface, Sequelize) => {
         await queryInterface.createTable('Specialty', {
             id: {
@@ -16,6 +16,11 @@ module.exports = {
             },
             image: {
                 type: Sequelize.STRING
+            },
+            deleted: {  // Thêm trường deleted
+                type: Sequelize.BOOLEAN,
+                defaultValue: true, // Mặc định là true
+                allowNull: false
             },
             createdAt: {
                 allowNull: false,

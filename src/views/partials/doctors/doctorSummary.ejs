@@ -1,0 +1,145 @@
+<!-- <div class="row m-2 p-2 border border-0 rounded shadow bg-white caption-top">
+    <div class="container py-3">
+        <h6 class="text-gray-700 text-uppercase fw-bold mb-2">THÔNG TIN TỔNG QUÁT</h6>
+        <hr>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="shadow-sm border-0 p-3 text-center bg-blue-100">
+                    <h5 class="fw-bold text-dark" id="totalDoctors"><%= totalDoctors %></h5>
+                    <p class="text-muted mb-0 small">BÁC SĨ</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="shadow-sm border-0 p-3 text-center bg-blue-200">
+                    <h5 class="fw-bold text-dark" id="totalDoctors">1</h5>
+                    <p class="text-muted mb-0 small">LỊCH HẸN HÔM NAY</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="shadow-sm border-0 p-3 text-center bg-blue-300">
+                    <h5 class="fw-bold text-dark" id="totalDoctors">1</h5>
+                    <p class="text-muted mb-0 small">ĐÃ KHÁM</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> -->
+<div class="row my-2 d-flex align-items-stretch">
+    <div class="col-7 m-2 d-flex">
+        <div class="card shadow-sm flex-fill">
+            <div class="card-header bg-cyan-700 text-white font-weight-bold text-center">
+                THÔNG TIN TỔNG QUÁT
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Bác sĩ</span>
+                        <span class="badge badge-pill text-blue-800 fs-5"><%= totalDoctors %></span>
+                    </div>
+                    <hr class="m-0">
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Lịch hẹn hôm nay</span>
+                        <span class="badge badge-pill text-blue-800 fs-5"><%= totalBookingsToday %></span>
+                    </div>
+                    <hr class="m-0">
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Đã khám</span>
+                        <span class="badge badge-pill text-blue-800 fs-5"><%= bookingsCompleted %></span>
+                    </div>
+                    <hr class="m-0">
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Doanh thu (VNĐ)</span>
+                        <span class="badge badge-pill text-blue-800 fs-5">2M</span>
+                    </div>
+                    <hr class="m-0">
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Tổng doanh thu (VNĐ)</span>
+                        <span class="badge badge-pill text-blue-800 fs-5">32M</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card: Doanh thu theo tuần -->
+    <div class="col m-2 d-flex">
+        <div class="card shadow-sm flex-fill">
+            <div class="card-header bg-cyan-700 text-white font-weight-bold text-center">
+                DOANH THU THEO TUẦN
+            </div>
+            <div class="card-body">
+                <div class="mt-2 flex-grow-1 d-flex align-items-center justify-content-center">
+                    <canvas id="revenueTrendChart" height="230"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row my-2 d-flex align-items-stretch">
+    <div class="col m-2 d-flex">
+        <div class="card shadow-sm flex-fill">
+            <div class="card-header bg-cyan-700 text-white font-weight-bold text-center">
+                PHÂN BỔ CƠ SỞ LÀM VIỆC
+            </div>
+            <div class="card-body">
+                <div class="mt-2 flex-grow-1 d-flex align-items-center justify-content-center">
+                    <canvas id="facilityChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script Chart.js -->
+<script>
+    // Thêm class 'visible' cho từng card với độ trễ để tạo hiệu ứng tuần tự
+    document.addEventListener('DOMContentLoaded', () => {
+        // Biểu đồ phân bố cơ sở làm việc (Bar Chart)
+        const facilityChart = new Chart(document.getElementById('facilityChart'), {
+            type: 'bar',
+            data: {
+                labels: ['BV A', 'PK B', 'BV C', 'PK D', 'BV E'],
+                datasets: [{
+                    label: 'Số bác sĩ',
+                    data: [70, 50, 30, 20, 10],
+                    backgroundColor: ['#4dabf7', '#74c0fc', '#a5d8ff', '#d0ebff', '#e7f5ff'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: 'Số bác sĩ' } },
+                    x: { title: { display: true, text: 'Cơ sở' } }
+                },
+                plugins: { legend: { display: true, position: 'top' } }
+            }
+        });
+
+        // Biểu đồ xu hướng doanh thu (Line Chart)
+        const revenueTrendChart = new Chart(document.getElementById('revenueTrendChart'), {
+            type: 'line',
+            data: {
+                labels: ['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4'],
+                datasets: [{
+                    label: 'Doanh thu (triệu VNĐ)',
+                    data: [5, 8, 10, 9],
+                    borderColor: '#2ecc71',
+                    fill: false,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: 'Doanh thu (triệu VNĐ)' } },
+                    x: { title: { display: true, text: 'Tuần' } }
+                },
+                plugins: { legend: { display: true, position: 'top' } }
+            }
+        });
+    });
+</script>

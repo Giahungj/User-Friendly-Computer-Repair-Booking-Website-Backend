@@ -1,0 +1,68 @@
+<!-- Modal thông tin lịch làm việc -->
+<div class="modal fade" id="scheduleModal" tabindex="-1" aria-labelledby="scheduleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="scheduleModalLabel">Chi tiết lịch làm việc</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6 border-end">
+                        <p><strong>ID Lịch hẹn:</strong> <span id="scheduleId"></span></p>
+                        <p><strong>Ngày:</strong> <span id="scheduleDate"></span></p>
+                        <p><strong>Thời gian:</strong> <span id="scheduleTime"></span></p>
+                        <p><strong>Ghi chú:</strong> <span class="text-muted fst-italic" id="scheduleNote">Không có ghi chú</span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>ID Đặt lịch</th>
+                                    <th>Bệnh nhân</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bookingTableBody">
+                                <% if (data.bookings.length === 0 ) { %>
+                                    <tr>
+                                        <td colspan="6" class="text-center text-secondary">Bác sĩ chưa có lịch hẹn</td>
+                                    </tr>
+                                <% } else { %>
+                                    <% data.bookings.forEach((bo, i) => { %>
+                                        <tr>
+                                            <td><%= bo.id %></td>
+                                            <td><%= bo.Patient.User.name %></td>
+                                        </tr>
+                                    <% }) %>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+		const bookingTable = document.getElementById("bookingTableBody");
+		if (!bookingTable) return;
+
+		bookingTable.addEventListener("click", function (e) {
+			const row = e.target.closest("tr");
+			if (!row) return;
+
+			const bookingIdCell = row.querySelector("td");
+			if (!bookingIdCell) return;
+
+			const bookingId = bookingIdCell.textContent.trim();
+			if (bookingId) {
+				window.location.href = `/booking-detail/${bookingId}`;
+			}
+		});
+	});
+</script>

@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
     class Schedule extends Model {
         static associate(models) {
             // Schedule liên kết với Doctor và Timeslot
-            Schedule.belongsTo(models.Doctor);
+            Schedule.belongsTo(models.Doctors, { foreignKey: "doctorId" });
             Schedule.belongsTo(models.Timeslot);
 
             // Schedule liên kết với Booking
@@ -17,20 +17,30 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: 0,
         },
         maxNumber: {
-            type: DataTypes.INTEGER
+            type: DataTypes.INTEGER,
+            allowNull: false
         },
         date: {
-            type: DataTypes.DATEONLY
+            type: DataTypes.DATEONLY,
+            allowNull: false
         },
         doctorId: {
-            type: DataTypes.INTEGER
+            type: DataTypes.INTEGER,
+            allowNull: false
         },
         timeSlotId: {
-            type: DataTypes.INTEGER
+            type: DataTypes.INTEGER,
+            allowNull: false
         },
+        error: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
+        }
     }, {
         sequelize,
-        modelName: 'Schedule'
+        modelName: 'Schedule',
+        tableName: 'schedule',
+        freezeTableName: true
     });
     return Schedule;
 };

@@ -29,7 +29,8 @@ const createNewUser = async (email, password, username, address) => {
 const getAllUser = async () => {
     try {
         let user = await db.User.findAll({
-        })
+            order: [['createdAt', 'DESC']]
+        });
         return user
     } catch (error) {
         console.log("check error: ", error)
@@ -38,7 +39,7 @@ const getAllUser = async () => {
 
 const getAllDoctor = async () => {
     try {
-        let doctors = await db.Doctor.findAll({
+        let doctors = await db.Doctors.findAll({
             attributes: ["id", "userId"],
             include: [
                 {
@@ -63,7 +64,7 @@ const getAllDoctor = async () => {
 
 const getDoctorById = async (id) => {
     try {
-        const doctor = await db.Doctor.findOne({
+        const doctor = await db.Doctors.findOne({
             where: { userId: id },
             raw: true,
             nest: true,
@@ -97,7 +98,7 @@ const createNewDoctor = async (doctor) => {
             userType: "doctor"
         })
 
-        await db.Doctor.create({
+        await db.Doctors.create({
             infor: doctor.infor,
             price: doctor.price,
             experience: doctor.experience,
@@ -127,7 +128,7 @@ const UpdateDoctorInfor = async (doctor, id) => {
             }
 
         )
-        await db.Doctor.update(
+        await db.Doctors.update(
             {
                 price: doctor.price,
                 infor: doctor.infor,
@@ -148,7 +149,7 @@ const UpdateDoctorInfor = async (doctor, id) => {
 
 const deleteDoctorById = async (id) => {
     try {
-        await db.Doctor.destroy({
+        await db.Doctors.destroy({
             where: {
                 userId: id
             }
@@ -213,18 +214,9 @@ const updateUserInfor = async (email, username, address, id) => {
     return userUpdate;
 }
 
-module.exports = {
+export default {
     createNewUser, getAllUser, deleteUser, getUserById, updateUserInfor,
     getAllDoctor, createNewDoctor, getAllFacility, getAllSpecialty,
     getDoctorById, UpdateDoctorInfor, deleteDoctorById
 
 }
-
-
-
-{/* <td>
-<%= doctor.Facility.name %>
-</td>
-<td>
-<%= doctor.Specialty.name %>
-</td> */}

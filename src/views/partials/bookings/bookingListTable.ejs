@@ -1,0 +1,42 @@
+<table class="table table-sm table-striped table-hover table-bordered align-middle">
+    <thead class="table-success text-center">
+        <tr>
+            <th>#</th>
+            <th>Mã lịch hẹn</th>
+            <th>Bác sĩ</th>
+            <th>Trạng thái</th>
+            <th>Ngày khám</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% bookings.forEach((booking, index) => { %>
+            <tr class="text-center">
+                <td class="fw-bold"><%= ((currentPage - 1) * 10) + index + 1 %></td>
+                <td><%= booking.id %></td>
+                <td class="text-start"><%= booking.Schedule.Doctor.User.name %></td>
+                <td>
+                    <span class="badge w-100
+                        <%= booking.status === 1 ? 'bg-teal-500' : booking.status === -1 ? 'bg-red-500' : booking.status === 0 ? 'bg-yellow-500 text-dark' : 'bg-teal-500' %>">
+                        <%= booking.status === 1 ? 'Xác nhận' : booking.status === -1 ? 'Hủy' : booking.status === 0 ? 'Đang cập nhật' : 'Đã khám xong' %>
+                    </span>
+                </td>
+                <td><%= booking.date %></td>
+                <td>
+                    <a href="/booking-detail/<%= booking.id %>" class="btn btn-outline-secondary btn-sm w-100">
+                        <i class="fa-solid fa-circle-info"></i> Xem
+                    </a>
+                </td>
+            </tr>
+        <% }) %>
+    </tbody>
+</table>
+
+<!-- Phân trang -->
+<% if (bookings.length > 0) { %>
+    <%- include('../../partials/common/pagination', { 
+        currentPage: currentPage, 
+        totalPages: totalPages, 
+        baseUrl: `/booking-list` 
+    }) %>
+<% } %>

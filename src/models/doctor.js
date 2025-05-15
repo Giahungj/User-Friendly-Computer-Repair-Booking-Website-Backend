@@ -1,22 +1,24 @@
 'use strict';
 const { BOOLEAN } = require('sequelize');
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
 const specialty = require('./specialty');
-module.exports = (sequelize, DataTypes) => {
-  class Doctor extends Model {
-   
-    static associate(models) {
-      // define association here
-      Doctor.belongsTo(models.User);
-      Doctor.hasMany(models.Schedule);
-      Doctor.belongsTo(models.Specialty);
-      Doctor.belongsTo(models.Facility)
 
+module.exports = (sequelize, DataTypes) => {
+  class Doctors extends Model {
+
+    static associate(models) {
+      // define associations here
+      Doctors.belongsTo(models.User);
+      Doctors.hasMany(models.Schedule, { foreignKey: "doctorId" });
+      Doctors.belongsTo(models.Specialty);
+      Doctors.belongsTo(models.Facility);
+      Doctors.hasMany(models.Rating);
+      Doctors.hasMany(models.DoctorPayments);
+        Doctors.hasMany(models.DoctorService, { foreignKey: "doctorId" }); // Lưu ý tên model đúng
     }
   };
-  Doctor.init({
+
+  Doctors.init({
     infor: DataTypes.STRING,
     price: DataTypes.FLOAT,
     experience: DataTypes.STRING,
@@ -25,7 +27,9 @@ module.exports = (sequelize, DataTypes) => {
     facilityId: DataTypes.INTEGER
   }, {
     sequelize,
-    modelName: 'Doctor',
+    modelName: 'Doctors',
+    tableName: 'doctors',
   });
-  return Doctor;
+
+  return Doctors;
 };

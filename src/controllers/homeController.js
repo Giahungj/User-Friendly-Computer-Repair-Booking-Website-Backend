@@ -1,23 +1,39 @@
 import userServices from '../services/userService';
+import homeServices from '../services/homeService';
+import facilityApiService from '../services/facilityApiService';
+import { searchDoctorsService, searchSpecialtiesService, searchFacilitiesService } from "../services/searchApiService";
 
-
+// --------------------------------------------------
 const getHomePage = async (req, res) => {
+    let servicedata = await homeServices.getServiceReport();
+    let bookingdata = await homeServices.getBookingReport();
+    let scheduledata = await homeServices.getScheduleReport();
+    let serviceChartData = await homeServices.getServiceChartData();
+    let bookingChartData = await homeServices.getBookingChartData();
+    let facilities = await facilityApiService.getFacilityList();
     return res.render('layouts/layout', {
         page: `pages/dashboard`,
-        pageTitle: 'Dashboard'
+        pageTitle: 'Dashboard',
+        facilities: facilities.DT,
+        servicedata: servicedata.DT,
+        bookingdata: bookingdata.DT,
+        scheduledata: scheduledata.DT,
+        serviceChartData: serviceChartData.DT,
+        bookingChartData: bookingChartData.DT,
     })
 }
 
+// --------------------------------------------------
 const getUserPage = async (req, res) => {
     let users = await userServices.getAllUser();
-    console.log(users);
     return res.render('layouts/layout', {
-        page: `pages/user`,
+        page: `pages/users/user`,
         pageTitle: 'Manager users',
         users: users
     })
 }
 
+// --------------------------------------------------
 const getDoctorPage = async (req, res) => {
     let doctors = await userServices.getAllDoctor();
     return res.render('layouts/layout', {
@@ -27,18 +43,17 @@ const getDoctorPage = async (req, res) => {
     })
 }
 
-const getCreateDoctorPage = async (req, res) => {
-    let specialties = await userServices.getAllSpecialty();
-    let facilities = await userServices.getAllFacility();
+// --------------------------------------------------
+const getSiteintroPage = async (req, res) => {
+    let doctors = await userServices.getAllDoctor();
     return res.render('layouts/layout', {
-        page: `pages/createDoctor`,
-        pageTitle: 'Create new doctor',
-        specialties: specialties,
-        facilities: facilities
-
+        page: `pages/site-intro-page`,
+        pageTitle: 'Manager doctor'
     })
 }
 
+
+// --------------------------------------------------
 const handleCreateNewDoctor = async (req, res) => {
     try {
         let data = await userServices.createNewDoctor(req.body)
@@ -50,6 +65,7 @@ const handleCreateNewDoctor = async (req, res) => {
 
 }
 
+// --------------------------------------------------
 const getUpdateDoctorPage = async (req, res) => {
     let specialties = await userServices.getAllSpecialty();
     let facilities = await userServices.getAllFacility();
@@ -65,18 +81,21 @@ const getUpdateDoctorPage = async (req, res) => {
     })
 }
 
+// --------------------------------------------------
 const handleUpdateDoctor = async (req, res) => {
     let id = req.params.id;
     await userServices.UpdateDoctorInfor(req.body, id);
     res.redirect("/doctor")
 }
 
+// --------------------------------------------------
 const handleDeleteDoctor = async (req, res) => {
     let id = req.params.id;
     await userServices.deleteDoctorById(id);
     res.redirect("/doctor")
 }
 
+// --------------------------------------------------
 const handleCreateNewUser = async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
@@ -88,6 +107,7 @@ const handleCreateNewUser = async (req, res) => {
     return res.redirect('back');
 }
 
+// --------------------------------------------------
 const handleDeleteNewUser = async (req, res) => {
     let id = req.params.id;
     await userServices.deleteUser(id);
@@ -95,14 +115,14 @@ const handleDeleteNewUser = async (req, res) => {
     return res.redirect('back');
 }
 
+// --------------------------------------------------
 const getUpdateUserPage = async (req, res) => {
     let id = req.params.id;
     let user = await userServices.getUserById(id);
     return res.render('updateUser', { user })
 }
 
-
-
+// --------------------------------------------------
 const postUpdateUser = async (req, res) => {
     let email = req.body.email;
     let username = req.body.username;
@@ -112,8 +132,60 @@ const postUpdateUser = async (req, res) => {
     return res.redirect("/user")
 }
 
-module.exports = {
+// --------------------------------------------------
+const render404Page = async (req, res) => {
+    return res.render('layouts/layout', {
+        pageTitle: 'Không tìm thấy',
+        page: 'pages/error404Page.ejs',
+        EC: -1,
+        EM: 'Trang không tồn tại!',
+        DT: []
+    })
+}
+
+// --------------------------------------------------
+const renderSearchResultsPage = async (req, res) => {
+    try {
+        const keyword = req.query.q?.trim() || ''; // Retrieve the search keyword
+
+        console.log('[Search Request]', { keyword });
+
+        const doctorResult = await searchDoctorsService(keyword);
+        const specialtyResult = await searchSpecialtiesService(keyword);
+        const facilityResult = await searchFacilitiesService(keyword);
+
+        console.log('[Doctors Result]', doctorResult);
+        console.log('[Specialties Result]', specialtyResult);
+        console.log('[Facilities Result]', facilityResult);
+
+        return res.render('layouts/layout', {
+            page: `pages/searchResultPage.ejs`,
+            pageTitle: `Kết quả tìm kiếm`,
+            keyword,
+            doctors: doctorResult.DT || [], // Display doctors data
+            specialties: specialtyResult.DT || [], // Display specialties data
+            facilities: facilityResult.DT || [], // Display facilities data
+            EC: doctorResult.EC, // Status code for doctors
+            EM: doctorResult.EM, // Error message for doctors
+        });
+    } catch (error) {
+        console.error(error);
+
+        // Handle errors
+        return res.render('layouts/layout', {
+            page: 'pages/errorPage.ejs',
+            pageTitle: 'Lỗi 404',
+            EM: "Lỗi server ...",
+            EC: -1,
+        });
+    }
+};
+
+// --------------------------------------------------
+export default {
+    renderSearchResultsPage,
     getHomePage, getUserPage, handleCreateNewUser, handleDeleteNewUser, getUpdateUserPage, postUpdateUser,
-    getDoctorPage, getCreateDoctorPage, handleCreateNewDoctor, getUpdateDoctorPage, handleUpdateDoctor,
-    handleDeleteDoctor
+    getDoctorPage, getSiteintroPage, handleCreateNewDoctor, getUpdateDoctorPage, handleUpdateDoctor,
+    handleDeleteDoctor,
+    render404Page
 }

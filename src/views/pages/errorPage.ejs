@@ -1,0 +1,19 @@
+<div class="container">
+    <div class="error-container text-center">
+        <% if (EC === -1) { %>
+            <div class="text-danger icon fs-1">🚨</div>
+            <h1 class="text-danger">Lỗi hệ thống!</h1>
+        <% } else if (EC === 1) { %>
+            <div class="text-warning icon">⚠️</div>
+            <h1 class="text-warning">Cảnh báo!</h1>
+        <% } else { %>
+            <div class="text-info icon">ℹ️</div>
+            <h1 class="text-info">Thông báo!</h1>
+        <% } %>
+
+        <p class="mt-3"><strong>Thông báo:</strong> <%= EM || "Đã có lỗi xảy ra, vui lòng thử lại sau!" %></p>
+
+        <a href="/dashboard" class="btn btn-outline-primary mt-3">🔄 Quay lại trang chủ</a>
+        <a href="javascript:history.back()" class="btn btn-outline-secondary mt-3">⬅️ Quay lại trang trước</a>
+    </div>
+</div>

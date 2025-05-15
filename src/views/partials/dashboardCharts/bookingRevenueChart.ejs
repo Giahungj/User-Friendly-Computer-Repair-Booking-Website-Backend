@@ -1,0 +1,39 @@
+<canvas id="bookingChartData" class="h-100"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Dữ liệu biểu đồ (Được chèn từ server thông qua EJS)
+  const labels = <%- JSON.stringify(bookingChartData.labels) %>;
+  const data   = <%- JSON.stringify(bookingChartData.data) %>;
+
+  // Hàm cập nhật biểu đồ đường
+  const updateChart = () => {
+    const ctx = document.getElementById('bookingChartData').getContext('2d');
+    
+    // Vẽ lại biểu đồ đường (line chart)
+    new Chart(ctx, {
+      type: 'line',  // Chọn kiểu biểu đồ là 'line'
+      data: {
+        labels,  // Các nhãn cho trục X
+        datasets: [{
+          label: 'Doanh thu (VNĐ)',  // Tên biểu đồ
+          data,   // Dữ liệu cho biểu đồ
+          fill: false,  // Không tô màu dưới đường
+          borderColor: 'rgba(75, 192, 192, 1)',  // Màu của đường
+          tension: 0.1  // Độ cong của đường
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true  // Đảm bảo trục Y bắt đầu từ 0
+          }
+        }
+      }
+    });
+  };
+
+  // Gọi hàm để vẽ biểu đồ khi trang đã được tải xong
+  document.addEventListener('DOMContentLoaded', updateChart);
+</script>

@@ -1,0 +1,81 @@
+<div class="d-flex flex-column flex-shrink-0 p-3 bg-white"
+    style="width: 16em; height: 100vh; background-color: rgb(255, 255, 255); position: sticky; top: 0; z-index: 1020;">
+    <a href="/dashboard" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
+        <img class="w-50" src="/images/skibidi.jpg"><span class="fs-4 mt-3 p-0">Admin</span>
+    </a>
+    <hr>
+    <ul class="nav nav-pills flex-column mb-auto" id="sideBarMenu">
+        <li class="nav-item" style="position: relative;">
+            <a id="dashboardLinkID" page-title="dashboard" href="#" class="nav-link link-dark" aria-current="page">
+                <i class="fa-solid fa-chart-line me-2"></i> Bảng điều hướng
+            </a>
+            <ul class="dropdown-menu rounded-0 shadow" style="display: none; position: absolute; top: 0; left: 100%; z-index: 1000; padding: 0.5em 0; min-width: 180px; width: 100%;">
+                <li><a class="dropdown-item" href="/dashboard"><i class="fa-solid fa-tachometer-alt me-2"></i>Tổng quan</a></li>
+                <li><a class="dropdown-item" href="/dashboard"><i class="fa-solid fa-chart-bar me-2"></i>Thống kê</a></li>
+                <li><a class="dropdown-item" href="/color"><i class="fa-solid fa-palette me-2"></i>Bảng màu hệ thống</a></li>
+            </ul>
+        </li>
+
+        <li class="nav-item">
+            <a id="pendingLinkID" page-title="pending-manager" href="/pending-doctors" class="nav-link link-dark">
+                <i class="fa-solid fa-user-clock me-2"></i> Phê duyệt tài khoản
+            </a>
+        </li>
+        <li class="nav-item">
+            <a id="accountLinkID" page-title="account-manager" href="/user" class="nav-link link-dark">
+                <i class="fa-solid fa-user-gear me-2"></i> Quản lý tài khoản
+            </a>
+        </li>
+        <li class="nav-item">
+            <a id="schduleLinkID" page-title="schedule-manager" href="/manager-schedule" class="nav-link link-dark">
+                <i class="fa-solid fa-calendar-day  me-2"></i> Quản lý lịch làm việc
+            </a>
+        </li>
+        <li class="nav-item">
+            <a id="doctorLinkID" page-title="doctor-manager" href="/manager-doctor" class="nav-link link-dark">
+                <i class="fa-solid fa-user-doctor me-2"></i> Quản lý bác sĩ
+            </a>
+        </li>
+        <li class="nav-item">
+            <a id="patientLinkID" page-title="patient-manager" href="/patient-list" class="nav-link link-dark">
+                <i class="fa-solid fa-hospital-user me-2"></i> Quản lý bệnh nhân
+            </a>
+        </li>
+        <li class="nav-item">
+            <a id="specialLinkID" page-title="special-manager" href="/specialty-list" class="nav-link link-dark">
+                <i class="fa-solid fa-stethoscope me-2"></i> Quản lý chuyên khoa
+            </a>
+        </li>
+        <li class="nav-item">
+            <a id="facilityLinkID" page-title="facility-manager" href="/facility-list" class="nav-link link-dark">
+                <i class="fa-solid fa-building me-2"></i> Quản lý cơ sở y tế
+            </a>
+        </li>
+        <li class="nav-item">
+            <a id="bookingLinkID" page-title="booking-manager" href="/booking-list" class="nav-link link-dark">
+                <i class="fa-solid fa-calendar-check me-2"></i> Quản lý lịch hẹn
+            </a>
+        </li>
+        <li class="nav-item">
+            <a id="doctorServiceLinkID" page-title="doctor-service-manager" href="/doctor-service/pending-list" class="nav-link link-dark">
+                <i class="fa-solid fa-calendar-check me-2"></i> Quản lý gói
+            </a>
+        </li>
+        <li class="nav-item">
+            <a id="medicineLinkID" page-title="medicine-manager" href="/medicine/manager-medicine" class="nav-link link-dark">
+                <i class="fa-solid fa-pills me-2"></i> Quản lý thuốc
+            </a>
+        </li>
+        <!-- <li class="nav-item">
+            <a id="medicalHistoryLinkID" page-title="medical-history-manager" href="/medical-history-list" class="nav-link link-dark">
+                <i class="fa-solid fa-notes-medical"></i> Quản lý lịch sử khám
+            </a>
+        </li> -->
+        <li class="nav-item">
+            <a id="introLinkID" page-title="site-introduction" href="/site-intro" class="nav-link link-dark">
+                <i class="fa-solid fa-info-circle me-2"></i> Giới thiệu trang web
+            </a>
+        </li>
+    </ul>
+    <hr>
+</div>

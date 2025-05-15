@@ -1,46 +1,119 @@
 import express from "express";
-import dotenv from 'dotenv';
-import path from 'path';
-dotenv.config()
+import flash from "express-flash";
+import session from "express-session";
+import path from "path";
+import dotenv from "dotenv";
+import cors from "cors"; 
+import { Server } from "socket.io";
+import http from "http";
+import syncData from "./utils/syncData";
+// Import các middleware
 import bodyParser from "body-parser";
-import methodOverride from 'method-override';
 import cookieParser from "cookie-parser";
+import methodOverride from "method-override";
+import flashMiddleware from "./middleware/flashMiddleware";
 
+// Import cấu hình và kết nối CSDL
 import connection from "./config/connectDB";
 import configViewEngine from "./config/viewEngine";
+
+// Import các route
 import initWebRoutes from "./routes/web";
 import initApiRoutes from "./routes/api";
-// import configCors from "./config/cors";
+
+// Load environment variables
+dotenv.config();
 
 const app = express();
 
-//config cors
-// configCors(app)
+// Tạo HTTP server bọc Express
+const server = http.createServer(app);
 
-//config body-parser
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+// // Lắng nghe sự kiện "connection" từ Socket.io
+// const io = new Server(server, {
+//     cors: {
+//         origin: "http://localhost:3000",  // Đảm bảo origin đúng với frontend
+//         methods: ["GET", "POST"],
+//         credentials: true,
+//     },
+//     transports: ['websocket', 'polling'],  // Đảm bảo sử dụng đúng các phương thức transport
+// });
 
-// config cookie-parser
-app.use(cookieParser());
+// // Kết nối socket
+// io.on("connection", (socket) => {
+//     console.log("Kết nối thành công. ID kết nối:", socket.id);
 
-app.use(express.static(path.join(__dirname, 'public')));
+//     socket.on("auth", (userId) => {
+//         console.log(`User ${userId} đã đăng nhập.`);
+//         socket.join(`user:${userId}`);
+//         console.log(`Socket đã tham gia vào phòng: user:${userId}`);
+//     });
 
-//test connection
-connection();
+//     socket.on("disconnect", () => {
+//         console.log("Người dùng đã ngắt kết nối:", socket.id);
+//     });
+// });
 
-//congfig view engine
-configViewEngine(app);
+// // Share io cho toàn bộ ứng dụng
+// app.set("io", io);
 
-//config method-override
+// export const getIO = () => io;
+
+// Middleware cấu hình cho Express
 app.use(methodOverride('_method'));
 
-//config web routes
+// Cấu hình session
+app.use(
+    session({
+        secret: 'meocondangyeu', // Thay thế bằng khóa bảo mật thực tế
+        resave: false,
+        saveUninitialized: true,
+        cookie: { maxAge: 60000 }, // Thời gian sống của cookie là 1 phút
+    })
+);
+
+// Cấu hình CORS
+app.use(cors({
+    origin: "http://localhost:3000", // Cho phép frontend React truy cập
+    methods: "GET, POST, PUT, DELETE",
+    credentials: true // Cho phép gửi cookie nếu có
+}));
+
+// Cấu hình flash messages
+app.use(flash());
+app.use(flashMiddleware);
+
+// Xác định trang đăng nhập
+app.use((req, res, next) => {
+    res.locals.isLoginPage = req.path === "/admin/login"; 
+    next();
+});
+
+// Middleware xử lý body, cookie và method override
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(methodOverride('_method'));
+
+// Cấu hình file static (tệp tĩnh)
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Kiểm tra kết nối với cơ sở dữ liệu
+connection();
+
+// Cấu hình view engine cho Express (ví dụ EJS hoặc Pug)
+configViewEngine(app);
+
+// Khởi tạo các routes
 initWebRoutes(app);
-initApiRoutes(app)
+initApiRoutes(app);
 
-const PORT = process.env.PORT || 8081
+// Khởi động cron job để kiểm tra dịch vụ hết hạn
+import serviceApiService from "./services/serviceApiService";
+serviceApiService.updateDoctorServiceStatus(); // Kiểm tra trạng thái dịch vụ
 
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server is runing on port: `, PORT);
-})
+// Cấu hình port và khởi động server
+const PORT = process.env.PORT || 8080;
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`Máy chủ đang chạy trên cổng: ${PORT}`);
+});

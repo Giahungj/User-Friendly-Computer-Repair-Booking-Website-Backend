@@ -9,6 +9,6 @@ async function countToday(datesArray) {
     }
 }
 
-module.exports = {
+export default {
     countToday
 };

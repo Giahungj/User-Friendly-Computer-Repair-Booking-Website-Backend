@@ -4,6 +4,12 @@ const setPageTitle = (pageTitle) => {
         case 'dashboard':
             pageTitleId.innerText = 'Bảng điều khiển'
             break
+        case 'schedule-manager':
+            pageTitleId.innerText = 'Quản lý lịch làm việc'
+            break
+        case 'pending-manager':
+            pageTitleId.innerText = 'Danh sách bác sĩ'
+            break
         case 'patient-manager':
             pageTitleId.innerText = 'Quản lý bệnh nhân'
             break
@@ -22,9 +28,15 @@ const setPageTitle = (pageTitle) => {
         case 'booking-manager':
             pageTitleId.innerText = 'Quản lý lịch hẹn'
             break
-        // case 'appointment-manager':
-        //     pageTitleId.innerText = 'Quản lý lịch hẹn'
-        //     break
+        case 'doctor-service-manager':
+            pageTitleId.innerText = 'Quản lý gói'
+            break
+        case 'medicine-manager':
+            pageTitleId.innerText = 'Quản lý thuốc';
+            break;
+        case 'site-introduction':
+            pageTitleId.innerText = 'Giới thiệu trang Web dành cho Quản trị viênviên'
+            break
         default:
             return
     }
@@ -32,17 +44,36 @@ const setPageTitle = (pageTitle) => {
 
 // Hàm xử lý sự kiện hover trên các thẻ nav-link
 const handleHoverEffect = () => {
-    const elements = document.querySelectorAll('.nav-link')
-    elements.forEach(e => {
-        e.addEventListener('mouseover', () => {
-            e.style.boxShadow = '0 3px 8px 2px rgba(84, 27, 142, .5)'
-            e.style.transition = 'box-shadow .1s'
-        })
-        e.addEventListener('mouseout', () => {
-            e.style.boxShadow = ''
-        })
-    })
+	const navItems = document.querySelectorAll('.nav-item')
+
+	navItems.forEach(item => {
+		const dropdown = item.querySelector('.dropdown-menu')
+		if (dropdown) {
+			item.addEventListener('mouseenter', () => {
+				dropdown.style.display = 'block'
+			})
+			item.addEventListener('mouseleave', () => {
+				dropdown.style.display = 'none'
+			})
+		}
+	})
+
+	const links = document.querySelectorAll('.nav-link')
+	links.forEach(e => {
+		e.addEventListener('mouseover', () => {
+			if (e.classList.contains('active')) return
+			e.style.transition = 'all 0.2s ease'
+			e.style.backgroundColor = 'rgba(0, 0, 0, 0.05)'
+			e.style.paddingLeft = '1.5em'
+		})
+		e.addEventListener('mouseout', () => {
+			if (e.classList.contains('active')) return
+			e.style.backgroundColor = ''
+			e.style.paddingLeft = ''
+		})
+	})
 }
+
 
 const setActiveLink = () => {
     const sidebarMenu = document.getElementById('sideBarMenu')

@@ -1,20 +1,14 @@
 'use strict';
 const { BOOLEAN } = require('sequelize');
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // define association here
       User.hasMany(models.Admin);
       User.hasMany(models.Patient);
-      User.hasMany(models.Doctor);
+      User.hasMany(models.Doctors);
+      User.hasMany(models.UserLock);
+      User.hasMany(models.Notification);
     }
   };
   User.init({
@@ -22,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
     password: DataTypes.STRING,
     name: DataTypes.STRING,
     address: DataTypes.STRING,
+    dateofbirth: DataTypes.DATE,
     sex: DataTypes.STRING,
     phone: DataTypes.STRING,
     userType: DataTypes.INTEGER,

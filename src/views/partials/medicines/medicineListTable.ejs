@@ -1,0 +1,29 @@
+<table class="table table-striped table-hover table-bordered align-middle">
+    <thead class="table-success text-center">
+        <tr>
+            <th>#</th>
+            <th>Mã thuốc</th>
+            <th>Tên thuốc</th>
+            <th>Tác dụng</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% medicines.forEach((medicine, index) => { %>
+            <tr>
+                <td class="px-2 fw-bold text-center"><%= ((currentPage - 1) * 10) + index + 1 %></td>
+                <td class="px-2 text-center"><%= medicine.id %></td>
+                <td class="px-2 "><%= medicine.name %></td>
+                <td class="px-2 "><%= medicine.description %></td>
+            </tr>
+        <% }) %>
+    </tbody>
+</table>
+
+<!-- Phân trang -->
+<% if (medicines.length > 0) { %>
+    <%- include('../../partials/common/pagination', { 
+        currentPage: currentPage, 
+        totalPages: totalPages, 
+        baseUrl: `/medicine/manager-medicine` 
+    }) %>
+<% } %>

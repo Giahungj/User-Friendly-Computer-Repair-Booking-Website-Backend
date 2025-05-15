@@ -26,35 +26,30 @@ const verifyToken = (token) => {
 
 const checkUserJWT = (req, res, next) => {
     let cookies = req.cookies;
+    console.log("Cookies:", cookies);
     if (cookies && cookies.jwt) {
         let token = cookies.jwt;
+        console.log("Token received:", token);
         let decoded = verifyToken(token);
         if (decoded) {
-            // console.log("Decoded User:", decoded)
+            console.log("Decoded Token:", decoded);
             req.user = decoded;
-            req.token = token
+            req.token = token;
             next();
         } else {
-            return res.status(401).json({
-                EC: -1,
-                EM: "Not authenticated the user",
-                DT: ''
-            })
+            console.log("JWT Verification Failed!");
+            return res.status(401).json({ EC: -1, EM: "Not authenticated the user", DT: '' });
         }
     } else {
-        return res.status(401).json({
-            EC: -1,
-            EM: "Not authenticated the user",
-            DT: ''
-        })
+        console.log("JWT not found in cookies!");
+        return res.status(401).json({ EC: -1, EM: "Not authenticated the user", DT: '' });
     }
-}
+};
 
 const checkDoctorAccess = (req, res, next) => {
     try {
         // Giả sử bạn đã lưu thông tin người dùng trong `req.user` sau khi xác thực (ví dụ JWT)
         const userType = req.user.userType;
-        console.log(userType)
         if (userType !== 'doctor') {
             return res.status(200).json({
                 EC: 1,
@@ -77,6 +72,6 @@ const checkDoctorAccess = (req, res, next) => {
 
 
 
-module.exports = {
+export default {
     createJWT, verifyToken, checkUserJWT, checkDoctorAccess
 }

@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  backend:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - elasticsearch
+    environment:
+      - NODE_ENV=development
+
+  elasticsearch:
+    image: elasticsearch:8.5.0
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+
+volumes:
+  es-data:

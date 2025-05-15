@@ -1,99 +1,136 @@
 import db from '../models/index';
-import dataFormatterUtil from '../utils/dataFormatterUtil';
-import formatUtils from '../utils/formatUtil';
-
-const getDoctorsPage = async (req, res) => {
-    try {
-        const doctors = await db.Doctor.findAll({
-            include: [
-                { model: db.User },
-                { model: db.Facility },
-                { model: db.Specialty },
-                // { model: db.Schedule, include: [
-                    // { model: db.Booking },
-                // ]},
-            ],
-            raw: true,
-            nest: true
-        })
-
-        const schedule = await db.Schedule.findAll({
-            include: [
-                { model: db.Doctor },
-            ],
-            raw: true,
-            nest: true
-        })
-        // let schedulesArray = []
-        // doctors.forEach(doctor => {
-        //     schedulesArray.push(doctor.Schedules.date)
-        // })
-        // let schedulesToday = await dataFormatterUtil.countToday(schedulesArray)
-        // const scheduleDates = schedule.map(sche => sche.date + ', ' + sche.doctorId)
-        return res.render('layouts/layout', {
-            page: `pages/doctorList.ejs`,
-            pageTitle: 'doctor manager',
-            doctors: doctors,
-            totalDoctor: doctors.length,
-            // schedulesToday: schedulesToday,
-            // bookingsToday: bookingsToday,
-        })
-    } catch (error) {
-        console.error(error)
-    }
-}
+import doctorService from '../services/doctorService'
+import facilityService from '../services/facilityApiService'
+import specialtyService from '../services/specialtyService';
+import ratingService from '../services/ratingService';
 
 // --------------------------------------------------
-const getDoctorDetailPage = async (req, res) => {
+const renderManagerDoctorPage = async (req, res) => {
     try {
-        const doctorId = req.params.id
-        let doctor = await db.Doctor.findOne({
-            where: { id: doctorId },
-            include: [
-                { model: db.User },
-                { model: db.Facility },
-                { model: db.Specialty },
-                {
-                    model: db.Schedule, include: [
-                        { model: db.Timeslot },
-                        { model: db.Booking },
-                    ]
-                }
-            ],
-            raw: true,
-            nest: true
-        })
+        let page = parseInt(req.query.page) || 1;
+        let result = await doctorService.getAllDoctors(page, 10);
 
-        doctor = {
-            ...doctor,
-            price: formatUtils.formatCurrency(doctor.price)
+        if (result.EC === 0) {
+            return res.render('layouts/layout', {
+                page: `pages/doctors/managerDoctorPage.ejs`,
+                pageTitle: 'Quản lý bác sĩ',
+                doctors: result.DT.data, 
+                totalDoctors: result.DT.total,
+                message: result.EM,
+                EC: result.EC,
+                currentPage: page,
+                totalPages: result.DT.totalPages,
+                totalBookingsToday: result.DT.totalBookingsToday,
+                bookingsCompleted: result.DT.bookingsCompleted,
+                baseUrl: '/manager-doctor'
+            });
+        } else {
+            return res.render('layouts/layout', {
+                page: `pages/doctors/managerDoctorPage.ejs`,
+                pageTitle: 'Quản lý bác sĩ',
+                doctors: [],
+                totalDoctors: 0,
+                message: result.EM,
+                EC: result.EC,
+                currentPage: page,
+                totalBookingsToday: 0,
+                bookingsCompleted: 0,
+                totalPages: 0,
+                baseUrl: '/manager-doctor'
+            });
         }
-
-        const bookingId = doctor.Schedules.Bookings.id
-        const bookingData = await db.Booking.findOne({
-            where: { id: bookingId },
-            include: [{
-                model: db.Patient, include: [{
-                    model: db.User
-                }]
-            }, { model: db.Schedule, include: [{ model: db.Timeslot }] }],
-            raw: true,
-            nest: true
-        })
-
-        return res.render('layouts/layout', {
-            page: `pages/doctorDetail.ejs`,
-            pageTitle: 'doctor detail',
-            doctor: doctor,
-            schedules: doctor.Schedules,
-            bookings: bookingData
-        })
     } catch (error) {
-        console.error(error)
+        console.error(error);
+        return res.render('layouts/layout', {
+            page: 'pages/errorPage.ejs',
+            pageTitle: 'Lỗi 404',
+            EM: "Lỗi server ...",
+            EC: -1,
+        })
+    }
+};
+
+// --------------------------------------------------
+const renderDoctorDetailPage = async (req, res) => {
+    try {
+        const id = req.params.id
+        const page = req.query.page || 1
+        let data = await doctorService.getDoctorById(id, page)
+        const facilities = await facilityService.getFacilityList()
+        const specialties = await specialtyService.getSpecialtyList()
+        const filteredSpecialties = specialties.DT.specialties.filter(specialty => specialty.id !== data.DT.doctor.specialtyId);
+        const filteredFacilities = facilities.DT.filter(facility => facility.id !== data.DT.doctor.facilityId);
+        const ratings = await ratingService.getDoctorRatings(id)
+        if (data.EC === 0) {
+            return res.render('layouts/layout', {
+                page: `pages/doctors/doctorDetailPage.ejs`,
+                pageTitle: 'Quản lý bác sĩ',
+                EC: data.EC,
+                EM: data.EM,
+                facilities: filteredFacilities,
+                specialties: filteredSpecialties,
+                currentPage: page,
+                totalPages: data.DT.total,
+                totalBookings: data.DT.totalBookings,
+                data: data.DT,
+                baseUrl: '/doctor-detail',
+                ratings: ratings.DT.ratings,
+                avgScore: ratings.DT.avgScore,
+            })
+        }
+    } catch (error) {
+        console.error(error);
+        return res.render('layouts/layout', {
+            page: 'pages/errorPage.ejs',
+            pageTitle: 'Lỗi 404',
+            EM: "Lỗi server ...",
+            EC: -1,
+        })
     }
 }
 
 // --------------------------------------------------
-module.exports = {
-    getDoctorsPage, getDoctorDetailPage
+const switchTheDoctorWorkFacility = async (req, res) => {
+    try {
+        const { doctorId, facilityId, oldFacilityId } = req.body
+        const resuilt = await facilityService.switchTheDoctorWorkFacility(doctorId, facilityId, oldFacilityId)
+        if (resuilt.EC === 0) {
+            return res.redirect(`/doctor-detail/${doctorId}`)
+        }
+    } catch (error) {
+        console.error(error);
+        return res.render('layouts/layout', {
+            page: 'pages/errorPage.ejs',
+            pageTitle: 'Lỗi 404',
+            EM: "Lỗi server ...",
+            EC: -1,
+        })
+    }
+}
+
+// --------------------------------------------------
+const switchTheDoctorSpecialty = async (req, res) => {
+    try {
+        const { doctorId, specialtyId, oldSpecialtyId } = req.body
+        const resuilt = await specialtyService.switchTheDoctorSpecialty(doctorId, specialtyId, oldSpecialtyId)
+        if (resuilt.EC === 0) {
+            return res.redirect(`/doctor-detail/${doctorId}`)
+        }
+    } catch (error) {
+        console.error(error);
+        return res.render('layouts/layout', {
+            page: 'pages/errorPage.ejs',
+            pageTitle: 'Lỗi 404',
+            EM: "Lỗi server ...",
+            EC: -1,
+        })
+    }
+}
+
+// --------------------------------------------------
+export default {
+    renderManagerDoctorPage, 
+    renderDoctorDetailPage, 
+    switchTheDoctorWorkFacility, 
+    switchTheDoctorSpecialty
 }

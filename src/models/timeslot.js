@@ -19,7 +19,11 @@ module.exports = (sequelize, DataTypes) => {
     Timeslot.init({
         startTime: DataTypes.TIME,
         endTime: DataTypes.TIME,
-
+        shift: {
+            type: DataTypes.TINYINT,
+            allowNull: true,
+            comment: "1: Morning, 2: Afternoon, 3: Evening"
+        }
     }, {
         sequelize,
         modelName: 'Timeslot',

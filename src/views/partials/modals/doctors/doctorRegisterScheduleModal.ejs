@@ -1,0 +1,150 @@
+<!-- Modal đăng ký lịch khám -->
+<div class="modal fade" id="registerScheduleModal" tabindex="-1" aria-labelledby="registerScheduleLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-blue-600 text-white">
+                <h5 class="modal-title" id="registerScheduleLabel">📅 Đăng ký lịch khám</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="cretaeScheduleForm" method="POST" action="/schedule/create">
+                    <div class="row">
+                        <div class="col-md-8 border-2 border-end">
+                            <div class="mb-3">
+                                <label for="scheduleDay" class="fw-semibold">Chọn ngày</label>
+                                <select class="form-control" id="scheduleDay" name="date" required></select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-semibold">Chọn khung giờ</label>
+                                <div id="timeSlotsContainer" class="d-flex flex-column gap-3">
+                                    <input type="hidden" name="doctorId" value="<%= data.doctor.id %>">
+                                    <% let shifts = {1: "Buổi sáng", 2: "Buổi chiều", 3: "Buổi tối"}; %>
+                                    <% Object.keys(shifts).forEach(shift => { %>
+                                        <div class="shift-container" data-shift="<%= shift %>">
+                                            <h6 class="fw-bold text-blue-500"><%= shifts[shift] %></h6>
+                                            <div class="d-flex flex-wrap gap-2">
+                                                <% data.timeSlot.forEach(slot => { %>
+                                                    <% if (slot.shift == shift) { %>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input time-checkbox time-btn" type="checkbox" 
+                                                                id="slot_<%= slot.id %>" name="timeSlotId" 
+                                                                value="<%= slot.id %>" data-time="<%= slot.startTime %>-<%= slot.endTime %>">
+                                                            <label class="form-check-label btn btn-outline-dark" for="slot_<%= slot.id %>">
+                                                                <%= slot.startTime %> - <%= slot.endTime %>
+                                                            </label>
+                                                        </div>
+                                                    <% } %>
+                                                <% }); %>
+                                            </div>
+                                        </div>
+                                    <% }); %>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cột phải: Nhập số lượng bệnh nhân -->
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="fw-semibold">Số lượng bệnh nhân tối đa</label>
+                                <input type="number" class="form-control"
+                                    placeholder="45 bệnh nhân tối đa" min="1" disabled>
+                            </div>
+                            <div id="timeInputs"></div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 mt-3">Xác nhận</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const scheduleDaySelect = document.getElementById('scheduleDay');
+        const today = new Date();
+        const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        // Mảng tên ngày trong tuần
+        const daysOfWeek = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
+        // Tạo 7 ngày tính từ hôm nay
+        for (let i = 0; i < 7; i++) {
+            const optionDate = new Date(today);
+            optionDate.setDate(today.getDate() + i);
+            const weekdayName = daysOfWeek[optionDate.getDay()]; // Lấy tên ngày theo thứ tự tuần
+            const dd = String(optionDate.getDate()).padStart(2, '0');
+            const mm = String(optionDate.getMonth() + 1).padStart(2, '0');
+            const yyyy = optionDate.getFullYear();
+            const formattedDate = `${dd}/${mm}/${yyyy}`;
+            const optionValue = `${yyyy}-${mm}-${dd}`;
+            const option = document.createElement('option');
+            option.value = optionValue;
+            option.textContent = `${weekdayName} (${formattedDate})`;
+            // Vô hiệu hóa nếu ngày nhỏ hơn hôm nay (chỉ tính ngày)
+            const optionOnly = new Date(optionDate.getFullYear(), optionDate.getMonth(), optionDate.getDate());
+            if (optionOnly < todayOnly) option.disabled = true;
+            scheduleDaySelect.appendChild(option);
+        }
+    });
+</script>
+
+<script>
+    document.querySelectorAll(".time-checkbox").forEach(checkbox => {
+        checkbox.addEventListener("change", function() {
+            const time = this.getAttribute("data-time");
+            const timeInputs = document.getElementById("timeInputs");
+            // Tìm xem đã có phần input nào cho khung giờ này chưa
+            let existingInput = document.querySelector(`[data-time-input="${time}"]`);
+            
+            if (this.checked) {
+                // Nếu chưa có, tạo phần input mới
+                if (!existingInput) {
+                    const div = document.createElement("div");
+                    div.setAttribute("data-time-input", time);
+                    // Sử dụng giá trị của checkbox (giá trị này phải là timeSlot id)
+                    // để đặt tên input theo cấu trúc: maxNumber[timeSlotId]
+                    div.innerHTML = `
+                        <label class="fw-semibold">Số lượng bệnh ( ${time} )</label>
+                        <input type="number" class="form-control" name="maxNumber[${this.value}]" min="1" required>
+                    `;
+                    timeInputs.appendChild(div);
+                }
+            } else {
+                // Nếu checkbox bị bỏ chọn, xóa phần input tương ứng
+                if (existingInput) {
+                    existingInput.remove();
+                }
+            }
+        });
+    });
+</script>
+<!-- 
+<script>
+    document.querySelectorAll(".time-checkbox").forEach(checkbox => {
+        checkbox.addEventListener("change", function() {
+            const time = this.getAttribute("data-time");
+            const timeInputs = document.getElementById("timeInputs");
+            // Tìm xem đã có phần input nào cho khung giờ này chưa
+            let existingInput = document.querySelector(`[data-time-input="${time}"]`);
+            
+            if (this.checked) {
+                // Nếu chưa có, tạo phần input mới
+                if (!existingInput) {
+                    const div = document.createElement("div");
+                    div.setAttribute("data-time-input", time);
+                    // Sử dụng giá trị của checkbox (giá trị này phải là timeSlot id)
+                    // để đặt tên input theo cấu trúc: maxNumber[timeSlotId]
+                    div.innerHTML = `
+                        <label class="fw-semibold">Số lượng bệnh ( ${time} )</label>
+                        <input type="number" class="form-control" name="maxNumber[${this.value}]" min="1" required>
+                    `;
+                    timeInputs.appendChild(div);
+                }
+            } else {
+                // Nếu checkbox bị bỏ chọn, xóa phần input tương ứng
+                if (existingInput) {
+                    existingInput.remove();
+                }
+            }
+        });
+    });
+</script> -->
