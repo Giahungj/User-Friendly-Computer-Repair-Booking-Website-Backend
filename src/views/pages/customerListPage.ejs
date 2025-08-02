@@ -1,0 +1,71 @@
+<%
+    function highlight(text, keyword) {
+        if (!keyword) return text;
+        const regex = new RegExp(`(${keyword})`, 'gi');
+        return text.replace(regex, '<strong class="text-danger">$1</strong>');
+    }
+%>
+<div class="p-3 border border-0 rounded shadow-sm bg-white">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="text-muted text-uppercase mb-0">Danh sách khách hàng</h5>
+        <a href="/admin/khach-hang/them-moi" class="btn btn-success rounded-pill">
+            <i class="fa-solid fa-plus"></i> Thêm khách hàng
+        </a>
+    </div>
+
+    <%- include('../partials/searchs/searchCustomer') %>
+
+    <hr>
+
+    <% if (Array.isArray(customers) && customers.length > 0) { %>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Họ tên</th>
+                        <th>Email</th>
+                        <th>Điện thoại</th>
+                        <th>Địa chỉ</th>
+                        <th>Liên hệ ưa thích</th>
+                        <th>Điểm tích lũy</th>
+                        <th>Hoạt động gần nhất</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% customers.forEach((customer, index) => { %>
+                        <tr>
+                            <td><%= index + 1 %></td>
+                            <td><%- highlight(customer.User?.name || '', searchQuery) %></td>
+                            <td><%- highlight(customer.User?.email || '', searchQuery) %></td>
+                            <td><%- highlight(customer.User?.phone || '', searchQuery) %></td>
+                            <td><%= customer.address || '' %></td>
+                            <td><%= customer.preferred_contact || '' %></td>
+                            <td><%= customer.loyalty_points || 0 %></td>
+                            <td><%= customer.User?.last_active ? new Date(customer.User?.last_active).toLocaleString('vi-VN') : 'Chưa đăng nhập' %></td>
+                            <td>
+                                <a href="/admin/khach-hang/<%= customer.customer_id %>/chi-tiet" 
+                                class="btn btn-sm btn-secondary" title="Xem">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
+                                <a href="/admin/khach-hang/<%= customer.customer_id %>/sua" 
+                                class="btn btn-sm btn-secondary" title="Sửa">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </a>
+                                <form action="/admin/khach-hang/<%= customer.customer_id %>/xoa" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary" title="Xoá" 
+                                            onclick="return confirm('Xác nhận xoá?')">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    <% } else { %>
+        <div class="alert alert-info mb-0">Chưa có khách hàng nào được thêm.</div>
+    <% } %>
+</div>

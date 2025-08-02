@@ -2,7 +2,7 @@
   "development": {
     "username": "root",
     "password": null,
-    "database": "doan3",
+    "database": "repair_booking",
     "host": "127.0.0.1",
     "dialect": "mysql",
     "define": {

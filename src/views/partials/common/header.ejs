@@ -1,4 +1,4 @@
-<header id="mainHeader" class="navbar navbar-expand-lg navbar-light bg-light border-bottom shadow-sm px-3">
+<header id="mainHeader" class="navbar navbar-expand-lg navbar-light border-bottom shadow-sm px-3" style="background-color: #cfd8dc;">
     <div class="container-fluid">
         <!-- Search Box -->
         <div id="searchContainer" class="search-box position-relative me-auto w-50">
@@ -30,14 +30,15 @@
                 <div class="d-flex align-items-center" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
                     <i class="fa-solid fa-circle-user me-2"></i>
                     <span id="adminName">
-                        <%= adminName %>
+                        Tên Admin
                     </span>
                     <i class="fa-solid fa-caret-down ms-2"></i> <!-- Icon mũi tên xuống -->
                 </div>
                 <!-- Menu dropdown -->
                 <ul class="dropdown-menu dropdown-menu-end shadow" style="min-width: 24em;">
                     <li>
-                        <a class="dropdown-item" href="/user-detail/<%= adminId %>">
+                        <a class="dropdown-item" href="/user-detail">
+                            AdminId
                             <i class="fa-solid fa-user me-2"></i> Hồ sơ
                         </a>
                     </li>

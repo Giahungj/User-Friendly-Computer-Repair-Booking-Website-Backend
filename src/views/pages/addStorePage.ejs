@@ -1,0 +1,27 @@
+<div class="p-3 border border-0 rounded shadow-sm bg-white">
+    <h5 class="text-muted text-uppercase">Thêm cửa hàng</h5>
+    <hr>
+    <form action="/admin/cua-hang/them-moi" method="POST" enctype="multipart/form-data" class="row g-3">
+        <div class="col-md-6">
+            <label for="name" class="form-label">Tên cửa hàng</label>
+            <input type="text" class="form-control" id="name" name="name" placeholder="Nhập tên cửa hàng" required>
+        </div>
+        <div class="col-md-6">
+            <label for="phone" class="form-label">Số điện thoại</label>
+            <input type="text" class="form-control" id="phone" name="phone" placeholder="Nhập số điện thoại" required>
+        </div>
+        <div class="col-md-12">
+            <label for="address" class="form-label">Địa chỉ</label>
+            <input type="text" class="form-control" id="address" name="address" placeholder="Nhập địa chỉ" required>
+        </div>
+        <div class="col-md-12">
+            <label for="image" class="form-label">Hình ảnh cửa hàng</label>
+            <input type="file" class="form-control" id="image" name="image" accept="image/*">
+        </div>
+        <div class="col-12 d-flex justify-content-end">
+            <button type="submit" class="btn btn-success">
+                <i class="fa-solid fa-plus"></i> Thêm cửa hàng
+            </button>
+        </div>
+    </form>
+</div>

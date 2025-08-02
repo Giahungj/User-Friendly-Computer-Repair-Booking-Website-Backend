@@ -4,40 +4,42 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
     class Rating extends Model {
         static associate(models) {
-            Rating.belongsTo(models.Doctors);
-            Rating.belongsTo(models.Patient);
-            Rating.belongsTo(models.Booking); // Thêm quan hệ với Booking
+            Rating.belongsTo(models.Customer, { foreignKey: 'customer_id' });
+            Rating.belongsTo(models.Technician, { foreignKey: 'technician_id' });
         }
     }
 
     Rating.init({
-        doctorId: {
+        rating_id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true
+        },
+        technician_id: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: false
+        },
+        customer_id: {
             type: DataTypes.INTEGER,
             allowNull: false
         },
-        patientId: {
-            type: DataTypes.INTEGER,
+        rating: {
+            type: DataTypes.DECIMAL(3, 1),
             allowNull: false
-        },
-        bookingId: {  // Thêm trường bookingId
-            type: DataTypes.INTEGER,
-            allowNull: false
-        },
-        score: {
-            type: DataTypes.FLOAT,
-            allowNull: false,
-            validate: {
-                min: 1,
-                max: 5,
-            },
         },
         comment: {
             type: DataTypes.TEXT,
             allowNull: true
-        }
+        },
+        images: {
+            type: DataTypes.TEXT('long'),
+            allowNull: true
+        },
     }, {
         sequelize,
         modelName: 'Rating',
+        tableName: 'ratings',
+        timestamps: true
     });
 
     return Rating;

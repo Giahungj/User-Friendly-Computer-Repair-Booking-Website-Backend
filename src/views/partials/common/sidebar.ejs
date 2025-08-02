@@ -1,78 +1,74 @@
-<div class="d-flex flex-column flex-shrink-0 p-3 bg-white"
-    style="width: 16em; height: 100vh; background-color: rgb(255, 255, 255); position: sticky; top: 0; z-index: 1020;">
-    <a href="/dashboard" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
+<div class="d-flex flex-column flex-shrink-0 p-3 shadow-lg"
+    style="width: 18em; height: 100vh; background-color: #ffffff; position: sticky; top: 0; z-index: 1020;">
+    <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
         <img class="w-50" src="/images/skibidi.jpg"><span class="fs-4 mt-3 p-0">Admin</span>
     </a>
     <hr>
     <ul class="nav nav-pills flex-column mb-auto" id="sideBarMenu">
-        <li class="nav-item" style="position: relative;">
-            <a id="dashboardLinkID" page-title="dashboard" href="#" class="nav-link link-dark" aria-current="page">
-                <i class="fa-solid fa-chart-line me-2"></i> Bảng điều hướng
+        <li class="nav-item">
+            <a href="/" class="nav-link link-dark">
+                <i class="fa-solid fa-chart-line me-2"></i> Tổng quan hệ thống
             </a>
-            <ul class="dropdown-menu rounded-0 shadow" style="display: none; position: absolute; top: 0; left: 100%; z-index: 1000; padding: 0.5em 0; min-width: 180px; width: 100%;">
-                <li><a class="dropdown-item" href="/dashboard"><i class="fa-solid fa-tachometer-alt me-2"></i>Tổng quan</a></li>
-                <li><a class="dropdown-item" href="/dashboard"><i class="fa-solid fa-chart-bar me-2"></i>Thống kê</a></li>
-                <li><a class="dropdown-item" href="/color"><i class="fa-solid fa-palette me-2"></i>Bảng màu hệ thống</a></li>
+        </li>
+        <li class="nav-item">
+            <a href="/admin/dat-lich/danh-sach" class="nav-link link-dark">
+                <i class="fa-solid fa-calendar-check me-2"></i> Quản lý đơn đặt lịch
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="/device-list" class="nav-link link-dark">
+                <i class="fa-solid fa-laptop-code me-2"></i> Quản lý thiết bị
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="/admin/cua-hang/danh-sach" class="nav-link link-dark">
+                <i class="fa-solid fa-store me-2"></i> Quản lý cửa hàng
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="/admin/cua-hang-truong/danh-sach" class="nav-link link-dark">
+                <i class="fa-solid fa-user-tie me-2"></i> Quản lý cửa hàng trưởng
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="/admin/chuyen-mon/danh-sach" class="nav-link link-dark">
+                <i class="fa-solid fa-tools me-2"></i> Quản lý dịch vụ sửa chữa
+            </a>
+        </li>
+        <li class="nav-item">
+           <a href="/admin/khung-gio/danh-sach" class="nav-link link-dark">
+                <i class="fa-regular fa-clock me-2"></i> Quản lý giờ làm việc
+            </a>
+        </li>
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle link-dark" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fa-solid fa-users-gear me-2"></i> Người dùng
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                <li>
+                    <a class="dropdown-item" href="/admin/tai-khoan/danh-sach">
+                        <i class="fa-solid fa-id-card me-2"></i> Quản lý tài khoản
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="/admin/ky-thuat-vien/danh-sach">
+                        <i class="fa-solid fa-user-cog me-2"></i> Quản lý kỹ thuật viên
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="/admin/khach-hang/danh-sach">
+                        <i class="fa-solid fa-user-group me-2"></i> Quản lý khách hàng
+                    </a>
+                </li>
             </ul>
         </li>
-
         <li class="nav-item">
-            <a id="pendingLinkID" page-title="pending-manager" href="/pending-doctors" class="nav-link link-dark">
-                <i class="fa-solid fa-user-clock me-2"></i> Phê duyệt tài khoản
+            <a href="/report" class="nav-link link-dark">
+                <i class="fa-solid fa-file-invoice-dollar me-2"></i> Doanh thu - thống kê
             </a>
         </li>
         <li class="nav-item">
-            <a id="accountLinkID" page-title="account-manager" href="/user" class="nav-link link-dark">
-                <i class="fa-solid fa-user-gear me-2"></i> Quản lý tài khoản
-            </a>
-        </li>
-        <li class="nav-item">
-            <a id="schduleLinkID" page-title="schedule-manager" href="/manager-schedule" class="nav-link link-dark">
-                <i class="fa-solid fa-calendar-day  me-2"></i> Quản lý lịch làm việc
-            </a>
-        </li>
-        <li class="nav-item">
-            <a id="doctorLinkID" page-title="doctor-manager" href="/manager-doctor" class="nav-link link-dark">
-                <i class="fa-solid fa-user-doctor me-2"></i> Quản lý bác sĩ
-            </a>
-        </li>
-        <li class="nav-item">
-            <a id="patientLinkID" page-title="patient-manager" href="/patient-list" class="nav-link link-dark">
-                <i class="fa-solid fa-hospital-user me-2"></i> Quản lý bệnh nhân
-            </a>
-        </li>
-        <li class="nav-item">
-            <a id="specialLinkID" page-title="special-manager" href="/specialty-list" class="nav-link link-dark">
-                <i class="fa-solid fa-stethoscope me-2"></i> Quản lý chuyên khoa
-            </a>
-        </li>
-        <li class="nav-item">
-            <a id="facilityLinkID" page-title="facility-manager" href="/facility-list" class="nav-link link-dark">
-                <i class="fa-solid fa-building me-2"></i> Quản lý cơ sở y tế
-            </a>
-        </li>
-        <li class="nav-item">
-            <a id="bookingLinkID" page-title="booking-manager" href="/booking-list" class="nav-link link-dark">
-                <i class="fa-solid fa-calendar-check me-2"></i> Quản lý lịch hẹn
-            </a>
-        </li>
-        <li class="nav-item">
-            <a id="doctorServiceLinkID" page-title="doctor-service-manager" href="/doctor-service/pending-list" class="nav-link link-dark">
-                <i class="fa-solid fa-calendar-check me-2"></i> Quản lý gói
-            </a>
-        </li>
-        <li class="nav-item">
-            <a id="medicineLinkID" page-title="medicine-manager" href="/medicine/manager-medicine" class="nav-link link-dark">
-                <i class="fa-solid fa-pills me-2"></i> Quản lý thuốc
-            </a>
-        </li>
-        <!-- <li class="nav-item">
-            <a id="medicalHistoryLinkID" page-title="medical-history-manager" href="/medical-history-list" class="nav-link link-dark">
-                <i class="fa-solid fa-notes-medical"></i> Quản lý lịch sử khám
-            </a>
-        </li> -->
-        <li class="nav-item">
-            <a id="introLinkID" page-title="site-introduction" href="/site-intro" class="nav-link link-dark">
+            <a href="/site-intro" class="nav-link link-dark">
                 <i class="fa-solid fa-info-circle me-2"></i> Giới thiệu trang web
             </a>
         </li>

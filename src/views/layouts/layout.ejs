@@ -12,7 +12,7 @@
 </head>
 
 <body>
-    <div class="d-flex">
+    <div class="d-flex"  style="background-color: #e2e4e6;">
         <% if (!isLoginPage) { %>
             <%- include('../partials/common/sidebar.ejs') %>
         <% } %>
@@ -22,7 +22,7 @@
                 <%- include('../partials/common/header.ejs') %>
             <% } %>
     
-            <div class="p-4 bg-light overflow-hidden">
+            <div class="p-3 overflow-hidden">
                 <main>
                     <%- include('../' + page) %>
                 </main>
@@ -30,13 +30,32 @@
         </div>
     </div>
     
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="/js/sidebar.js"></script>
-    <script src="/js/header.js"></script>
-    <script src="/js/submitForm.js"></script>
-    <script src="/js/modals/fetchDataSwitchThedoctorWorkFacilityModal.js"></script>
-    <script src="/js/modals/fetchCreateScheduleForm.js"></script>
+    <!-- Modal thông báo dùng chung -->
+	<%- include('../partials/modals/_alertModal') %>
+
+	<!-- Script -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script src="/js/sidebar.js"></script>
+	<script src="/js/header.js"></script>
+	<script src="/js/submitForm.js"></script>
+	<script src="/js/modals/fetchDataSwitchThedoctorWorkFacilityModal.js"></script>
+	<script src="/js/modals/fetchCreateScheduleForm.js"></script>
+
+	<!-- Xử lý hiển thị modal thông báo -->
+	<script>
+		document.addEventListener('DOMContentLoaded', () => {
+			const EC = <%= typeof EC !== 'undefined' ? EC : 0 %>;
+			const EM = <%= typeof EM !== 'undefined' ? JSON.stringify(EM) : '""' %>;
+
+			if (EC !== 0 && EM) {
+				const message = JSON.parse(EM);
+				document.getElementById('alertModalMessage').textContent = message;
+				const modal = new bootstrap.Modal(document.getElementById('alertModal'));
+				modal.show();
+			}
+		});
+	</script>
 </body>
 
 </html>

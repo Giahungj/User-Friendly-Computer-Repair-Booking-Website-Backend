@@ -1,5 +1,5 @@
 import express from "express";
-import flash from "express-flash";
+import flash from "connect-flash";
 import session from "express-session";
 import path from "path";
 import dotenv from "dotenv";
@@ -63,14 +63,11 @@ const server = http.createServer(app);
 app.use(methodOverride('_method'));
 
 // Cấu hình session
-app.use(
-    session({
-        secret: 'meocondangyeu', // Thay thế bằng khóa bảo mật thực tế
-        resave: false,
-        saveUninitialized: true,
-        cookie: { maxAge: 60000 }, // Thời gian sống của cookie là 1 phút
-    })
-);
+app.use(session({
+	secret: 'anhdomixi',
+	resave: false,
+	saveUninitialized: true,
+}));
 
 // Cấu hình CORS
 app.use(cors({

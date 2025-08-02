@@ -1,6 +1,5 @@
 import bcrypt from 'bcryptjs';
 import mysql from 'mysql2/promise';
-import bluebird from 'bluebird';
 import db from '../models/index';
 import user from '../models/user';
 import { where } from 'sequelize/lib/sequelize';
@@ -215,8 +214,21 @@ const updateUserInfor = async (email, username, address, id) => {
 }
 
 export default {
-    createNewUser, getAllUser, deleteUser, getUserById, updateUserInfor,
-    getAllDoctor, createNewDoctor, getAllFacility, getAllSpecialty,
-    getDoctorById, UpdateDoctorInfor, deleteDoctorById
+	// 📌 User
+	createNewUser,
+	deleteUser,
+	getAllUser,
+	getUserById,
+	updateUserInfor,
 
-}
+	// 📌 Doctor
+	createNewDoctor,
+	deleteDoctorById,
+	getAllDoctor,
+	getDoctorById,
+	UpdateDoctorInfor,
+
+	// 📌 Facility & Specialty
+	getAllFacility,
+	getAllSpecialty,
+};

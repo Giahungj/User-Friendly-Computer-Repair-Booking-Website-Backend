@@ -174,7 +174,6 @@ const checkEmail = async (email) => {
             DT: ""
         }
     }
-
 }
 
 export default {

@@ -71,7 +71,6 @@ const getSpecialtyById = async (specialtyId) => {
                     doctorId: doctor.id,
                     date: { [Op.gte]: new Date() }
                 },
-                include: [{ model: db.Timeslot }],
                 order: [['date', 'ASC'], ['Timeslot', 'startTime', 'ASC']],
                 raw: true,
                 nest: true

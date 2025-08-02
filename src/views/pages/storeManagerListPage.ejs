@@ -1,0 +1,66 @@
+<div class="p-3 border border-0 rounded shadow-sm bg-white">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="text-muted text-uppercase mb-0">Danh sách cửa hàng trưởng</h5>
+        <a href="/admin/cua-hang-truong/them-moi" class="btn btn-success rounded-pill">
+            <i class="fa-solid fa-plus"></i> Thêm cửa hàng trưởng
+        </a>
+    </div>
+
+    <%- include('../partials/searchs/searchStoreManager') %>
+
+    <hr>
+
+    <% if (Array.isArray(managers) && managers.length > 0) { %>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Họ tên</th>
+                        <th>Email</th>
+                        <th>Điện thoại</th>
+                        <th>Cửa hàng</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% managers.forEach((manager, index) => { %>
+                        <tr>
+                            <td><%= index + 1 %></td>
+                            <td><%= manager.User.name %> <%= manager.store_manager_id %></td>
+                            <td><%= manager.User.email %></td>
+                            <td><%= manager.User.phone %></td>
+                            <td><%= manager.Store?.name || 'Chưa rõ' %></td>
+                            <td>
+                                <a href="/admin/cua-hang-truong/<%= manager.store_manager_id %>/chi-tiet" 
+                                class="btn btn-sm btn-secondary" title="Xem">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
+                                <a href="/admin/cua-hang-truong/<%= manager.store_manager_id %>/sua" 
+                                class="btn btn-sm btn-secondary" title="Sửa">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </a>
+                                <form action="/admin/cua-hang-truong/<%= manager.store_manager_id %>/xoa" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary" title="Xoá"
+                                            onclick="return confirm('Xác nhận xoá?')">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    <% } else { %>
+        <div class="alert alert-info mb-0">Chưa có cửa hàng trưởng nào được thêm.</div>
+    <% } %>
+
+    <% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>
+        <%- include('../partials/common/paginationmall', {
+            currentPage: currentPage,
+            totalPages: totalPages,
+            baseUrl: '/admin/cua-hang-truong/danh-sach'
+        }); %>
+    <% } %>
+</div>

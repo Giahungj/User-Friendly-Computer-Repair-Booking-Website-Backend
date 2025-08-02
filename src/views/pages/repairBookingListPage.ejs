@@ -1,0 +1,81 @@
+<%
+    function highlight(text, keyword) {
+        if (!keyword) return text;
+        const regex = new RegExp(`(${keyword})`, 'gi');
+        return text.replace(regex, '<strong class="text-danger">$1</strong>');
+    }
+%>
+<div class="p-3 border border-0 rounded shadow-sm bg-white">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="text-muted text-uppercase mb-0">Danh sách lịch sửa chữa</h5>
+        <a href="/admin/dat-lich/them-moi" class="btn btn-success rounded-pill">
+            <i class="fa-solid fa-plus"></i> Thêm lịch sửa chữa
+        </a>
+    </div>
+
+    <%- include('../partials/searchs/searchRepairBooking') %>
+    <%- include('../partials/filters/filterRepairBooking') %>
+
+    <hr>
+
+    <% if (Array.isArray(bookings) && bookings.length > 0) { %>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Khách hàng</th>
+                        <th>Kỹ thuật viên</th>
+                        <th>Thời gian</th>
+                        <th>Trạng thái</th>
+                        <th>Hãng</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% bookings.forEach((item, index) => { %>
+                        <tr>
+                            <td><%= index + 1 %></td>
+                            <td><%- highlight(item.Customer?.User?.name || '', searchQuery) %></td>
+                            <td><%- highlight(item.WorkSchedule?.Technician?.User?.name || '', searchQuery) %></td>
+                            <td><%= item.booking_date ? new Date(item.booking_date).toLocaleDateString('vi-VN') : '' %></td>
+                            <td 
+                                <% if (item.status === 'pending') { %>style="background-color: yellow;" 
+                                <% } else if (item.status === 'completed') { %>style="background-color: lightgreen;" 
+                                <% } else if (item.status === 'in-progress') { %>style="background-color: lightcoral;" 
+                                <% } else { %>style="background-color: lightblue;" 
+                                <% } %>>
+                                <%- highlight(item.status || '', searchQuery) %>
+                            </td>
+                            <td><%- highlight(item.brand || '', searchQuery) %></td>
+                            <td>
+                                <a href="/admin/dat-lich/<%= item.booking_id %>/chi-tiet" class="btn btn-sm btn-secondary" title="Xem">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
+                                <a href="/admin/dat-lich/<%= item.booking_id %>/sua" class="btn btn-sm btn-secondary" title="Sửa">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </a>
+                                <form action="/admin/dat-lich/<%= item.booking_id %>/xoa" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary" title="Xoá"
+                                            onclick="return confirm('Xác nhận xoá?')">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    <% } else { %>
+        <div class="alert alert-info mb-0">Chưa có lịch sửa chữa nào được thêm.</div>
+    <% } %>
+
+    <% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>
+        <%- include('../partials/common/paginationmall', {
+            currentPage: currentPage,
+            totalPages: totalPages,
+            baseUrl: '/admin/dat-lich/danh-sach'
+        }); %>
+    <% } %>
+</div>

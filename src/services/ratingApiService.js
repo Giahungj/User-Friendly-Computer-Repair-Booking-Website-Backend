@@ -1,5 +1,6 @@
 import { where } from "sequelize/lib/sequelize";
 import db from "../models";
+import { raw } from "body-parser";
 
 // ---------------------------------------------------------
 const createRating = async (ratingData) => {
@@ -33,8 +34,35 @@ const createRating = async (ratingData) => {
     }
 }
 
+// ---------------------------------------------------------
+const createBooking = async () => {
+	try {
+		// Tạo đơn đặt lịch mới
+		const bookingData = await db.RepairBooking.findAll({
+            where: {}, // thêm điều kiện nếu cần
+            include: [
+                { model: db.Customer },
+                { model: db.Technician },
+                { model: db.Device }
+            ],
+            order: [['createdAt', 'DESC']]
+        });
+
+        if (!bookingData || bookingData.length === 0) {
+            return { EM: "Không có đơn đặt lịch nào!", EC: -1, DT: null };
+        }
+
+        return { EM: "Lấy danh sách đơn đặt lịch thành công!", EC: 0, DT: bookingData };
+
+	} catch (error) {
+		console.error("Lỗi khi tạo booking:", error);
+		return { EC: -1, EM: "Lỗi hệ thống! Không thể tạo booking.", DT: null };
+	}
+};
+
 
 // ---------------------------------------------------------
 export default {
-    createRating
+    createRating,
+    createBooking
 }

@@ -427,48 +427,6 @@ const getHistoryBookingByBookingId = async (bookingId) => {
 };
 
 // --------------------------------------------------
-const getBookingInfo = async (scheduleID, patientID) => {
-    try {
-        const schedule = await db.Schedule.findOne({
-            where: { id: scheduleID },
-            include: [
-                { model: db.Timeslot },
-                { 
-                    model: db.Doctors,
-                    include: [{ model: db.User }, { model: db.Facility }, { model: db.Specialty }]
-                }
-            ],
-            raw: true,
-            nest: true
-        });
-        const patient = await db.Patient.findOne({
-            where: { userId: patientID },
-            include: [{ model: db.User }],
-            raw: true,
-            nest: true
-        });
-        const doctor = await db.Doctors.findOne({
-            where: { userId: patientID },
-            raw: true,
-            nest: true
-        });
-        if (doctor) {
-            return { EC: 2, EM: "Bạn là bác sĩ không được đặt lịch!", DT: {} };
-        }
-        if (!schedule || !patient) {
-            return { EC: 1, EM: "Không tìm thấy thông tin", DT: {} };
-        }
-        if (schedule.currentNumber >= schedule.maxNumber) {
-            return { EC: 3, EM: "Lịch hẹn này đã đầy, vui lòng chọn thời gian khác", DT: {} };
-        }
-        return { EC: 0, EM: "", DT: { schedule, patient } };
-    } catch (error) {
-        console.error(error);
-        return { EC: -1, EM: "Lỗi truy vấn", DT: {} };
-    }
-};
-
-// --------------------------------------------------
 const getBookingInfo2 = async (bookingId) => {
     try {
         let booking = await db.Booking.findOne({
@@ -649,11 +607,97 @@ const getBookingTodayOfDoctor = async (userId, date) => {
 };
 
 // --------------------------------------------------
+const getBookingInfo = async (scheduleID, patientID) => {
+    try {
+        const schedule = await db.Schedule.findOne({
+            where: { id: scheduleID },
+            include: [
+                { model: db.Timeslot },
+                { 
+                    model: db.Doctors,
+                    include: [{ model: db.User }, { model: db.Facility }, { model: db.Specialty }]
+                }
+            ],
+            raw: true,
+            nest: true
+        });
+        const patient = await db.Patient.findOne({
+            where: { userId: patientID },
+            include: [{ model: db.User }],
+            raw: true,
+            nest: true
+        });
+        const doctor = await db.Doctors.findOne({
+            where: { userId: patientID },
+            raw: true,
+            nest: true
+        });
+        if (doctor) {
+            return { EC: 2, EM: "Bạn là bác sĩ không được đặt lịch!", DT: {} };
+        }
+        if (!schedule || !patient) {
+            return { EC: 1, EM: "Không tìm thấy thông tin", DT: {} };
+        }
+        if (schedule.currentNumber >= schedule.maxNumber) {
+            return { EC: 3, EM: "Lịch hẹn này đã đầy, vui lòng chọn thời gian khác", DT: {} };
+        }
+        return { EC: 0, EM: "", DT: { schedule, patient } };
+    } catch (error) {
+        console.error(error);
+        return { EC: -1, EM: "Lỗi truy vấn", DT: {} };
+    }
+};
+
+// --------------------------------------------------
+const getAllBooking = async () => {
+    try {
+        let bookings = await db.RepairBooking.findAll({
+            raw: true,
+            nest: true
+        });
+        console.log("Booking:", booking);
+        return {
+            EM: "Đã lấy lịch thành công!",
+            EC: 0,
+            DT: bookings,
+        };
+    } catch (error) {
+        console.error(error);
+        return { EC: -1, EM: "Lỗi truy vấn", DT: {} };
+    }
+};
+
+// --------------------------------------------------
+const getDataForCreateBookingApiService = async (workScheduleId, userId) => {
+    try {
+        console.log(workScheduleId)
+        const workSchedule = await db.WorkSchedule.findOne({
+            where: { work_schedule_id: workScheduleId },
+            raw: true, nest: true
+        });
+
+        const customer = await db.User.findOne({
+            where: { user_id: userId },
+            raw: true, nest: true
+        });
+        return {
+            EM: "Đã lấy lịch thành công!",
+            EC: 0,
+            DT: {workSchedule, customer}
+        };
+    } catch (error) {
+        console.error(error);
+        return { EC: -1, EM: "Lỗi truy vấn", DT: {} };
+    }
+};
+
+// --------------------------------------------------
 export default {
     createNewBooking, 
     cancelBooking, 
     completeBooking,
-
+getDataForCreateBookingApiService,
+    getAllBooking,
     getAllBookingByDoctorId, 
     getBookingInfo, 
     getBookingInfo2, 

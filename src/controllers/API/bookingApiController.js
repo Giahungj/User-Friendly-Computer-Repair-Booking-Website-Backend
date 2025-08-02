@@ -87,6 +87,34 @@ const readBooking = async (req, res) => {
     }
 }
 
+const readDataForCreateBookingApiController = async (req, res) => {
+    try {
+        const { workScheduleId, userId } = req.params;
+        if (!workScheduleId || !userId) {
+			return res.status(400).json({
+				EM: "Thiếu dữ liệu",
+				EC: -1,
+				DT: []
+			});
+		}
+        let data = await bookingApiService.getDataForCreateBookingApiService(workScheduleId, userId)
+        if (data) {
+            return res.status(200).json({
+                EM: 'hehe',
+                EC: data.EC,
+                DT: data.DT
+            })
+        }
+    } catch (error) {
+        return res.status(500).json({
+            EM: "hehe",
+            EC: 1,
+            DT: []
+        })
+    }
+}
+
+
 // --------------------------------------------------
 const getBookingDetails = async (req, res) => {
     try {
@@ -200,7 +228,6 @@ const handleReadBookingDetail = async (req, res) => {
         if (data.EC !== 0) {
             return res.status(404).json({EC: data.EC, EM: data.EM, DT: data.DT});
         }
-        // console.log(data.DT)
         return res.status(200).json({EC: 0, EM: data.EM, DT: data.DT});
     } catch (error) {
         console.error("Lỗi server:", error);
@@ -260,6 +287,7 @@ const readBookingsTodayOfDoctorByDoctorId = async (req, res) => {
 export default {
     // CRUD Operations
     readBooking,
+    readDataForCreateBookingApiController,
     getBookingDetails,
     readBookingsTodayOfDoctorByDoctorId,
     processCreateBooking,

@@ -1,290 +1,108 @@
-import { where } from 'sequelize/lib/sequelize';
-import db from '../models/index';
-import specialtyService from '../services/specialtyService';
-import doctorApiService from '../services/doctorApiService';
-// --------------------------------------------------
-const renderSpecialtiesPage = async (req, res) => {
+import specialtyService from '../services/newservices/specialtyService.js';
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const renderSpecialtyListPage = async (req, res) => {
+	try {
+		const page = parseInt(req.query.page) || 1;
+		const result = await specialtyService.getAllSpecialties(page);
+		if (result.EC === 0) {
+			return res.render('layouts/layout', {
+				page: 'pages/specialtyListPage.ejs',
+				pageTitle: 'Danh sách chuyên môn',
+				specialties: result.DT.specialties,
+				totalSpecialties: result.DT.total,
+				currentPage: page,
+				totalPages: result.DT.totalPages,
+				EM: result.EM,
+				EC: result.EC
+			});
+		} else {
+			return res.status(400).render('layouts/layout', {
+				page: 'pages/errorPage.ejs',
+				pageTitle: 'Lỗi',
+				EM: result.EM,
+				EC: result.EC
+			});
+		}
+	} catch (error) {
+		console.error('Lỗi khi lấy danh sách chuyên môn:', error);
+		return res.status(500).render('layouts/layout', {
+			page: 'pages/errorPage.ejs',
+			pageTitle: 'Lỗi 500',
+			EM: 'Không thể tải danh sách chuyên môn.',
+			EC: -1
+		});
+	}
+};
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const renderAddSpecialtyPage = async (req, res) => {
     try {
-        const data = await specialtyService.getSpecialtyList()
         return res.render('layouts/layout', {
-            page: `pages/specialties/specialtyList.ejs`,
-            pageTitle: 'Quản lý chuyên khoa',
-            EC: data.EC,
-            specialties: data.DT.specialties,
-            deletedspecialties: data.DT.deletedSpecialties,
-            EM: data.EM
-        })
+            page: 'pages/addSpecialtyPage.ejs',
+            pageTitle: 'Thêm chuyên môn kỹ thuật viên',
+});
     } catch (error) {
-        console.error(error);
-        return res.render('layouts/layout', {
+        console.error("Lỗi khi render trang thêm chuyên môn kỹ thuật viên:", error);
+        return res.status(500).render('layouts/layout', {
             page: 'pages/errorPage.ejs',
-            pageTitle: 'Lỗi 404',
-            EM: "Lỗi server ...",
+            pageTitle: 'Lỗi 500',
+            EM: "Không thể tải trang thêm chuyên môn kỹ thuật viên.",
             EC: -1,
-        })
-    }
-}
-
-const renderSpecialtyDetailPage = async (req, res) => {
-    try {
-        const id = req.params.id;
-        const data = await specialtyService.getSpecialtyById(id);
-        return res.render('layouts/layout', {
-            page: `pages/specialties/specialtyDetail.ejs`,
-            pageTitle: 'Chi tiết chuyên khoa',
-            EC: 0,
-            specialty: data.DT.specialty,
-            doctors: data.DT.doctors,
-            doctorOfSpecialty: data.DT.doctorOfSpecialty,
-            EM: ''
         });
-
-    } catch (error) {
-        console.error(error);
-        return res.render('layouts/layout', {
-            page: 'pages/errorPage.ejs',
-            pageTitle: 'Lỗi 404',
-            EM: "Lỗi server ...",
-            EC: -1,
-        })
     }
 };
 
-// --------------------------------------------------
-const renderDeletedSpecialtyListPage = async (req, res) => {
-    try {
-        const data = await specialtyService.getDeletedSpecialties();
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const handleAddSpecialty = async (req, res) => {
+	try {
+		console.log('📥 Dữ liệu form:', req.body);
+		console.log('🖼️ Ảnh upload:', req.file);
 
-        if (data.EC !== 0) {
-            return res.render('layouts/layout', {
-                page: `pages/specialties/specialtyDeletedList.ejs`,
-                pageTitle: 'Quản lý chuyên khoa',
-                EC: data.EC,
-                deletedspecialties: data.DT || [],
-                EM: data.EM || 'Có lỗi xảy ra khi lấy danh sách chuyên khoa đã xoá.'
-            });
-        }
+		if (!req.body || Object.keys(req.body).length === 0) {
+			console.warn('⚠️ Không nhận được dữ liệu từ form!');
+			return res.status(400).render('layouts/layout', {
+				page: 'pages/addSpecialtyPage.ejs',
+				pageTitle: 'Thêm chuyên môn',
+				EM: 'Không nhận được dữ liệu từ form.',
+				EC: -1
+			});
+		}
 
-        return res.render('layouts/layout', {
-            page: `pages/specialties/specialtyDeletedList.ejs`,
-            pageTitle: 'Quản lý chuyên khoa',
-            EC: 0,
-            deletedspecialties: data.DT,
-            EM: ''
-        });
+		const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
-    } catch (error) {
-        console.error(error);
-        return res.render('layouts/layout', {
-            page: 'pages/errorPage.ejs',
-            pageTitle: 'Lỗi 404',
-            EM: "Lỗi server ...",
-            EC: -1,
-        })
-    }
+		const result = await specialtyService.createSpecialty(req.body, imagePath);
+
+		if (result.EC === 0) {
+			return res.redirect('/admin/chuyen-mon/danh-sach');
+		} else {
+			return res.status(400).render('layouts/layout', {
+				page: 'pages/addSpecialtyPage.ejs',
+				pageTitle: 'Thêm chuyên môn',
+				EM: result.EM,
+				EC: result.EC
+			});
+		}
+	} catch (error) {
+		console.error("Lỗi khi thêm chuyên môn:", error);
+		return res.status(500).render('layouts/layout', {
+			page: 'pages/errorPage.ejs',
+			pageTitle: 'Lỗi 500',
+			EM: "Không thể thêm chuyên môn.",
+			EC: -1
+		});
+	}
 };
 
-// --------------------------------------------------
-const createSpecialty = async (req, res) => {
-    try {
-        const fieldData = {
-            ... req.body,
-            specialtyImage: req.file ? req.file.filename : req.body.oldImage
-        }
-        const data = await specialtyService.createSpecialty(fieldData)
-        if (data.EC !== 0) {
-            return res.status(201).json({ EC: data.EC, EM: data.EM, DT: [] });
-        }
-        return res.status(201).json({ EC: data.EC, EM: data.EM, DT: data.DT });
-    } catch (error) {        
-        console.error(error);
-        return res.render('layouts/layout', {
-            page: 'pages/errorPage.ejs',
-            pageTitle: 'Lỗi 404',
-            EM: "Lỗi server ...",
-            EC: -1,
-        })
-    }
-}
-
-// --------------------------------------------------
-const updateSpecialty = async (req, res) => {
-    try {
-        const fieldData = {
-            ... req.body,
-            specialtyImage: req.file ? req.file.filename : req.body.oldImage
-        }
-        const data = await specialtyService.updateSpecialty(fieldData)
-        return res.render('layouts/layout', {
-            page: `pages/specialties/specialtyDetail.ejs`,
-            pageTitle: 'Chi tiết chuyên khoa',
-            EC: data.EC,
-            EM: data.EM,
-            specialty: data.DT.specialty,
-            doctors: data.DT.doctors,
-            doctorOfSpecialty: data.DT.doctorOfSpecialty,
-        })
-    } catch (error) {
-        console.error(error);
-        return res.render('layouts/layout', {
-            page: 'pages/errorPage.ejs',
-            pageTitle: 'Lỗi 404',
-            EM: "Lỗi server ...",
-            EC: -1,
-        })
-    }
-}
-
-// --------------------------------------------------
-const deleteSpecialty = async (req, res) => {
-    try {
-        const specialtyId = req.body.specialtyId;
-        const updateResult = await doctorApiService.updateDoctorSpecialty(specialtyId);
-        if (updateResult.EC !== 0) {
-            const data = await specialtyService.deleteSpecialty(specialtyId);
-            return res.render('layouts/layout', {
-                page: `pages/specialties/specialtyList.ejs`,
-                pageTitle: 'Quản lý chuyên khoa',
-                EC: data.EC,
-                specialties: data.DT.specialties,
-                deletedspecialties: data.DT.deletedSpecialties,
-                EM: data.EM
-            });
-        } else {
-            const data = await specialtyService.getSpecialtyList();
-            return res.render('layouts/layout', {
-                page: `pages/specialties/specialtyList.ejs`,
-                pageTitle: 'Quản lý chuyên khoa',
-                EC: updateResult.EC,
-                specialties: data.DT.specialties,
-                deletedspecialties: data.DT.deletedSpecialties,
-                EM: data.EM
-            });
-        }
-    } catch (error) {
-        console.error(error);
-        return res.render('layouts/layout', {
-            page: 'pages/errorPage.ejs',
-            pageTitle: 'Lỗi 404',
-            EM: "Lỗi server ...",
-            EC: -1,
-        })
-    }
-};
-
-// --------------------------------------------------
-const deleteAllDeletedSpecialties = async (req, res) => {
-    try {
-        const data = await specialtyService.deleteAllDeletedSpecialties()
-        return res.render('layouts/layout', {
-            page: `pages/specialties/specialtyDeletedList.ejs`,
-            pageTitle: 'Quản lý chuyên khoa',
-            EC: data.EC,
-            deletedspecialties: data.DT.deletedSpecialties,
-            EM: data.EM
-        })
-    } catch (error) {
-        console.error(error);
-        return res.render('layouts/layout', {
-            page: 'pages/errorPage.ejs',
-            pageTitle: 'Lỗi 404',
-            EM: "Lỗi server ...",
-            EC: -1,
-        })
-    }
-}
-
-// --------------------------------------------------
-const restoreSpecialty = async (req, res) => {
-    try {
-        const specialtyId = req.body.specialtyId;
-        const data = await specialtyService.restoreSpecialty(specialtyId)
-        return res.render('layouts/layout', {
-            page: `pages/specialties/specialtyDetail.ejs`,
-            pageTitle: 'Quản lý chuyên khoa',
-            EC: data.EC,
-            specialty: data.DT.specialty,
-            doctors: data.DT.doctors,
-            EM: data.EM
-        })
-    } catch (error) {
-        console.error(error);
-        return res.render('layouts/layout', {
-            page: 'pages/errorPage.ejs',
-            pageTitle: 'Lỗi 404',
-            EM: "Lỗi server ...",
-            EC: -1,
-        })
-    }
-}
-
-// --------------------------------------------------
-// const restoreAllSpecialties = async (req, res) => {
-//     try {
-//         const specialtyId = req.body.specialtyId;
-//         const data = await specialtyService.restoreSpecialty(specialtyId)
-//         return res.render('layouts/layout', {
-//             page: `pages/specialties/specialtyDetail.ejs`,
-//             pageTitle: 'Quản lý chuyên khoa',
-//             EC: data.EC,
-//             specialty: data.DT,
-//             EM: data.EM
-//         })
-//     } catch (error) {
-//         console.error(error);
-        // return res.render('layouts/layout', {
-        //     page: 'pages/errorPage.ejs',
-        //     pageTitle: 'Lỗi 404',
-        //     EM: "Lỗi server ...",
-        //     EC: -1,
-        // })
-//     }
-// }
-
-// --------------------------------------------------
-const addDoctorsToSpecialty  = async (req, res) => {
-    try {
-        let { specialtyId, selectedDoctors } = req.body;
-        if (!specialtyId || !selectedDoctors || !Array.isArray(selectedDoctors) || selectedDoctors.length === 0) {
-            return res.status(400).json({ EM: "Dữ liệu không hợp lệ. Vui lòng chọn ít nhất một bác sĩ.", EC: -1, DT: {} });
-        }
-        const formattedSpecialtyId = parseInt(specialtyId);
-        const formattedDoctorIds = selectedDoctors.map(id => parseInt(id)).filter(id => !isNaN(id));
-        if (isNaN(formattedSpecialtyId) || formattedDoctorIds.length === 0) {
-            return { EM: "Dữ liệu không hợp lệ sau khi chuẩn hóa.", EC: -1, DT: [] }}
-        const result = await specialtyService.addDoctorsToSpecialtyInDB(formattedSpecialtyId, formattedDoctorIds);
-        const data = await specialtyService.getSpecialtyById(specialtyId)
-        return res.render('layouts/layout', {
-            page: `pages/specialties/specialtyDetail.ejs`,
-            pageTitle: 'Chi tiết chuyên khoa',
-            EC: result.EC,
-            EM: result.EM,
-            specialty: data.DT.specialty,
-            doctors: data.DT.doctors,
-            doctorOfSpecialty: data.DT.doctorOfSpecialty,
-        })
-    } catch (error) {
-        console.error(error);
-        return res.render('layouts/layout', {
-            page: 'pages/errorPage.ejs',
-            pageTitle: 'Lỗi 404',
-            EM: "Lỗi server ...",
-            EC: -1,
-            DT: []
-        })
-    }
-}
-
-// --------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 export default {
-    renderSpecialtiesPage, 
-    renderSpecialtyDetailPage,
-    renderDeletedSpecialtyListPage,
-
-    createSpecialty,
-    updateSpecialty,
-    deleteSpecialty,
-    deleteAllDeletedSpecialties,
-    restoreSpecialty,
-    addDoctorsToSpecialty 
+	renderSpecialtyListPage,
+	renderAddSpecialtyPage,
+	handleAddSpecialty
 }

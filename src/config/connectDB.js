@@ -1,6 +1,6 @@
 import Sequelize from "sequelize";
 
-const sequelize = new Sequelize('doan3', 'root', null, {
+const sequelize = new Sequelize('repair_booking', 'root', null, {
     host: 'localhost', // Dùng tên service trong Docker
     dialect: 'mysql'
 

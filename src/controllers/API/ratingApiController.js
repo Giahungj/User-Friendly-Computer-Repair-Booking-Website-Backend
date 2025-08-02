@@ -1,27 +1,34 @@
-import { where } from 'sequelize/lib/sequelize';
-import ratingApiService from '../../services/ratingApiService';
-
-// ---------------------------------------------------------
-const createRating = async (req, res) => {
+import ratingApiService from '../../services/API/ratingApiService';
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const readTechnicianRatingsApiController = async (req, res) => {
     try {
-        const { ratingData } = req.body;
-        if (!ratingData) {
-            return res.status(400).json({ message: "Đánh giá không hợp lệ!" });
-        }
-       
-        const newRating = await ratingApiService.createRating(ratingData);
-        return res.status(201).json({
-            EM: newRating.EM,
-            EC: newRating.EC,
-            DT: newRating.DT
-        });
+        const technicianId = parseInt(req.params.id);
+        if (!technicianId) {
+			return res.status(400).json({
+				EM: "Thiếu technicianId",
+				EC: -1,
+				DT: []
+			});
+		}
+        const result = await ratingApiService.readTechnicianRatingsApiService(technicianId);
+        if (result.EC !== 0) {
+			return res.status(200).json({
+				EM: "Không tìm thấy đánh giá nào",
+				EC: 0,
+				DT: []
+			});
+		}
+        return res.status(result.EC === 0 ? 200 : result.EC === -1 ? 404 : 400).json(result);
     } catch (error) {
-        console.error("Lỗi APIController:", error);
-        return res.status(500).json({ EM: "Lỗi máy chủ", EC: -1, DT: [] });
+        console.error('Lỗi khi lấy đánh giá:', error);
+        return res.status(500).json({ EC: -1, EM: 'Lỗi server', DT: {} });
     }
-}
-
-// ---------------------------------------------------------
+};
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 export default {
-    createRating
+    readTechnicianRatingsApiController,
 }

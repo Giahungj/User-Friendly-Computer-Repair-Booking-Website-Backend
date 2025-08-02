@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import registerApiService from '../../services/registerApiService'
+import checkApiService from '../../services/API/loginApiService';
 import userApiService from '../../services/userApiService'
 const salt = bcrypt.genSaltSync(10);
 
@@ -29,14 +30,27 @@ const handleCheckEmail = async (req, res) => {
 }
 
 // ---------------------------------------------------------
-const handleRegisterPatient = async (req, res) => {
+const handleSignUpNewUser = async (req, res) => {
     try {
-        const { email, password, name, address, phone, citizenId, sex, dob } = req.body
-        const hashedPassword  = await hashPassword(password)
-        const userData = { email, hashedPassword , name, address, phone, citizenId, sex, dob }
-        const result  = await registerApiService.registerNewUser(userData)
+        const { email, password, name, phone } = req.body;
+        const emailCheck = await checkApiService.checkEmail(email);
+        console.log("✅ Check email result:", emailCheck);
+        if (emailCheck.EC !== 0) {
+            return res.status(400).json(emailCheck);
+        }
+        const phoneCheck = await checkApiService.checkPhoneNumber(phone);
+        console.log("✅ Check phone result:", phoneCheck);
+        if (phoneCheck.EC !== 0) {
+            return res.status(400).json(phoneCheck);
+        }
+        const hashedPassword = await hashPassword(password);
+        const userData = { email, hashedPassword, name, phone };
+        const result = await registerApiService.createNewUser(userData);
+        console.log("✅ User registration result:", result);
+        if (result.EC !== 0) {
+            return res.status(400).json(result);
+        }
         return res.status(200).json(result);
-        
     } catch (error) {
         console.error("Lỗi khi xử lý đăng ký bác sĩ:", error);
         return res.status(500).json({ EM: "Lỗi máy chủ!", EC: -1, DT: {} });
@@ -81,5 +95,5 @@ const handleRegisterDoctor = async (req, res) => {
 
 // ---------------------------------------------------------
 export default {
-    handleRegisterDoctor, handleRegisterPatient, handleCheckEmail, hashPassword
+    handleRegisterDoctor, handleSignUpNewUser, handleCheckEmail, hashPassword
 }

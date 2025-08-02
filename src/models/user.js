@@ -1,30 +1,49 @@
 'use strict';
-const { BOOLEAN } = require('sequelize');
 const { Model } = require('sequelize');
-module.exports = (sequelize, DataTypes) => {
-  class User extends Model {
-    static associate(models) {
-      User.hasMany(models.Admin);
-      User.hasMany(models.Patient);
-      User.hasMany(models.Doctors);
-      User.hasMany(models.UserLock);
-      User.hasMany(models.Notification);
-    }
-  };
-  User.init({
-    email: DataTypes.STRING,
-    password: DataTypes.STRING,
-    name: DataTypes.STRING,
-    address: DataTypes.STRING,
-    dateofbirth: DataTypes.DATE,
-    sex: DataTypes.STRING,
-    phone: DataTypes.STRING,
-    userType: DataTypes.INTEGER,
-    avatar: DataTypes.STRING
 
-  }, {
-    sequelize,
-    modelName: 'User',
-  });
-  return User;
+module.exports = (sequelize, DataTypes) => {
+	class User extends Model {
+		static associate(models) {
+		}
+	}
+
+	User.init({
+		user_id: {
+			type: DataTypes.INTEGER,
+			autoIncrement: true,
+			primaryKey: true
+		},
+		name: {
+			type: DataTypes.STRING(100),
+			allowNull: false
+		},
+		email: {
+			type: DataTypes.STRING(100),
+			allowNull: false,
+			unique: true
+		},
+		password: {
+			type: DataTypes.STRING(255),
+			allowNull: false
+		},
+		phone: {
+			type: DataTypes.STRING(20),
+			allowNull: true
+		},
+		avatar: {
+			type: DataTypes.STRING(255),
+			allowNull: true
+		},
+		last_active: {
+			type: DataTypes.DATE,
+			allowNull: true,
+		},
+	}, {
+		sequelize,
+		modelName: 'User',
+		tableName: 'users',
+		timestamps: true,
+	});
+
+	return User;
 };

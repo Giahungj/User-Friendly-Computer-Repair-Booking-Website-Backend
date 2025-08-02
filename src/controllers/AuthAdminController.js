@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import db from '../models/index';
 import loginSevice from '../services/loginService'
 import AuthAdminService from '../services/AuthAdminService'
+import { raw } from 'body-parser';
 
 // --------------------------------------------------
 const getAdminLoginPage = async (req, res) => {
@@ -13,37 +14,47 @@ const getAdminLoginPage = async (req, res) => {
 const handleAdminLogin = async (req, res) => {
     try {
         const { email, password } = req.body;
-        const admin = await loginSevice.checkEmail(email);
-        if (admin.EC !==0) {
+        const user = await loginSevice.checkEmail(email);
+        if (user.EC !==0) {
             return res.render('pages/adminLoginPage',
-                { EC: admin.EC, EM: admin.EM }
+                { EC: user.EC, EM: user.EM }
             )
         }
-        if (admin.DT.userType !== 'admin') {
+        console.log("Người dùng tồn tại");
+        const admin = await db.Admin.findOne({
+            where: { user_id: user.DT.user_id },
+            raw: true,
+        });
+        console.log("Người dùng là admin", admin);
+
+        if (!admin) {
             return res.render('pages/adminLoginPage', { EC: 1, EM: 'Tài khoản không có quyền truy cập!' });
         }
-        const isMatch = await bcrypt.compare(password, admin.DT.password);
+        const isMatch = await bcrypt.compare(password, user.DT.password);
         if (!isMatch) {
             return res.render('pages/adminLoginPage',
                 { EC: 1, EM: 'Sai mật khẩu!' }
             )
         }
+        console.log("Người dùng đăng nhập đúng mật khẩu");
         const token = jwt.sign(
             { 
-                id: admin.DT.id, 
+                admin_id: admin.admin_id, 
                 role: "admin", 
-                name: admin.DT.name, 
-                email: admin.DT.email 
+                name: user.DT.name, 
+                email: user.DT.email 
             },
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_EXPIRES_IN || "2h" }
         );
+        console.log("Token được tạo thành công", token);
 
         res.cookie("adminToken", token, {
             httpOnly: true,
             secure: false,
             maxAge: 7200000, // 2 giờ
         });
+        console.log("Cookie adminToken đã được thiết lập");
         return res.redirect("/dashboard");
     } catch (error) {
         console.error(error);
@@ -78,9 +89,3 @@ export default {
     handleAdminLogin,
     handleAdminLogout
 }
-
-// listAllAdmins()
-// resetPassword()
-// changeEmail()
-// viewLoginHistory()
-// updateProfilePicture()Hỗ trợ admin thay đổi ảnh đại diện web

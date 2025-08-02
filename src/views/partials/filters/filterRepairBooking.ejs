@@ -1,0 +1,100 @@
+<%
+	const selectedFilters = {
+		device_type: typeof filters?.device_type !== 'undefined' ? filters.device_type : '',
+		brand: typeof filters?.brand !== 'undefined' ? filters.brand : '',
+		booking_date: typeof filters?.booking_date !== 'undefined' ? filters.booking_date : '',
+		booking_time: typeof filters?.booking_time !== 'undefined' ? filters.booking_time : '',
+		status: typeof filters?.status !== 'undefined' ? filters.status : ''
+	};
+    function highlightFilter(text, keyword) {
+		if (!keyword) return text;
+		const regex = new RegExp(`(${keyword})`, 'gi');
+		return text.replace(regex, '<strong class="text-primary">$1</strong>');
+	}
+%>
+
+<!-- Nút bấm mở collapse -->
+<button class="btn btn-custom rounded-pill text-white mb-3" type="button" data-bs-toggle="collapse"
+	data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse"
+	style="background-color: #2196f3;">
+	<i class="fa-solid fa-filter"></i> Bộ lọc nâng cao
+</button>
+
+<!-- Nội dung collapse -->
+<div class="collapse" id="filterCollapse">
+	<div class="card card-body border shadow-sm">
+		<form method="GET" action="/admin/dat-lich/danh-sach">
+			<div class="row g-2 align-items-center">
+				<div class="col">
+					<select name="device_type" class="form-select rounded-pill">
+						<option value="">-- Loại thiết bị --</option>
+						<option value="Laptop" <%= selectedFilters.device_type === 'Laptop' ? 'selected' : '' %>>
+							<%- highlightFilter('Laptop', selectedFilters.device_type) %>
+						</option>
+						<option value="Điện thoại" <%= selectedFilters.device_type === 'Điện thoại' ? 'selected' : '' %>>
+							<%- highlightFilter('Điện thoại', selectedFilters.device_type) %>
+						</option>
+						<option value="Máy in" <%= selectedFilters.device_type === 'Máy in' ? 'selected' : '' %>>
+							<%- highlightFilter('Máy in', selectedFilters.device_type) %>
+						</option>
+					</select>
+				</div>
+
+				<div class="col">
+					<select name="brand" class="form-select rounded-pill">
+						<option value="">-- Hãng --</option>
+						<option value="Apple" <%= selectedFilters.brand === 'Apple' ? 'selected' : '' %>>
+							<%- highlightFilter('Apple', selectedFilters.brand) %>
+						</option>
+						<option value="Samsung" <%= selectedFilters.brand === 'Samsung' ? 'selected' : '' %>>
+							<%- highlightFilter('Samsung', selectedFilters.brand) %>
+						</option>
+						<option value="Dell" <%= selectedFilters.brand === 'Dell' ? 'selected' : '' %>>
+							<%- highlightFilter('Dell', selectedFilters.brand) %>
+						</option>
+					</select>
+				</div>
+
+				<div class="col">
+					<input type="date" name="booking_date" class="form-control rounded-pill"
+						value="<%= selectedFilters.booking_date %>">
+				</div>
+
+				<div class="col">
+					<select name="booking_time" class="form-select rounded-pill">
+						<option value="">-- Khung giờ --</option>
+						<% ['08:00','10:00','13:00','15:00','17:00'].forEach(time => { %>
+							<option value="<%= time %>" <%= selectedFilters.booking_time === time ? 'selected' : '' %>>
+								<%- highlightFilter(time, selectedFilters.booking_time) %>
+							</option>
+						<% }) %>
+					</select>
+				</div>
+
+				<div class="col">
+					<select name="status" class="form-select rounded-pill">
+						<option value="">-- Trạng thái --</option>
+						<option value="pending" <%= selectedFilters.status === 'pending' ? 'selected' : '' %>>
+							<%- highlightFilter('Chờ xác nhận', selectedFilters.status === 'pending' ? 'pending' : '') %>
+						</option>
+						<option value="processing" <%= selectedFilters.status === 'processing' ? 'selected' : '' %>>
+							<%- highlightFilter('Đang xử lý', selectedFilters.status === 'processing' ? 'processing' : '') %>
+						</option>
+						<option value="done" <%= selectedFilters.status === 'done' ? 'selected' : '' %>>
+							<%- highlightFilter('Hoàn tất', selectedFilters.status === 'done' ? 'done' : '') %>
+						</option>
+						<option value="cancelled" <%= selectedFilters.status === 'cancelled' ? 'selected' : '' %>>
+							<%- highlightFilter('Đã hủy', selectedFilters.status === 'cancelled' ? 'cancelled' : '') %>
+						</option>
+					</select>
+				</div>
+
+				<div class="col-2">
+					<button class="btn btn-custom w-100 rounded-pill text-white" type="submit" style="background-color: #2196f3">
+						<i class="fa-solid fa-magnifying-glass"></i> Lọc
+					</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
