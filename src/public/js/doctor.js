@@ -1,7 +1,7 @@
 // Load dữ liệu của toàn bộ bác sĩ
 const loadDoctorData = async (page) => {
     try {
-        const response = await fetch(`http://localhost:8080/bac-si/?page=${page}`)
+        const response = await fetch(`http://localhost:8081/bac-si/?page=${page}`)
         if (!response.ok) {
             throw new Error('Phản hồi không ok cho lắm')
         }

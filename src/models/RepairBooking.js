@@ -10,6 +10,9 @@ module.exports = (sequelize, DataTypes) => {
 			RepairBooking.belongsTo(models.WorkSchedule, {
 				foreignKey: 'work_schedule_id'
 			});
+			RepairBooking.hasMany(models.RepairHistory, {
+				foreignKey: 'booking_id'
+			});
 		}
 	}
 
@@ -31,14 +34,8 @@ module.exports = (sequelize, DataTypes) => {
 			type: DataTypes.ENUM('Laptop', 'PC', 'Máy in', 'Điện thoại'),
 			allowNull: false
 		},
-		brand: {
-			type: DataTypes.STRING(50),
-			allowNull: true
-		},
-		model: {
-			type: DataTypes.STRING(100),
-			allowNull: true
-		},
+		brand: DataTypes.STRING(50),
+		model: DataTypes.STRING(100),
 		issue_description: {
 			type: DataTypes.TEXT,
 			allowNull: false
@@ -52,13 +49,10 @@ module.exports = (sequelize, DataTypes) => {
 			allowNull: false
 		},
 		status: {
-			type: DataTypes.ENUM('pending', 'in-progress', 'completed'),
+			type: DataTypes.ENUM('pending', 'in-progress', 'completed', 'cancelled'),
 			defaultValue: 'pending'
 		},
-		issue_image: {
-			type: DataTypes.STRING(255),
-			allowNull: true
-		}
+		issue_image: DataTypes.STRING(255)
 	}, {
 		sequelize,
 		modelName: 'RepairBooking',

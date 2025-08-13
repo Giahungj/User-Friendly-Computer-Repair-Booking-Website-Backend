@@ -1,3 +1,4 @@
+import e from 'connect-flash';
 import technicianApiService from '../../services/API/technicianApiService';
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -19,31 +20,25 @@ const readFeaturedDoctors = async (req, res) => {
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const readTechnicians = async (req, res) => {
     try {
-        const pageNum = parseInt(req.query.page) || 1; // Lấy pageNum từ query params
-        const data = await technicianApiService.getAllTechnicians(pageNum);
+        const data = await technicianApiService.getAllTechnicians();
         if (!data || !data.DT || !data.DT.technicians || data.DT.technicians.length === 0) {
             return res.status(200).json({
                 EM: "No technicians found",
                 EC: "0",
                 DT: [],
-                total: 0,
-                totalPages: 0
             });
         }
         return res.status(200).json({
             EM: data.EM || "Get technicians successfully",
             EC: data.EC || "0",
             DT: data.DT.technicians,
-            total: data.DT.total,
-            totalPages: data.DT.totalPages
         });
     } catch (error) {
-        console.error(`Error in readTechnicians (page ${req.query.page}):`, error.message);
+        console.error(`Error in readTechnicians:`, error.message);
         return res.status(500).json({
             EM: error.message || "Internal server error",
             EC: "-1",
             DT: [],
-            total: 0
         });
     }
 };
@@ -87,7 +82,7 @@ const readTechnicianDetail = async (req, res) => {
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const readSimilarTechniciansApiController = async (req, res) => {
     try {
-        const technicianId = parseInt(req.params.id);
+        const technicianId = parseInt(req.params.technicianId);
         if (!technicianId) {
 			return res.status(400).json({
 				EM: "Thiếu technicianId",
@@ -96,7 +91,6 @@ const readSimilarTechniciansApiController = async (req, res) => {
 			});
 		}
         const similarTechnicians = await technicianApiService.getSimilarTechniciansApiSerrvice(technicianId)
-        console.log(similarTechnicians)
         return res.status(200).json(similarTechnicians);
     } catch (error) {
         console.error('Lỗi khi lấy kỹ thuật viên tương tự:', error);

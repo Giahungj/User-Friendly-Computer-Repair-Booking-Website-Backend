@@ -39,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
 		current_number: {
 			type: DataTypes.INTEGER.UNSIGNED,
 			allowNull: false,
-			defaultValue: 0
+			defaultValue: 0,
 		}
 	}, {
 		sequelize,

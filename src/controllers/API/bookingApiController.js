@@ -87,6 +87,38 @@ const readBooking = async (req, res) => {
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const readDataForCreateBookingApiController = async (req, res) => {
     try {
         const { workScheduleId, userId } = req.params;
@@ -97,22 +129,201 @@ const readDataForCreateBookingApiController = async (req, res) => {
 				DT: []
 			});
 		}
-        let data = await bookingApiService.getDataForCreateBookingApiService(workScheduleId, userId)
+        const data = await bookingApiService.getDataForCreateBookingApiService(workScheduleId, userId)
         if (data) {
-            return res.status(200).json({
-                EM: 'hehe',
-                EC: data.EC,
-                DT: data.DT
-            })
+            return res.status(200).json(data)
         }
     } catch (error) {
         return res.status(500).json({
             EM: "hehe",
-            EC: 1,
+            EC: -1,
             DT: []
         })
     }
 }
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const createBookingApiController = async (req, res) => {
+    try {
+        const {
+            issueDescription,
+            deviceType,
+            model,
+            brand,
+            workScheduleId,
+            customerId,
+            bookingDate,
+            bookingTime
+        } = req.body;
+        const issueImage = req.file ? `/uploads/${req.file.filename}` : null;
+        if (!workScheduleId || !customerId) {
+            return res.status(400).json({
+                EM: "Thiếu dữ liệu bắt buộc",
+                EC: -1,
+                DT: []
+            });
+        }
+        const data = await bookingApiService.createBookingApiService({
+            issueDescription,
+            deviceType,
+            model,
+            brand,
+            issueImage,
+            workScheduleId,
+            customerId,
+            bookingDate,
+            bookingTime
+        });
+        return res.status(200).json(data);
+    } catch (error) {
+        console.error("Create booking error:", error);
+        return res.status(500).json({
+            EM: "Lỗi server",
+            EC: -1,
+            DT: []
+        });
+    }
+};
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const cancelBookingApiController = async (req, res) => {
+    try {
+        if (!bookingId) {
+            return res.status(400).json({
+                EM: "Thiếu bookingId để hủy lịch",
+                EC: -1,
+                DT: []
+            });
+        }
+
+        const data = await bookingApiService.cancelBookingApiService({
+            bookingId,
+            reason
+        });
+
+        return res.status(200).json(data);
+    } catch (error) {
+        console.error("Cancel booking error:", error);
+        return res.status(500).json({
+            EM: "Lỗi server",
+            EC: -1,
+            DT: []
+        });
+    }
+};
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const updateBookingApiController = async (req, res) => {
+	try {
+		const { bookingId } = req.params;
+		if (!bookingId) {
+			return res.status(400).json({
+				EM: "Thiếu bookingId để cập nhật lịch",
+				EC: -1,
+				DT: []
+			});
+		}
+        const issueImage = req.file ? `/uploads/${req.file.filename}` : null;
+		const deviceType = req.body.deviceType?.trim() || "";
+		const model = req.body.model?.trim() || "";
+		const brand = req.body.brand?.trim() || "";
+		const issueDescription = req.body.issueDescription?.trim() || "";
+		const data = await bookingApiService.updateBookingApiService({
+			bookingId,
+            issueDescription,
+			issueImage,
+			deviceType,
+			model,
+			brand,
+		});
+		return res.status(200).json(data);
+	} catch (error) {
+		console.error("Update booking error:", error);
+		return res.status(500).json({
+			EM: "Lỗi server",
+			EC: -1,
+			DT: []
+		});
+	}
+};
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const readBookingByIdApiController = async (req, res) => {
+    try {
+        const { bookingId } = req.params;
+        if (!bookingId) {
+            return res.status(400).json({
+                EM: "Thiếu bookingId",
+                EC: -1,
+                DT: []
+            });
+        }
+        const data = await bookingApiService.getBookingByIdApiService(bookingId);
+        return res.status(200).json(data);
+    } catch (error) {
+        console.error("Get booking by ID error:", error);
+        return res.status(500).json({
+            EM: "Lỗi server",
+            EC: 1,
+            DT: []
+        });
+    }
+};
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const readCustomerBookingsApiController = async (req, res) => {
+    try {
+        const { userId }= req.params;
+        if (!userId) {
+            return res.status(400).json({ EM: "Thiếu userId", EC: -1, DT: [] });
+        }
+        const data = await bookingApiService.getCustomerBookingsApiService(userId);
+
+        return res.status(200).json(data);
+    } catch (error) {
+        console.error("Get customer bookings error:", error);
+        return res.status(500).json({
+            EM: "Lỗi server",
+            EC: 1,
+            DT: []
+        });
+    }
+};
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // --------------------------------------------------
@@ -287,7 +498,17 @@ const readBookingsTodayOfDoctorByDoctorId = async (req, res) => {
 export default {
     // CRUD Operations
     readBooking,
+
+// --------------------------------------------------
     readDataForCreateBookingApiController,
+    createBookingApiController,
+    cancelBookingApiController,
+    updateBookingApiController,
+    readBookingByIdApiController,
+
+    readCustomerBookingsApiController,
+// --------------------------------------------------
+
     getBookingDetails,
     readBookingsTodayOfDoctorByDoctorId,
     processCreateBooking,

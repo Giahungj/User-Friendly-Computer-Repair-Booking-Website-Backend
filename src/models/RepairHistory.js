@@ -19,15 +19,11 @@ module.exports = (sequelize, DataTypes) => {
 			allowNull: false
 		},
 		status: {
-			type: DataTypes.ENUM('completed', 'rejected'),
+			type: DataTypes.ENUM('pending', 'in-progress', 'completed', 'cancelled'),
 			allowNull: false
 		},
-		completion_notes: {
-			type: DataTypes.TEXT,
-			allowNull: true
-		},
-		rejection_reason: {
-			type: DataTypes.TEXT,
+		notes: {                  // thay completion_notes & rejection_reason
+			type: DataTypes.TEXT,  // ghi chú chung: lý do hủy, hoàn thành, vv.
 			allowNull: true
 		},
 		action_date: {

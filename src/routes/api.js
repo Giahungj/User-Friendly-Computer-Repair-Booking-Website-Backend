@@ -38,24 +38,29 @@ const storage = multer.diskStorage({
     filename: (req, file, cb) => {
         cb(null, Date.now() + path.extname(file.originalname));
     }
-});ratingApiController
+});
 const upload = multer({ storage });
 
 const initApiRoutes = (app) => {
-    //
-
     // Kỹ thuật viên
     router.get('/ky-thuat-vien/danh-sach', technicianApiController.readTechnicians);
     router.get('/ky-thuat-vien/:id/thong-tin/chi-tiet', technicianApiController.readTechnicianDetail);
     router.get('/ky-thuat-vien/:id/thong-tin/lich-lam-viec', workScheduleApiController.readWorkScheduleByTechnician );
     router.get('/ky-thuat-vien/:id/thong-tin/danh-gia', ratingApiController.readTechnicianRatingsApiController );
-    router.get('/ky-thuat-vien/:id/thong-tin/ky-thuat-vien-tuong-tu', technicianApiController.readSimilarTechniciansApiController );
+    router.get('/ky-thuat-vien/:technicianId/thong-tin/ky-thuat-vien-tuong-tu', technicianApiController.readSimilarTechniciansApiController );
     
     // Chuyên môn
     router.get('/chuyen-mon/danh-sach', specialtyApiController.readSpecialties);
 
     // Đặt Lịch
     router.get('/dat-lich/tao-lich-moi/:workScheduleId/:userId/lay-du-lieu/', bookingApiController.readDataForCreateBookingApiController);
+    router.post('/dat-lich/tao-lich-hen-moi/them-moi', upload.single('issueImage'), bookingApiController.createBookingApiController);
+    router.post('/dat-lich/:bookingId/huy-lich', bookingApiController.cancelBookingApiController);
+    router.post('/dat-lich/:bookingId/cap-nhat', upload.single("issueImage"), bookingApiController.updateBookingApiController);
+
+    // Lấy chi tiết lịch hẹn theo bookingId
+    router.get('/dat-lich/khach-hang/:userId/danh-sach', bookingApiController.readCustomerBookingsApiController);
+    router.get('/dat-lich/:bookingId/thong-tin/chi-tiet', bookingApiController.readBookingByIdApiController);
 
 
     // // Tài khoản  ---------------------------------------------------------

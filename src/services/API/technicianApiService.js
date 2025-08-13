@@ -2,64 +2,90 @@ import db from '../../models';
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-const getAllTechnicians = async (pageNum = 1) => {
-    try {
-        const offset = (pageNum - 1) * 20; 
-        const technicians = await db.Technician.findAndCountAll({
-            attributes: ['technician_id', 'user_id', 'store_id', 'avg_rating'],
-            include: [
-				{ model: db.User, attributes: ['name', 'phone', 'email', 'avatar'], order: [['createdAt', 'DESC']] },
-				{ model: db.Store, attributes: ['store_id', 'name', 'address'] },
-			],
-            limit: 20,
-            offset,
-            raw: true, nest: true
-        });
-        if (!technicians || technicians.length === 0) {
-            return { EC: -1, EM: 'Không tìm thấy kỹ thuật viên.', DT: [] };
-        }
-        const { count, rows } = technicians;
+// Lấy kỹ thuật viên cơ bản
+async function getTechniciansBase() {
+	return await db.Technician.findAll({
+		attributes: ['technician_id', 'user_id', 'store_id', 'avg_rating'],
+		include: [
+			{ model: db.User, attributes: ['name', 'phone', 'email', 'avatar'], order: [['createdAt', 'DESC']] },
+			{ model: db.Store, attributes: ['store_id', 'name', 'address'] },
+		],
+		raw: true,
+		nest: true
+	});
+}
 
-        // Promise.all để chạy song song
-        const result = await Promise.all(rows.map(async tech => {
-            const specialties = await db.Specialty.findAll({
-                attributes: ['specialty_id', 'name'],
-                include: [{
-                    model: db.Technician,
-                    where: { technician_id: tech.technician_id },
-                    through: { attributes: [] }
-                }],
-                raw: true,
-                nest: true
-            });
+// Lấy chuyên môn của kỹ thuật viên
+async function getTechnicianSpecialties(technicianId) {
+	return await db.Specialty.findAll({
+		include: [{
+			model: db.Technician,
+			where: { technician_id: technicianId },
+			through: { attributes: [] }
+		}],
+		raw: true,
+		nest: true
+	});
+}
 
-            return {
-                ...tech,
-                Specialties: specialties
-            };
-        }));
-        return {
-            EM: 'Lấy danh sách kỹ thuật viên thành công',
-            EC: 0,
-            DT: {
-                technicians: result,
-                total: count,
-                totalPages: Math.ceil(count / 20)
-            }
-        };
-    } catch (error) {
-        console.error(`Error in getAllTechnicians (page ${pageNum}):`, error.message);
-        return {
-            EM: error.message || 'Lỗi server',
-            EC: -1,
-            DT: {
-                technicians: [],
-                total: 0,
-                totalPages: 0
-            }
-        };
-    }
-};
+// Lấy lịch làm việc hôm nay
+async function getTodaySchedules(technicianId) {
+	const today = new Date().toISOString().split('T')[0];
+	return await db.WorkSchedule.findAll({
+		where: { technician_id: technicianId, work_date: today },
+		raw: true,
+		nest: true
+	});
+}
+
+// Đếm số lịch khám của kỹ thuật viên
+async function countRepairBookings(technicianId) {
+	return await db.RepairBooking.count({
+        include: [{
+            model: db.WorkSchedule,
+            where: { technician_id: technicianId }
+        }],
+	});
+}
+
+// Hàm chính lấy danh sách + sắp xếp ưu tiên
+const getAllTechnicians = async () => {
+	const technicians = await getTechniciansBase();
+	if (!technicians || technicians.length === 0) {
+		return { EC: -1, EM: 'Không tìm thấy kỹ thuật viên.', DT: [] };
+	}
+
+	const result = await Promise.all(technicians.map(async tech => {
+		const [specialties, workSchedules, totalRepairBookings] = await Promise.all([
+			getTechnicianSpecialties(tech.technician_id),
+			getTodaySchedules(tech.technician_id),
+			countRepairBookings(tech.technician_id)
+		]);
+
+		const hasEmptySlotToday = workSchedules.some(sch => sch.current_number < sch.max_number);
+
+		return {
+			...tech,
+			Specialties: specialties,
+			TodaySchedules: workSchedules,
+			totalRepairBookings: totalRepairBookings,
+			HasEmptySlotToday: hasEmptySlotToday
+		};
+	}));
+
+	// Sắp xếp ưu tiên
+	result.sort((a, b) => {
+		if (a.HasEmptySlotToday !== b.HasEmptySlotToday) return b.HasEmptySlotToday - a.HasEmptySlotToday;
+		if (a.avg_rating !== b.avg_rating) return b.avg_rating - a.avg_rating;
+		return b.TotalAppointments - a.TotalAppointments;
+	});
+
+	return {
+		EM: 'Lấy danh sách kỹ thuật viên thành công',
+		EC: 0,
+		DT: { technicians: result },
+	};
+}
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -87,15 +113,17 @@ const getTechnicianById = async (technicianId) => {
             }],
             raw: true, nest: true
         });
-        const bookingCount = await db.RepairBooking.count({
+        
+        const bookingCount = await db.Technician.count({
+            where: { technician_id: technicianId },
             include: [{
                 model: db.WorkSchedule,
                 include: [{
-                    model: db.Technician,
-                    where: { technician_id: technicianId }
+                    model: db.RepairBooking,
                 }]
             }],
         });
+
         return {
             EM: 'Lấy chi tiết kỹ thuật viên thành công',
             EC: 0,
@@ -192,5 +220,5 @@ const getSimilarTechniciansApiSerrvice = async (technicianId) => {
 export default {
     getAllTechnicians,
     getTechnicianById,
-    getSimilarTechniciansApiSerrvice
+    getSimilarTechniciansApiSerrvice,
 }
