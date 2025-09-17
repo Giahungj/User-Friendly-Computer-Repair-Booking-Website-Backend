@@ -37,6 +37,56 @@ const readWorkScheduleByTechnician = async (req, res) => {
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const handleCreateWorkScheduleForStoreManagerApiController = async (req, res) => {
+	try {
+		const { storeManagerId, schedules } = req.body;
+
+		if (!storeManagerId) {
+			return res.status(400).json({
+				EC: -1,
+				EM: "Thiếu storeManagerId",
+				DT: [],
+			});
+		}
+
+		if (!Array.isArray(schedules) || schedules.length === 0) {
+			return res.status(400).json({
+				EC: 1,
+				EM: "Dữ liệu không hợp lệ",
+				DT: [],
+			});
+		}
+
+		for (const item of schedules) {
+			if (!item.technician_id || !item.work_date || !item.shift) {
+				return res.status(400).json({
+					EC: 1,
+					EM: "Thiếu thông tin cần thiết",
+					DT: [],
+				});
+			}
+		}
+
+		const result = await workScheduleApiService.createWorkSchedulesByStoreManagerApiService(
+			storeManagerId,
+			schedules
+		);
+
+		return res.status(200).json(result);
+	} catch (err) {
+		console.error("Lỗi tạo lịch:", err);
+		return res.status(500).json({
+			EC: -1,
+			EM: "Lỗi server",
+			DT: [],
+		});
+	}
+};
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 export default {
     readWorkScheduleByTechnician,
+	handleCreateWorkScheduleForStoreManagerApiController
 }

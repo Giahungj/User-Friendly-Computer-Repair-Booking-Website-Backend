@@ -97,46 +97,28 @@ const getAllTechnician = async (page = 1, searchQuery) => {
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const createTechnician = async (data, avatarPath) => {
 	try {
-		console.log(d)
-		const { name, email, password, phone, store_id } = data;
+		const { name, email, password, phone, store_id, specialty } = data;
+		// Kiểm tra email/phone đã tồn tại
 		const existing = await db.User.findOne({ where: { [Op.or]: [{ email }, { phone }] } });
-		if (existing) {
-			return { EC: -1, EM: 'Email hoặc số điện thoại đã tồn tại.' };
-		}
-		const specialties = Array.isArray(data.specialty) ? data.specialty : [data.specialty];
-
+		if (existing) return { EC: -1, EM: "Email hoặc số điện thoại đã tồn tại." };
+		// Hash password
 		const hash = await bcrypt.hash(password, 10);
-
-		const user = await db.User.create({
-			name,
-			email,
-			password: hash,
-			phone,
-			avatar: avatarPath,
-		});
-
-		if (!user || !user.user_id) {
-			return { EC: -1, EM: 'Tạo tài khoản người dùng thất bại.' };
-		}
-
-		const technician = await db.Technician.create({
-			user_id: user.user_id,
-			store_id: store_id
-		});
-
-		if (specialties && specialties.length > 0) {
-			const specialtyData = specialties.map(item => ({
-				technician_id: technician.technician_id,
-				specialty_id: item
-			}));
-
+		// Tạo User
+		const user = await db.User.create({ name, email, password: hash, phone, avatar: avatarPath });
+		if (!user?.user_id) return { EC: -1, EM: "Tạo tài khoản người dùng thất bại." };
+		// Tạo Technician
+		const technician = await db.Technician.create({ user_id: user.user_id, store_id });
+		// Gán specialties (nếu có)
+		if (specialty) {
+			const specialties = Array.isArray(specialty) ? specialty : [specialty];
+			const specialtyData = specialties.map(id => ({ technician_id: technician.technician_id, specialty_id: id }));
 			await db.TechnicianSpecialty.bulkCreate(specialtyData);
 		}
 
-		return { EC: 0, EM: 'Tạo kỹ thuật viên thành công.' };
+		return { EC: 0, EM: "Tạo kỹ thuật viên thành công." };
 	} catch (error) {
-		console.error('Error creating technician:', error);
-		return { EC: -1, EM: 'Lỗi server khi tạo kỹ thuật viên.' };
+		console.error("Error creating technician:", error);
+		return { EC: -1, EM: "Lỗi server khi tạo kỹ thuật viên." };
 	}
 };
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------

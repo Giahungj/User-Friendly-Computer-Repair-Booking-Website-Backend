@@ -166,7 +166,7 @@ const renderStoreManagerDetailPage = async (req, res) => {
 // 			return res.status(400).render('layouts/layout', {
 // 				page: 'pages/errorPage.ejs',
 // 				pageTitle: 'Lỗi',
-// 				EM: 'Thiếu manager_id.',
+// 				EM: 'Thiếu store_manager_id.',
 // 				EC: -1
 // 			});
 // 		}

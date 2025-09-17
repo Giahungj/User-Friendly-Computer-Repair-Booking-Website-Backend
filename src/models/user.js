@@ -1,9 +1,13 @@
 'use strict';
-const { Model } = require('sequelize');
+import { Model } from 'sequelize';
 
 module.exports = (sequelize, DataTypes) => {
 	class User extends Model {
 		static associate(models) {
+			User.hasOne(models.Customer, { foreignKey: 'user_id' });
+			User.hasOne(models.Technician, { foreignKey: 'user_id' });
+			User.hasOne(models.Admin, { foreignKey: 'user_id' });
+			User.hasOne(models.StoreManager, { foreignKey: 'user_id' });
 		}
 	}
 
@@ -26,23 +30,18 @@ module.exports = (sequelize, DataTypes) => {
 			type: DataTypes.STRING(255),
 			allowNull: false
 		},
-		phone: {
-			type: DataTypes.STRING(20),
-			allowNull: true
+		role: {
+			type: DataTypes.INTEGER,
+			allowNull: false
 		},
-		avatar: {
-			type: DataTypes.STRING(255),
-			allowNull: true
-		},
-		last_active: {
-			type: DataTypes.DATE,
-			allowNull: true,
-		},
+		phone: DataTypes.STRING(20),
+		avatar: DataTypes.STRING(255),
+		last_active: DataTypes.DATE
 	}, {
 		sequelize,
 		modelName: 'User',
 		tableName: 'users',
-		timestamps: true,
+		timestamps: true
 	});
 
 	return User;

@@ -1,20 +1,5 @@
-import e from 'connect-flash';
 import technicianApiService from '../../services/API/technicianApiService';
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-const readFeaturedDoctors = async (req, res) => {
-    try {
-        const doctorData = await doctorApiService.getFeaturedDoctors();
-        return res.status(200).json( doctorData );
-    } catch (error) {
-        return res.status(500).json({
-            EM: "Something went wrong on the server!",
-            EC: "-1",
-            DT: []
-        });
-    }
-};
+import specialtyApiService from '../../services/API/specialtyApiService';
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -100,50 +85,29 @@ const readSimilarTechniciansApiController = async (req, res) => {
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-const readDoctorDetail = async (req, res) => {
+const readTechnicianSchedulesForStoreManagerApiController = async (req, res) => {
     try {
-        const doctorId = req.params.id
-        const data = await doctorApiService.getDoctorById(doctorId);
-        return res.status(200).json( data )
+        const storeManagerId = parseInt(req.params.storeManagerId);
+        if (!storeManagerId) {
+            return res.status(400).json({
+                EM: "Thiếu storeManagerId",
+                EC: "-1",
+                DT: []
+            });
+        }
+        const data = await technicianApiService.getTechnicianSchedulesForStoreManagerApiService(storeManagerId);
+        if (!data || data.DT.length === 0) {
+            return res.status(200).json({
+                EM: "Không tìm thấy lịch làm việc của kỹ thuật viên",
+                EC: "0",
+                DT: []
+            });
+        }
+        return res.status(200).json(data);
     } catch (error) {
+        console.error("Lỗi trong readTechnicianSchedulesForStoreManager:", error.message);
         return res.status(500).json({
-            EM: "Something went wrong on the server!",
-            EC: "-1",
-            DT: []
-        });
-    }
-}
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-const updateDoctor = async (req, res) => {
-    try {
-        let doctorData = req.body;
-        doctorData.price = parseFloat(doctorData.price.replace(/[^\d.]/g, ""));
-        const data = await doctorApiService.updateDoctor(doctorData);
-        return res.status(200).json( data )
-    } catch (error) {
-        return res.status(500).json({
-            EM: "Something went wrong on the server!",
-            EC: "-1",
-            DT: []
-        });
-    }
-}
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-const readDoctorsBySpecialty = async (req, res) => {
-    try {
-        const { specialtyId, excludeDoctorId, limit } = req.query;
-        const result = await doctorApiService.getDoctorsBySpecialty(specialtyId, excludeDoctorId, limit);
-        return res.status(200).json(result);
-    } catch (error) {
-        console.error('Error in readDoctorsBySpecialty:', error);
-        return res.status(500).json({
-            EM: "Something went wrong on the server!",
+            EM: error.message || "Lỗi máy chủ",
             EC: "-1",
             DT: []
         });
@@ -152,37 +116,163 @@ const readDoctorsBySpecialty = async (req, res) => {
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-const readPatientsOfDoctor = async (req, res) => {
+const readAvailableTechniciansForStoreManagerApiController = async (req, res) => {
     try {
-        const doctorId = req.params.doctorId;
-        const data = await doctorApiService.getPatientsOfDoctor(doctorId);
-        return res.status(200).json({
-            EM: data.EM,
-            EC: data.EC,
-            DT: data.DT
-        });
+        const storeManagerId = parseInt(req.params.storeManagerId);
+        if (!storeManagerId) {
+            return res.status(400).json({
+                EM: "Thiếu storeManagerId",
+                EC: "-1",
+                DT: []
+            });
+        }
+        const data = await technicianApiService.getAvailableTechniciansForStoreManagerApiService(storeManagerId);
+        if (!data || data.DT.length === 0) {
+            return res.status(200).json({
+                EM: "Không tìm thấy lịch làm việc của kỹ thuật viên",
+                EC: "0",
+                DT: []
+            });
+        }
+        return res.status(200).json(data);
     } catch (error) {
-        console.error("Lỗi APIController:", error);
-        return res.status(500).json({ EM: "Lỗi máy chủ", EC: -1, DT: [] });
+        console.error("Lỗi trong readTechnicianSchedulesForStoreManager:", error.message);
+        return res.status(500).json({
+            EM: error.message || "Lỗi máy chủ",
+            EC: "-1",
+            DT: []
+        });
     }
 };
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-const readVisitedDoctors = async (req, res) => {
+const readAllTechniciansForStoreManagerApiController = async (req, res) => {
     try {
-        console.log("THONG BAO DA GOI DEN APICONTROLLER!")
-        const patientId = req.params.patientId;
-        const data = await doctorApiService.getVisitedDoctors(patientId);
-        return res.status(200).json({
-            EM: data.EM,
-            EC: data.EC,
-            DT: data.DT
-        });
+        const storeManagerId = parseInt(req.params.storeManagerId);
+        if (!storeManagerId) {
+            return res.status(400).json({
+                EM: "Thiếu storeManagerId",
+                EC: "-1",
+                DT: []
+            });
+        }
+        const techData = await technicianApiService.getAllTechniciansForStoreManagerApiService(storeManagerId);
+        const specData = await specialtyApiService.getAllSpecialties();
+        if (!techData || techData.DT.length === 0) {
+            return res.status(200).json({
+                EM: "Không tìm thấy danh sách của kỹ thuật viên",
+                EC: "0",
+                DT: []
+            });
+        }
+        return res.status(200).json({techData, specData});
     } catch (error) {
-        console.error("Lỗi APIController:", error);
-        return res.status(500).json({ EM: "Lỗi máy chủ", EC: -1, DT: [] });
+        console.error("Lỗi trong readTechnicianSchedulesForStoreManager:", error.message);
+        return res.status(500).json({
+            EM: error.message || "Lỗi máy chủ",
+            EC: "-1",
+            DT: []
+        });
     }
+};
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const handleCreateTechnicianForStoreManagerApiController = async (req, res) => {
+	try {
+		const storeManagerId = parseInt(req.params.storeManagerId);
+        if (!storeManagerId) {
+            return res.status(400).json({
+                EM: "Thiếu storeManagerId",
+                EC: "-1",
+                DT: {}
+            });
+        }
+
+        const { name, email, phone, password, storeId, specialties } = req.body;
+        const avatar = req.file?.filename || null;
+
+        const requiredFields = { name, email, phone, password, storeId, avatar };
+        for (const [key, value] of Object.entries(requiredFields)) {
+            if (!value || (typeof value === "string" && !value.trim())) {
+                return res.status(400).json({
+                    EM: `Thiếu ${key}`,
+                    EC: "-1",
+                    DT: {}
+                });
+            }
+        }
+
+        if (!Array.isArray(specialties) || specialties.length === 0) {
+            return res.status(400).json({
+                EM: "Thiếu specialties",
+                EC: "-1",
+                DT: {}
+            });
+        }
+
+		const payload = {
+            storeManagerId,
+            storeId,
+            name,
+            email,
+            phone,
+            password,
+            avatar, // đã lấy req.file.filename
+            specialties: Array.isArray(specialties) ? specialties : specialties ? [specialties] : []
+        };
+
+        const data = await technicianApiService.createTechnicianForStoreManagerApiService(payload);
+
+		return res.status(200).json(data);
+	} catch (error) {
+		console.error("createTechnicianForStoreManager error:", error.message);
+		return res.status(500).json({ EM: error.message || "Lỗi máy chủ", EC: "-1", DT: {} });
+	}
+};
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const handleUpdateTechnicianForStoreManagerApiController = async (req, res) => {
+	try {
+		console.log("==== [DEBUG] Update Technician ====");
+		const storeManagerId = parseInt(req.params.storeManagerId);
+		const technicianId  = parseInt(req.params.technicianId);
+
+		console.log("storeManagerId:", storeManagerId);
+		console.log("technicianId:", technicianId);
+		console.log("Body nhận được:", req.body);
+
+		if (!storeManagerId || !technicianId) {
+			return res.status(400).json({ EM: "Thiếu storeManagerId hoặc technicianId", EC: -1, DT: {} });
+		}
+
+		// Chuẩn hóa payload từ body
+		const { User, Specialties } = req.body;
+
+		const payload = {
+			name: User?.name || null,
+			email: User?.email || null,
+			phone: User?.phone || null,
+			avatar: User?.avatar || null,
+			specialties: Array.isArray(Specialties) 
+				? Specialties.map(sp => sp.specialty_id) 
+				: []
+		};
+
+		console.log("Payload chuẩn hóa:", payload);
+
+		// TODO: gọi service thực hiện update
+		const data = await technicianApiService.updateTechnicianForStoreManagerApiService({
+			storeManagerId, technicianId, ...payload
+		});
+
+		return res.status(200).json(data);
+	} catch (error) {
+		console.error("updateTechnicianForStoreManager error:", error.message);
+		return res.status(500).json({ EM: error.message || "Lỗi máy chủ", EC: -1, DT: {} });
+	}
 };
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -191,12 +281,11 @@ export default {
     readTechnicians, 
     readTechnicianDetail,
     readSimilarTechniciansApiController,
+    readAvailableTechniciansForStoreManagerApiController,
+    readAllTechniciansForStoreManagerApiController,
     
-    readFeaturedDoctors,
-    readDoctorDetail, 
-    readDoctorsBySpecialty,
-    readPatientsOfDoctor,
-    readVisitedDoctors,
+    readTechnicianSchedulesForStoreManagerApiController,
 
-    updateDoctor
+    handleCreateTechnicianForStoreManagerApiController,
+    handleUpdateTechnicianForStoreManagerApiController,
 }

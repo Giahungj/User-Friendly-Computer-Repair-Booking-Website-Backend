@@ -1,4 +1,6 @@
 import db from '../../models';
+import bcrypt from 'bcryptjs';
+import { Op } from 'sequelize'
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -217,8 +219,272 @@ const getSimilarTechniciansApiSerrvice = async (technicianId) => {
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const getTechnicianSchedulesForStoreManagerApiService = async (storeManagerId) => {
+    try {
+        const schedules = await db.WorkSchedule.findAll({
+            attributes: ['work_schedule_id', 'work_date', 'current_number', 'max_number', 'shift'],
+            include: [
+                {
+                    model: db.Technician,
+                    attributes: ['technician_id'],
+                    include: [
+                        {
+                            model: db.User,
+                            attributes: ['name', 'phone', 'email', 'avatar']
+                        },
+                        {
+                            model: db.Store,
+                            attributes: ['store_id', 'store_manager_id'],
+                            where: { store_manager_id: storeManagerId }
+                        }
+                    ]
+                }
+            ],
+            raw: true, nest: true
+        });
+
+        if (!schedules || schedules.length === 0) {
+            return {
+                EM: "Không tìm thấy lịch làm việc của kỹ thuật viên",
+                EC: -1,
+                DT: []
+            };
+        }
+
+        return {
+            EM: "Lấy lịch làm việc của kỹ thuật viên thành công",
+            EC: 0,
+            DT: schedules
+        };
+    } catch (error) {
+        console.error("Lỗi trong getTechnicianSchedulesForStoreManager:", error.message);
+        return {
+            EM: error.message || "Lỗi server",
+            EC: -1,
+            DT: []
+        };
+    }
+};
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const getAllTechniciansForStoreManagerApiService = async (storeManagerId) => {
+    try {   
+         const technicians = await db.Technician.findAll({
+            attributes: ['technician_id', 'avg_rating', 'createdAt', 'updatedAt'],
+            include: [
+                {
+                    model: db.User,
+                    attributes: ['name', 'phone', 'email', 'avatar']
+                },
+                {
+                    model: db.Store,
+                    attributes: ['store_id', 'store_manager_id'],
+                    where: { store_manager_id: storeManagerId }
+                },
+                {
+                    model: db.Specialty,
+                    attributes: ['specialty_id', 'name'],
+                    through: { attributes: [] }
+                }
+            ],
+        });
+
+        if (!technicians || technicians.length === 0) {
+            return {
+                EM: "Không tìm thấy kỹ thuật viên thuộc cửa hàng trưởng này",
+                EC: -1,
+                DT: []
+            };
+        }
+
+        const techniciansWithBookingCount = await Promise.all(
+            technicians.map(async (technician) => {
+                const bookingCount = await db.RepairBooking.count({
+                    // where: { status: 'completed' },
+                    include: [
+                        {
+                            model: db.WorkSchedule,
+                            where: { technician_id: technician.technician_id }
+                        }
+                    ]
+                });
+
+                return {
+                    ...technician.toJSON(),
+                    bookingCount
+                };
+            })
+        );
+
+        
+        return {
+            EM: "Lấy danh sách kỹ thuật viên thành công",
+            EC: 0,
+            DT: techniciansWithBookingCount
+        };
+    } catch (error) {
+        console.error("Lỗi trong getAllTechniciansForStoreManager:", error.message);
+        return {
+            EM: error.message || "Lỗi server",
+            EC: -1,
+            DT: []
+        };
+    }
+};
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const getAvailableTechniciansForStoreManagerApiService = async (storeManagerId) => {
+    try {   
+        const technicians = await db.Technician.findAll({
+            attributes: ['technician_id'],
+            include: [
+                {
+                    model: db.User,
+                    attributes: ['name', 'phone', 'email', 'avatar']
+                },
+                { 
+                    model: db.WorkSchedule,
+                    attributes: ['work_schedule_id', 'work_date', 'current_number', 'max_number'],
+                },
+                {
+                    model: db.Store,
+                    attributes: ['store_id', 'store_manager_id'],
+                    where: { store_manager_id: storeManagerId }
+                }
+            ],
+            raw: true,
+            nest: true
+        });
+
+        if (!technicians || technicians.length === 0) {
+            return {
+                EM: "Không tìm thấy kỹ thuật viên thuộc cửa hàng trưởng này",
+                EC: -1,
+                DT: []
+            };
+        }
+
+        return {
+            EM: "Lấy danh sách kỹ thuật viên thành công",
+            EC: 0,
+            DT: technicians
+        };
+    } catch (error) {
+        console.error("Lỗi trong getAllTechniciansForStoreManager:", error.message);
+        return {
+            EM: error.message || "Lỗi server",
+            EC: -1,
+            DT: []
+        };
+    }
+};
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const createTechnicianForStoreManagerApiService = async ({ storeManagerId, storeId, name, email, phone, password, avatar, specialties }) => {
+	const transaction = await db.sequelize.transaction();
+	try {
+		// Hash password
+		const hashedPassword = await bcrypt.hash(password, 10);
+
+		// Tạo User
+		const newUser = await db.User.create({ 
+            name,
+            email,
+            phone,
+            password: hashedPassword,
+            avatar: avatar ? `/uploads/${avatar}` : null,
+            role: 2
+        }, { transaction });
+
+
+		// Tạo Technician
+		const newTechnician = await db.Technician.create({
+			user_id: newUser.user_id,
+			store_id: storeId,
+			avg_rating: 0
+		}, { transaction });
+
+		// Gán specialties nếu có
+		const specArray = Array.isArray(specialties) ? specialties : (specialties ? [specialties] : []);
+		if (specArray.length > 0) {
+			const foundSpecialties = await db.Specialty.findAll({ 
+				where: { specialty_id: specArray },
+				transaction
+			});
+			await newTechnician.addSpecialties(foundSpecialties, { transaction });
+		}
+
+		// Commit
+		await transaction.commit();
+
+		return {
+			EM: "Tạo kỹ thuật viên thành công",
+			EC: 0,
+			DT: { user_id: newUser.user_id, technician_id: newTechnician.technician_id }
+		};
+	} catch (error) {
+		await transaction.rollback();
+		console.error("Lỗi trong createTechnicianForStoreManagerApiService:", error.message);
+		return { EM: "Không thể tạo kỹ thuật viên", EC: -1, DT: {} };
+	}
+};
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const updateTechnicianForStoreManagerApiService = async ({ storeManagerId, technicianId, name, email, phone, avatar, specialties }) => {
+	const transaction = await db.sequelize.transaction();
+	try {
+		const technician = await db.Technician.findOne({
+			where: { technician_id: technicianId },
+			include: [{ model: db.User }],
+			transaction
+		});
+
+		if (!technician) {
+			await transaction.rollback();
+			return { EM: "Không tìm thấy kỹ thuật viên", EC: -1, DT: {} };
+		}
+
+		await technician.User.update(
+			{ name, email, phone, avatar },
+			{ transaction }
+		);
+
+		if (Array.isArray(specialties)) {
+			const foundSpecialties = await db.Specialty.findAll({
+				where: { specialty_id: specialties },
+				transaction
+			});
+			await technician.setSpecialties(foundSpecialties, { transaction });
+		}
+
+		await transaction.commit();
+
+		return {
+			EM: `Cập nhật kỹ thuật viên #${technician.technician_id} thành công`,
+			EC: 0,
+			DT: { technician_id: technician.technician_id, user_id: technician.user_id }
+		};
+	} catch (error) {
+		await transaction.rollback();
+		console.error("updateTechnicianForStoreManagerApiService error:", error.message);
+		return { EM: error.message || "Lỗi server", EC: -1, DT: {} };
+	}
+};
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 export default {
     getAllTechnicians,
     getTechnicianById,
     getSimilarTechniciansApiSerrvice,
+    getTechnicianSchedulesForStoreManagerApiService,
+    getAllTechniciansForStoreManagerApiService,
+    getAvailableTechniciansForStoreManagerApiService,
+    
+    createTechnicianForStoreManagerApiService,
+    updateTechnicianForStoreManagerApiService,
 }

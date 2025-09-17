@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
 	class StoreManager extends Model {
 		static associate(models) {
 			StoreManager.belongsTo(models.User, { foreignKey: 'user_id' });
-			StoreManager.belongsTo(models.Store, { foreignKey: 'store_id' });
+			StoreManager.hasOne(models.Store, { foreignKey: 'store_manager_id' });
 		}
 	}
 	StoreManager.init({
@@ -14,10 +14,6 @@ module.exports = (sequelize, DataTypes) => {
 			primaryKey: true
 		},
 		user_id: {
-			type: DataTypes.INTEGER,
-			allowNull: false
-		},
-		store_id: {
 			type: DataTypes.INTEGER,
 			allowNull: false
 		}

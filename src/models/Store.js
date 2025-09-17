@@ -5,7 +5,7 @@ module.exports = (sequelize, DataTypes) => {
 	class Store extends Model {
 		static associate(models) {
 			Store.hasMany(models.Technician, { foreignKey: 'store_id' });
-			Store.hasOne(models.StoreManager, { foreignKey: 'store_id' });
+			Store.belongsTo(models.StoreManager, { foreignKey: 'store_manager_id' });
 		}
 	}
 
@@ -15,13 +15,9 @@ module.exports = (sequelize, DataTypes) => {
 			autoIncrement: true,
 			primaryKey: true
 		},
-		manager_id: {
+		store_manager_id: {
 			type: DataTypes.INTEGER,
 			allowNull: true,
-			references: {
-				model: 'storemanagers',
-				key: 'storemanager_id'
-			}
 		},
 		name: {
 			type: DataTypes.STRING(100),
