@@ -219,7 +219,7 @@ const getSimilarTechniciansApiSerrvice = async (technicianId) => {
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-const getTechnicianSchedulesForStoreManagerApiService = async (storeManagerId) => {
+const getTechnicianSchedulesForStoreManagerApiService = async () => {
     try {
         const schedules = await db.WorkSchedule.findAll({
             attributes: ['work_schedule_id', 'work_date', 'current_number', 'max_number', 'shift'],
@@ -235,12 +235,10 @@ const getTechnicianSchedulesForStoreManagerApiService = async (storeManagerId) =
                         {
                             model: db.Store,
                             attributes: ['store_id', 'store_manager_id'],
-                            where: { store_manager_id: storeManagerId }
                         }
                     ]
                 }
             ],
-            raw: true, nest: true
         });
 
         if (!schedules || schedules.length === 0) {

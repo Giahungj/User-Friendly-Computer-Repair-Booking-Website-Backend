@@ -87,15 +87,7 @@ const readSimilarTechniciansApiController = async (req, res) => {
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const readTechnicianSchedulesForStoreManagerApiController = async (req, res) => {
     try {
-        const storeManagerId = parseInt(req.params.storeManagerId);
-        if (!storeManagerId) {
-            return res.status(400).json({
-                EM: "Thiếu storeManagerId",
-                EC: "-1",
-                DT: []
-            });
-        }
-        const data = await technicianApiService.getTechnicianSchedulesForStoreManagerApiService(storeManagerId);
+        const data = await technicianApiService.getTechnicianSchedulesForStoreManagerApiService();
         if (!data || data.DT.length === 0) {
             return res.status(200).json({
                 EM: "Không tìm thấy lịch làm việc của kỹ thuật viên",
