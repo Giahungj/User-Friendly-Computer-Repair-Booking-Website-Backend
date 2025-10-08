@@ -115,7 +115,28 @@ const calcPerformanceByStore = async (fromDate, toDate) => {
 };
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const getOverviewStatistics = async (fromDate, toDate) => {
+	try {
+		const totalBookings = await db.RepairBooking.count({ where: { booking_date: { [Op.between]: [fromDate, toDate] } } });
+		const completedRepairs = await db.RepairBooking.count({ where: { status: "completed", booking_date: { [Op.between]: [fromDate, toDate] } } });
+		const ongoingRepairs = await db.RepairBooking.count({ where: { status: "in-progress", booking_date: { [Op.between]: [fromDate, toDate] } } });
+		const canceledRepairs = await db.RepairBooking.count({ where: { status: "cancelled", booking_date: { [Op.between]: [fromDate, toDate] } } });
+		const pendingRepairs = await db.RepairBooking.count({ where: { status: "pending", booking_date: { [Op.between]: [fromDate, toDate] } } });
+		
+		const completionRate = totalBookings
+			? ((completedRepairs / totalBookings) * 100).toFixed(2)
+			: 0;
+
+		return { totalBookings, completedRepairs, ongoingRepairs, canceledRepairs, completionRate, pendingRepairs };
+	} catch (error) {
+		console.error(error);
+		throw error;
+	}
+};
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 export default {
     calcPerformanceByTechnician,
     calcPerformanceByStore,
+    getOverviewStatistics,
 };

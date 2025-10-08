@@ -8,6 +8,23 @@
             <h5 class="fw-semibold text-dark mb-0">
                 Hiệu Suất <%= type === 'store' ? 'Chi Nhánh' : 'Kỹ Thuật Viên' %>
             </h5>
+            <div class="d-flex gap-2 justify-content-end mb-3">
+                <form action="/reports/performance/export" method="get">
+                    <input type="hidden" name="type" value="<%= type %>">
+                    <input type="hidden" name="fromDate" value="<%= fromDate %>">
+                    <input type="hidden" name="toDate" value="<%= toDate %>">
+                    <input type="hidden" name="format" value="pdf">
+                    <button class="btn btn-danger btn-sm"><i class="bi bi-file-earmark-pdf"></i> Xuất PDF</button>
+                </form>
+
+                <form action="/reports/performance/export" method="get">
+                    <input type="hidden" name="type" value="<%= type %>">
+                    <input type="hidden" name="fromDate" value="<%= fromDate %>">
+                    <input type="hidden" name="toDate" value="<%= toDate %>">
+                    <input type="hidden" name="format" value="excel">
+                    <button class="btn btn-success btn-sm"><i class="bi bi-file-earmark-excel"></i> Xuất Excel</button>
+                </form>
+            </div>
         </div>
     </div>
 

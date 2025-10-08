@@ -57,6 +57,8 @@ const initWebRoutes = (app) => {
 	router.get("/admin/ky-thuat-vien/:id/chi-tiet", technicianController.renderTechnicianDetailPage);
     router.get("/admin/ky-thuat-vien", technicianController.renderTechnicianListByQuery);
     router.get('/reports/performance', reportsController.getPerformanceReport)
+    router.get("/reports/performance/export", reportsController.exportPerformanceReport);
+    router.get("/reports/overview", reportsController.getOverviewReport);
 	// router.put("/admin/ky-thuat-vien/:id/chinh-sua", controller.updateTechnician);
 	// router.get("/admin/ky-thuat-vien/:id/lich-lam-viec", controller.getTechnicianSchedule);
 
