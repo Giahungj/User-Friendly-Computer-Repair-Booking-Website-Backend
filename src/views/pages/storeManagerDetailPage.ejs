@@ -1,51 +1,47 @@
-<div class="p-3 border border-0 rounded shadow-sm bg-white">
-	<div class="d-flex justify-content-between align-items-center mb-2">
-		<h5 class="text-muted text-uppercase mb-0">Chi tiết quản lý cửa hàng</h5>
-		<a href="/admin/quan-ly-cua-hang/danh-sach" class="btn btn-secondary rounded-pill">
-			<i class="fa-solid fa-arrow-left"></i> Quay lại danh sách
-		</a>
-	</div>
+<div class="container mt-4 mb-5">
+    <!-- Card: Tiêu đề và nút quay lại -->
+    <div class="card mb-3">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <h5 class="fw-semibold text-dark mb-0">Chi Tiết Quản Lý Cửa Hàng</h5>
+            <a href="javascript:history.back()" class="btn btn-secondary btn-sm">Quay lại</a>
+        </div>
+    </div>
 
-	<hr>
-
-	<% if (storeManager) { %>
-		<div class="row g-4 align-items-start my-4">
-			<div class="col text-center">
-				<img src="/images/uploads/avatars/<%= storeManager.store_manager_id %>.jpg"
-					alt="Avatar"
-					class="rounded-circle"
-					style="width: 140px; height: 140px; object-fit: cover; border: 2px solid #ccc;"
-					onerror="this.onerror=null; this.src='/images/user.png';">
-				<h5 class="mt-3 mb-1"><%= storeManager.User.name || '' %></h5>
-				<small class="text-muted">Mã QLCH: <%= storeManager.store_manager_id %></small>
-			</div>
-
-			<div class="col-8">
-				<div class="row g-3">
-					<div class="col-6">
-						<div class="p-3 border rounded bg-light">
-							<i class="fa-solid fa-envelope text-danger me-2"></i>
-							<strong>Email:</strong> <span class="text-dark"><%= storeManager.User.email || '' %></span>
-						</div>
+    <!-- Card: Thông tin quản lý -->
+    <div class="card">
+        <div class="card-body p-4">
+            <% if (storeManager) { %>
+              	<div class="row g-3 align-items-center">
+					<div class="col-md-4 text-center">
+						<img src="/images<%= storeManager.User.avatar || '/images/user.png' %>" 
+							alt="Avatar" 
+							class="rounded-circle border" 
+							style="width: 120px; height: 120px; object-fit: cover;">
+						<h6 class="mt-2 mb-1 fw-medium text-dark"><%= storeManager.User.name || '' %></h6>
+						<small class="text-muted">Mã QLCH: <%= storeManager.store_manager_id %></small>
 					</div>
-
-					<div class="col-6">
-						<div class="p-3 border rounded bg-light">
-							<i class="fa-solid fa-phone text-success me-2"></i>
-							<strong>Điện thoại:</strong> <span class="text-dark"><%= storeManager.User.phone || '' %></span>
-						</div>
-					</div>
-
-					<div class="col-12">
-						<div class="p-3 border rounded bg-light">
-							<i class="fa-solid fa-store text-primary me-2"></i>
-							<strong>Cửa hàng phụ trách:</strong> <span class="text-dark"><%= storeManager.Store?.name || 'Không rõ' %></span>
-						</div>
+					<div class="col-md-8">
+						<table class="table table-sm table-bordered mb-0">
+							<tbody>
+								<tr>
+									<th class="w-50">Email</th>
+									<td><%= storeManager.User.email || '' %></td>
+								</tr>
+								<tr>
+									<th>Điện thoại</th>
+									<td><%= storeManager.User.phone || '' %></td>
+								</tr>
+								<tr>
+									<th>Cửa hàng</th>
+									<td><%= storeManager.Store?.name || 'Không rõ' %></td>
+								</tr>
+							</tbody>
+						</table>
 					</div>
 				</div>
-			</div>
-		</div>
-	<% } else { %>
-		<div class="alert alert-warning mb-0">Không tìm thấy thông tin quản lý cửa hàng.</div>
-	<% } %>
+            <% } else { %>
+                <div class="alert alert-warning mb-0">Không tìm thấy thông tin quản lý cửa hàng.</div>
+            <% } %>
+        </div>
+    </div>
 </div>

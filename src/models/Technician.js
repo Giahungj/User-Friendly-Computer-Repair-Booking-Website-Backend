@@ -36,6 +36,11 @@ module.exports = (sequelize, DataTypes) => {
 		store_id: {
 			type: DataTypes.INTEGER,
 			allowNull: false
+		},
+		avg_rating: {
+			type: DataTypes.DECIMAL(3, 2),
+			allowNull: false,
+			defaultValue: 0.00
 		}
 	}, {
 		sequelize,

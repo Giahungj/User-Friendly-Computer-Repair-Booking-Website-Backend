@@ -2,7 +2,7 @@ import db from "../models";
 import cron from 'node-cron';
 import { Op } from "sequelize";
 import formatUtil from "../utils/formatUtil"
-import notificationService from "../services/notificationApiService";
+import notificationService from "../services/newservices/notificationApiService";
 import { where } from "sequelize/lib/sequelize";
 // ---------------------------------------------------------
 // Lên lịch chạy mỗi ngày lúc 0:00

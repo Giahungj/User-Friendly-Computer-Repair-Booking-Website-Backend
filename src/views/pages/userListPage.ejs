@@ -5,71 +5,76 @@
         return text.replace(regex, '<strong class="text-danger">$1</strong>');
     }
 %>
-<div class="p-3 border border-0 rounded shadow-sm bg-white">
-    <div class="d-flex justify-content-between align-items-center mb-2">
-        <h5 class="text-muted text-uppercase mb-0">Danh sách tài khoản</h5>
-        <a href="/admin/tai-khoan/them-moi" class="btn btn-success rounded-pill">
-            <i class="fa-solid fa-plus"></i> Thêm tài khoản
-        </a>
+<div class="container mt-4 mb-5">
+    <!-- Card: Tiêu đề và nút thêm -->
+    <div class="card mb-3">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <h5 class="fw-semibold text-dark mb-0">Danh Sách Tài Khoản</h5>
+        </div>
     </div>
 
-    <%- include('../partials/searchs/searchUser') %>
-
-    <hr>
-
-    <% if (Array.isArray(users) && users.length > 0) { %>
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th>#</th>
-                        <th>Họ tên</th>
-                        <th>Email</th>
-                        <th>Điện thoại</th>
-                        <th>Vai trò</th>
-                        <th>Hoạt động gần nhất</th>
-                        <th>Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% users.forEach((user, index) => { %>
-                        <tr>
-                            <td><%= index + 1 %></td>
-                            <td><%- highlight(user.name || '', searchQuery) %></td>
-                            <td><%- highlight(user.email || '', searchQuery) %></td>
-                            <td><%- highlight(user.phone || '', searchQuery) %></td>
-                            <td><%= user.role || 'Chưa phân quyền' %></td>
-                            <td><%= user.last_active ? new Date(user.last_active).toLocaleString('vi-VN') : 'Chưa đăng nhập' %></td>
-                            <td>
-                                <a href="/admin/tai-khoan/<%= user.user_id %>/chi-tiet" 
-                                class="btn btn-sm btn-secondary" title="Xem">
-                                    <i class="fa-solid fa-eye"></i>
-                                </a>
-                                <a href="/admin/tai-khoan/<%= user.user_id %>/sua" 
-                                class="btn btn-sm btn-secondary" title="Sửa">
-                                    <i class="fa-solid fa-pen-to-square"></i>
-                                </a>
-                                <form action="/admin/tai-khoan/<%= user.user_id %>/xoa" method="POST" class="d-inline">
-                                    <button type="submit" class="btn btn-sm btn-outline-secondary" title="Xoá"
-                                            onclick="return confirm('Xác nhận xoá?')">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    <% }) %>
-                </tbody>
-            </table>
+    <!-- Card: Tìm kiếm -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <%- include('../partials/searchs/searchUser') %>
         </div>
-    <% } else { %>
-        <div class="alert alert-info mb-0">Chưa có tài khoản nào được thêm.</div>
-    <% } %>
+    </div>
 
-    <% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>
-        <%- include('../partials/common/paginationmall', {
-            currentPage: currentPage,
-            totalPages: totalPages,
-            baseUrl: '/admin/tai-khoan/danh-sach'
-        }) %>
-    <% } %>
+    <!-- Card: Bảng danh sách -->
+    <div class="card">
+        <div class="card-body">
+            <% if (Array.isArray(users) && users.length > 0) { %>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light text-center">
+                            <tr>
+                                <th>#</th>
+                                <th>Họ tên</th>
+                                <th>Email</th>
+                                <th>Điện thoại</th>
+                                <th>Vai trò</th>
+                                <th>Hoạt động gần nhất</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% users.forEach((user, index) => { %>
+                                <tr>
+                                    <td class="text-center"><%= index + 1 %></td>
+                                    <td><%- highlight(user.name || '', searchQuery) %></td>
+                                    <td><%- highlight(user.email || '', searchQuery) %></td>
+                                    <td><%- highlight(user.phone || '', searchQuery) %></td>
+                                    <td><%= user.role || 'Chưa phân quyền' %></td>
+                                    <td><%= user.last_active ? new Date(user.last_active).toLocaleString('vi-VN') : 'Chưa đăng nhập' %></td>
+                                    <td>
+                                        <a href="/admin/tai-khoan/<%= user.user_id %>/chi-tiet" 
+                                           class="btn btn-sm btn-outline-primary" title="Xem">Xem</a>
+                                        <a href="/admin/tai-khoan/<%= user.user_id %>/sua" 
+                                           class="btn btn-sm btn-outline-primary" title="Sửa">Sửa</a>
+                                        <form action="/admin/tai-khoan/<%= user.user_id %>/xoa" method="POST" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa"
+                                                    onclick="return confirm('Xác nhận xóa?')">
+                                                Xóa
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <div class="alert alert-info mb-0">Chưa có tài khoản nào được thêm.</div>
+            <% } %>
+
+            <!-- Phân trang -->
+            <% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>
+                <%- include('../partials/common/paginationmall', {
+                    currentPage: currentPage,
+                    totalPages: totalPages,
+                    baseUrl: '/admin/tai-khoan/danh-sach'
+                }) %>
+            <% } %>
+        </div>
+    </div>
 </div>

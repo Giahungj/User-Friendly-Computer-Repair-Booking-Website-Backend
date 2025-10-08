@@ -122,49 +122,56 @@ const createTechnician = async (data, avatarPath) => {
 	}
 };
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const getTechnicianById = async (technician_id) => {
-try {
-	if (!technician_id) {
-		return { EC: -1, EM: 'Thiếu mã kỹ thuật viên.' };
-	}
-	let technician = await db.Technician.findOne({
-		where: { technician_id },
-		include: [
-			{ model: db.User, attributes: ['user_id', 'name', 'phone', 'email', 'avatar'] },
-			{ model: db.Store, attributes: ['store_id', 'name', 'store_image'] },
-			{ model: db.WorkSchedule }
-		],
-		raw: true,
-		nest: true
-	});
-	if (!technician || technician.length === 0) {
-		return { EC: -1, EM: 'Không tìm thấy kỹ thuật viên.' };
-	}
-	const specialties = await db.Specialty.findAll({
-		attributes: ['specialty_id', 'name'],
-		include: [{
-			model: db.Technician,
+	try {
+		if (!technician_id) {
+			return { EC: -1, EM: 'Thiếu mã kỹ thuật viên.' };
+		}
+
+		// Lấy kỹ thuật viên
+		let technician = await db.Technician.findOne({
 			where: { technician_id },
-			through: { attributes: [] }
-		}],
-		raw: true,
-		nest: true
-	});
-	technician = {
-		...technician,
-		Specialties: specialties
-	};
-	return {
-		EC: 0,
-		EM: 'Lấy chi tiết kỹ thuật viên thành công.',
-		DT: technician
-	};
-} catch (error) {
-	console.error('Lỗi getTechnicianById:', error);
-	return { EC: -1, EM: 'Lỗi server khi lấy chi tiết kỹ thuật viên.' };
-}
+			include: [
+				{ model: db.User, attributes: ['user_id', 'name', 'phone', 'email', 'avatar'] },
+				{ model: db.Store },
+				{ model: db.WorkSchedule }
+			],
+		});
+
+		if (!technician) {
+			return { EC: -1, EM: 'Không tìm thấy kỹ thuật viên.' };
+		}
+
+		// Chuyển instance chính thành JSON
+		const result = technician.toJSON();
+
+		// Chuyển WorkSchedules thành array JSON
+		if (Array.isArray(result.WorkSchedules)) {
+			result.WorkSchedules = result.WorkSchedules.map(ws => ({ ...ws }));
+		}
+
+		// Lấy specialties
+		const specialties = await db.Specialty.findAll({
+			attributes: ['specialty_id', 'name'],
+			include: [{
+				model: db.Technician,
+				where: { technician_id },
+				through: { attributes: [] }
+			}],
+		});
+
+		// Chuyển Specialties thành array JSON
+		result.Specialties = specialties.map(s => s.toJSON());
+
+		return {
+			EC: 0,
+			EM: 'Lấy chi tiết kỹ thuật viên thành công.',
+			DT: result
+		};
+	} catch (error) {
+		console.error('Lỗi getTechnicianById:', error);
+		return { EC: -1, EM: 'Lỗi server khi lấy chi tiết kỹ thuật viên.' };
+	}
 };
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -1,5 +1,6 @@
 import userApiService from '../../services/userApiService';
 
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const readUser = async (req, res) => {
     try {
         if (req.query.page && req.query.limit) {
@@ -30,7 +31,7 @@ const readUser = async (req, res) => {
     }
 
 }
-
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const createUser = async (req, res) => {
     try {
         let data = await userApiService.createNewUser(req.body);
@@ -48,7 +49,7 @@ const createUser = async (req, res) => {
         })
     }
 }
-
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const updateUser = async (req, res) => {
     try {
         const { email, name, sex, address } = req.body;
@@ -71,7 +72,7 @@ const updateUser = async (req, res) => {
         });
     }
 };
-
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const deleteUser = async (req, res) => {
     try {
         let data = await userApiService.deleteUser(req.body.id);
@@ -88,7 +89,7 @@ const deleteUser = async (req, res) => {
         })
     }
 }
-
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const getUserAccount = async (req, res) => {
     return res.status(200).json({
         EM: 'ok',
@@ -104,7 +105,7 @@ const getUserAccount = async (req, res) => {
         }
     })
 }
-
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 export default {
     readUser, updateUser, deleteUser, createUser, getUserAccount
 }

@@ -77,11 +77,11 @@
 						<option value="pending" <%= selectedFilters.status === 'pending' ? 'selected' : '' %>>
 							<%- highlightFilter('Chờ xác nhận', selectedFilters.status === 'pending' ? 'pending' : '') %>
 						</option>
-						<option value="processing" <%= selectedFilters.status === 'processing' ? 'selected' : '' %>>
-							<%- highlightFilter('Đang xử lý', selectedFilters.status === 'processing' ? 'processing' : '') %>
+						<option value="in-progress" <%= selectedFilters.status === 'in-progress' ? 'selected' : '' %>>
+							<%- highlightFilter('Đang xử lý', selectedFilters.status === 'in-progress' ? 'in-progress' : '') %>
 						</option>
-						<option value="done" <%= selectedFilters.status === 'done' ? 'selected' : '' %>>
-							<%- highlightFilter('Hoàn tất', selectedFilters.status === 'done' ? 'done' : '') %>
+						<option value="completed" <%= selectedFilters.status === 'completed' ? 'selected' : '' %>>
+							<%- highlightFilter('Hoàn tất', selectedFilters.status === 'completed' ? 'completed' : '') %>
 						</option>
 						<option value="cancelled" <%= selectedFilters.status === 'cancelled' ? 'selected' : '' %>>
 							<%- highlightFilter('Đã hủy', selectedFilters.status === 'cancelled' ? 'cancelled' : '') %>

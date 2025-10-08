@@ -1,77 +1,78 @@
-<div class="d-flex flex-column flex-shrink-0 p-3 shadow-lg"
-    style="width: 18em; height: 100vh; background-color: #ffffff; position: sticky; top: 0; z-index: 1020;">
-    <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
-        <img class="w-50" src="/images/skibidi.jpg"><span class="fs-4 mt-3 p-0">Admin</span>
-    </a>
-    <hr>
-    <ul class="nav nav-pills flex-column mb-auto" id="sideBarMenu">
-        <li class="nav-item">
-            <a href="/" class="nav-link link-dark">
-                <i class="fa-solid fa-chart-line me-2"></i> Tổng quan hệ thống
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="/admin/dat-lich/danh-sach" class="nav-link link-dark">
-                <i class="fa-solid fa-calendar-check me-2"></i> Quản lý đơn đặt lịch
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="/device-list" class="nav-link link-dark">
-                <i class="fa-solid fa-laptop-code me-2"></i> Quản lý thiết bị
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="/admin/cua-hang/danh-sach" class="nav-link link-dark">
-                <i class="fa-solid fa-store me-2"></i> Quản lý cửa hàng
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="/admin/cua-hang-truong/danh-sach" class="nav-link link-dark">
-                <i class="fa-solid fa-user-tie me-2"></i> Quản lý cửa hàng trưởng
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="/admin/chuyen-mon/danh-sach" class="nav-link link-dark">
-                <i class="fa-solid fa-tools me-2"></i> Quản lý dịch vụ sửa chữa
-            </a>
-        </li>
-        <li class="nav-item">
-           <a href="/admin/khung-gio/danh-sach" class="nav-link link-dark">
-                <i class="fa-regular fa-clock me-2"></i> Quản lý giờ làm việc
-            </a>
-        </li>
-        <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle link-dark" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fa-solid fa-users-gear me-2"></i> Người dùng
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                <li>
-                    <a class="dropdown-item" href="/admin/tai-khoan/danh-sach">
-                        <i class="fa-solid fa-id-card me-2"></i> Quản lý tài khoản
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item" href="/admin/ky-thuat-vien/danh-sach">
-                        <i class="fa-solid fa-user-cog me-2"></i> Quản lý kỹ thuật viên
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item" href="/admin/khach-hang/danh-sach">
-                        <i class="fa-solid fa-user-group me-2"></i> Quản lý khách hàng
-                    </a>
-                </li>
-            </ul>
-        </li>
-        <li class="nav-item">
-            <a href="/report" class="nav-link link-dark">
-                <i class="fa-solid fa-file-invoice-dollar me-2"></i> Doanh thu - thống kê
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="/site-intro" class="nav-link link-dark">
-                <i class="fa-solid fa-info-circle me-2"></i> Giới thiệu trang web
-            </a>
-        </li>
-    </ul>
-    <hr>
+<!-- Nút mở sidebar -->
+<button class="btn btn-info m-2 text-white shadow"
+	type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar"
+	style="width: 50px; height: 50px; position: fixed; top: 2px; left: 2px; z-index: 1050;">
+	<i class="fa-solid fa-bars fs-4"></i>
+</button>
+
+<!-- Sidebar -->
+<div class="offcanvas offcanvas-start text-bg-info" tabindex="-1" id="offcanvasSidebar">
+	<div class="offcanvas-header d-flex justify-content-end align-items-center w-100">
+        <h5 class="offcanvas-title text-light mb-0">Menu Admin</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+    </div>
+	<div class="offcanvas-body">
+		<ul class="nav nav-pills flex-column mb-auto">
+            <li class="nav-item">
+                <a href="/" class="nav-link link-light">
+                    <i class="fa-solid fa-chart-line me-2"></i> Tổng quan hệ thống
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/admin/dat-lich/danh-sach" class="nav-link link-light">
+                    <i class="fa-solid fa-calendar-check me-2"></i> Quản lý đơn đặt lịch
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/device-list" class="nav-link link-light">
+                    <i class="fa-solid fa-laptop-code me-2"></i> Quản lý thiết bị
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/admin/cua-hang/danh-sach" class="nav-link link-light">
+                    <i class="fa-solid fa-store me-2"></i> Quản lý cửa hàng
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/admin/cua-hang-truong/danh-sach" class="nav-link link-light">
+                    <i class="fa-solid fa-user-tie me-2"></i> Quản lý cửa hàng trưởng
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/admin/chuyen-mon/danh-sach" class="nav-link link-light">
+                    <i class="fa-solid fa-tools me-2"></i> Quản lý dịch vụ sửa chữa
+                </a>
+            </li>
+           
+            <li class="nav-item">
+                <a href="/admin/lich-lam-viec/danh-sach" class="nav-link link-light">
+                    <i class="fa-regular fa-clock me-2"></i> Quản lý lịch làm việc
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="/admin/tai-khoan/danh-sach" class="nav-link link-light">
+                    <i class="fa-solid fa-id-card me-2"></i> Quản lý tài khoản
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="/admin/ky-thuat-vien/danh-sach" class="nav-link link-light">
+                    <i class="fa-solid fa-user-cog me-2"></i> Quản lý kỹ thuật viên
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="/admin/khach-hang/danh-sach" class="nav-link link-light">
+                    <i class="fa-solid fa-user-group me-2"></i> Quản lý khách hàng
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="/site-intro" class="nav-link link-light">
+                    <i class="fa-solid fa-info-circle me-2"></i> Giới thiệu trang web
+                </a>
+            </li>
+        </ul>
+	</div>
 </div>

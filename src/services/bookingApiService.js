@@ -1,7 +1,7 @@
 import { where } from "sequelize/lib/sequelize";
 import db from "../models";
 import { Op } from "sequelize";
-import notificationService from "../services/notificationApiService";
+import notificationService from "./newservices/notificationApiService";
 import syncData from "../utils/syncData";
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const getAllBooking = async () => {
@@ -10,7 +10,7 @@ const getAllBooking = async () => {
             raw: true,
             nest: true
         });
-        console.log("Booking:", booking);
+        console.log("Booking:", bookings);
         return {
             EM: "Đã lấy lịch thành công!",
             EC: 0,
@@ -355,26 +355,32 @@ const getCustomerBookingsApiService = async (userId) => {
 const getRepairBookingDetailForStoreManager = async (repair_booking_id) => {
 	try {
 		const booking = await db.RepairBooking.findOne({
-			where: { booking_id: repair_booking_id },
-			include: [
-				{
-					model: db.WorkSchedule,
-					include: [
-						{
-							model: db.Technician,
-							include: [
-								{ model: db.Store },
-								{ model: db.User }
-							]
-						}
-					]
-				},
-				{
-					model: db.Customer,
-					include: [{ model: db.User }]
-				}
-			],
-		});
+            where: { booking_id: repair_booking_id },
+            include: [
+                {
+                    model: db.WorkSchedule,
+                    include: [
+                        {
+                            model: db.Technician,
+                            include: [
+                                { model: db.Store },
+                                { model: db.User }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    model: db.Customer,
+                    include: [{ model: db.User }]
+                },
+                {
+                    model: db.RepairHistory,
+                    separate: true,
+                    order: [['action_date', 'DESC']]
+                }
+            ],
+        });
+
 
 		if (!booking) {
 			return { EC: 1, EM: "Không tìm thấy đơn đặt lịch", DT: null };
@@ -400,11 +406,11 @@ const approveRepairBooking = async (bookingId) => {
 			return { EC: 2, EM: "Không tìm thấy lịch hẹn", DT: {} };
 		}
 
-		await booking.update({ status: "completed" });
+		await booking.update({ status: "in-progress" });
 
 		await db.RepairHistory.create({
 			booking_id: bookingId,
-			status: "completed",
+			status: "in-progress",
 			notes: "Duyệt đơn thành công",
 			action_date: new Date(),
 		});
@@ -415,6 +421,58 @@ const approveRepairBooking = async (bookingId) => {
 		return { EC: -1, EM: "Lỗi khi duyệt đơn", DT: {} };
 	}
 };
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const reassignAndApproveBooking = async ({ bookingId, workScheduleId, technicianId }) => {
+	try {
+		// Lấy booking hiện tại
+		const booking = await db.RepairBooking.findOne({
+			where: { booking_id: bookingId },
+			include: [{ model: db.WorkSchedule }]
+		});
+		if (!booking) return { EC: 1, EM: "Không tìm thấy đơn đặt lịch", DT: null };
+		if (booking.status === "cancelled") return { EC: 2, EM: "Đơn đã bị hủy, không thể đổi kỹ thuật viên", DT: null };
+
+		const oldWorkScheduleId = booking.work_schedule_id;
+
+		// Cập nhật booking với technician mới
+		await booking.update({
+			work_schedule_id: workScheduleId
+		});
+
+		// Giảm current_number của work schedule cũ
+		if (oldWorkScheduleId && oldWorkScheduleId !== workScheduleId) {
+			await db.WorkSchedule.decrement('current_number', {
+				by: 1,
+				where: { work_schedule_id: oldWorkScheduleId, current_number: { [Op.gt]: 0 } }
+			});
+		}
+
+		// Tăng current_number của work schedule mới
+		await db.WorkSchedule.increment('current_number', {
+			by: 1,
+			where: { work_schedule_id: workScheduleId }
+		});
+
+		// Cập nhật status booking thành "in-progress"
+		await booking.update({ status: "in-progress" });
+
+		// Thêm vào RepairHistory
+		await db.RepairHistory.create({
+			booking_id: bookingId,
+			status: "in-progress",
+			notes: `Đổi kỹ thuật viên thành công và duyệt đơn (technician_id: ${technicianId})`,
+			action_date: new Date()
+		});
+
+		return { EC: 0, EM: "Đã đổi kỹ thuật viên và duyệt đơn thành công", DT: booking };
+
+	} catch (error) {
+		console.error("reassignAndApproveBooking error:", error);
+		return { EC: -1, EM: "Lỗi khi xử lý đổi kỹ thuật viên và duyệt đơn", DT: null };
+	}
+};
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 export default {
     getDataForCreateBookingApiService,
@@ -428,4 +486,5 @@ export default {
     getAllBooking,
     getRepairBookingDetailForStoreManager,
     approveRepairBooking,
+    reassignAndApproveBooking
 }

@@ -1,9 +1,5 @@
-import { where } from "sequelize/lib/sequelize";
-import db from "../models/index"
-import { Op } from "sequelize";
-import { getIO } from '../server';
-
-// --------------------------------------------------
+import db from "../../models/index"
+import emailApiService from "./emailApiService";
 const getUserNotificationsByUserId = async (userId) => {
     try {
         // Lấy ngày hiện tại (bắt đầu từ 00:00:00)
@@ -57,6 +53,8 @@ const createNotification = async (userId, message, action = null) => {
             action,
             isRead: false
         });
+
+        emailApiService.sendNotificationEmail(user.email, message, link ? `http://localhost:3000${action}` : 'http://localhost:3000');
 
         // const io = getIO();
         // console.log(`===================================================================`);   // <‑‑ log

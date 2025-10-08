@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function () {
             this.style.backgroundColor = '#f8f9fa';
         });
         header.addEventListener('mouseleave', function() {
-            this.style.backgroundColor = '#f5f5f5';
+            this.style.backgroundColor = '#17a2b8';
         });
     }
 

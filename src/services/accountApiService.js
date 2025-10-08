@@ -24,7 +24,6 @@ const resetPassword = async (emailOrPhone, newPassword) => {
         return { EC: -1, EM: "Có lỗi xảy ra, vui lòng thử lại!", DT: [] };
     }
 };
-
 // --------------------------------------------------
 const changePassword = async (email, currentPassword, newPassword) => {
     try {
@@ -45,29 +44,37 @@ const changePassword = async (email, currentPassword, newPassword) => {
         return { EC: -1, EM: "Có lỗi xảy ra, vui lòng thử lại!", DT: [] };
     }
 };
-
 // --------------------------------------------------
 const getUserByEmail = async (email) => {
     try {
-        const user = await db.User.findOne({ 
-            include: [
-                { model: db.Patient, required: false },
-                { model: db.Doctors, required: false }
-            ],
-            where: { email: email },
-            raw: true,
-            nest: true
-        });
-        if (!user) {
-            return { EC: 1, EM: "Không tìm thấy người dùng!", DT: [] };
+        const user = await db.User.findOne({ where: { email } });
+
+        if (!user) return null;
+
+        let include = [];
+        if (user.role === 1) {
+            include.push({ model: db.StoreManager });
+        } else if (user.role === 2) {
+            include.push({ model: db.Technician });
+        } else if (user.role === 3) {
+            include.push({ model: db.Customer });
         }
-        return { EC: 0, EM: "", DT: user };
+
+        const userWithInclude = await db.User.findOne({
+            where: { email },
+            attributes: { exclude: ["password"] },
+            include
+        });
+
+        if (!userWithInclude) {
+            return { EC: 1, EM: "Không tìm thấy người dùng!", DT: [] };``
+        }
+        return { EC: 0, EM: "Lấy thông tin người dùng thành công!", DT: userWithInclude };
     } catch (error) {
-        console.error("Lỗi trong changePassword:", error);
+        console.error("Lỗi trong getUserByEmail:", error);
         return { EC: -1, EM: "Có lỗi xảy ra, vui lòng thử lại!", DT: [] };
     }
 };
-
 // --------------------------------------------------
 export default { 
     resetPassword, 

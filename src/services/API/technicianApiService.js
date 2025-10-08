@@ -1,6 +1,6 @@
 import db from '../../models';
 import bcrypt from 'bcryptjs';
-import { Op } from 'sequelize'
+import { Op, fn, col } from "sequelize";
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -335,40 +335,54 @@ const getAllTechniciansForStoreManagerApiService = async (storeManagerId) => {
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const getAvailableTechniciansForStoreManagerApiService = async (storeManagerId) => {
     try {   
-        const technicians = await db.Technician.findAll({
-            attributes: ['technician_id'],
-            include: [
-                {
-                    model: db.User,
-                    attributes: ['name', 'phone', 'email', 'avatar']
-                },
-                { 
-                    model: db.WorkSchedule,
-                    attributes: ['work_schedule_id', 'work_date', 'current_number', 'max_number'],
-                },
-                {
-                    model: db.Store,
-                    attributes: ['store_id', 'store_manager_id'],
-                    where: { store_manager_id: storeManagerId }
-                }
-            ],
-            raw: true,
-            nest: true
-        });
+		const technicians = await db.Technician.findAll({
+			attributes: ['technician_id'],
+			include: [
+				{
+					model: db.User,
+					attributes: ['name', 'phone', 'email', 'avatar']
+				},
+				{
+					model: db.WorkSchedule,
+					attributes: ['work_schedule_id', 'work_date', 'current_number', 'max_number'],
+					where: {
+						work_date: { [Op.gte]: new Date() },
+						current_number: { [Op.lt]: col('WorkSchedules.max_number') }
+					},
+				},
+				{
+					model: db.Store,
+					attributes: ['store_id', 'store_manager_id'],
+					where: { store_manager_id: storeManagerId }
+				}
+			],
+		});
 
-        if (!technicians || technicians.length === 0) {
-            return {
-                EM: "Không tìm thấy kỹ thuật viên thuộc cửa hàng trưởng này",
-                EC: -1,
-                DT: []
-            };
-        }
+		if (!technicians || technicians.length === 0) {
+			return { EM: "Không tìm thấy kỹ thuật viên", EC: -1, DT: [] };
+		}
 
-        return {
-            EM: "Lấy danh sách kỹ thuật viên thành công",
-            EC: 0,
-            DT: technicians
-        };
+		// Gom dữ liệu theo ngày
+		const grouped = {};
+		technicians.forEach(t => {
+			t.WorkSchedules.forEach(ws => {
+				if (!grouped[ws.work_date]) grouped[ws.work_date] = [];
+				grouped[ws.work_date].push({
+					technician_id: t.technician_id,
+					User: t.User,
+					WorkSchedule: ws,
+					Store: t.Store
+				});
+			});
+		});
+
+		// Chuyển object thành mảng
+		const DT = Object.keys(grouped).sort().map(date => ({
+			work_date: date,
+			technicians: grouped[date]
+		}));
+
+		return { EM: "Lấy danh sách kỹ thuật viên thành công", EC: 0, DT };
     } catch (error) {
         console.error("Lỗi trong getAllTechniciansForStoreManager:", error.message);
         return {

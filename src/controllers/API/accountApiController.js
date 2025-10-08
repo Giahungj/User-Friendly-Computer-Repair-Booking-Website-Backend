@@ -33,7 +33,10 @@ const handleChangePassword = async (req, res) => {
 // --------------------------------------------------
 const readUser = async (req, res) => {
     try {
-        const email = req.params.email
+        const { email } = req.params
+        if (!email) {
+            return { EC: 1, EM: "Không tìm thấy email!", DT: {} };
+        }
         const data = await accountApiService.getUserByEmail(email);
         return res.status(200).json( data )
     } catch (error) {

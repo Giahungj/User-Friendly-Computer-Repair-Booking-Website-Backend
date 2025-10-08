@@ -3,6 +3,8 @@ import db from "../models"
 import { hashPassword } from './loginService'
 import { where } from "sequelize/lib/sequelize"
 import syncData from "../utils/syncData"
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const getAllUser = async () => {
     try {
         let users = await db.User.findAll({
@@ -31,7 +33,7 @@ const getAllUser = async () => {
         }
     }
 }
-
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const getUserPaginate = async (page, limit) => {
     try {
         let offset = (page - 1) * limit
@@ -62,7 +64,7 @@ const getUserPaginate = async (page, limit) => {
         }
     }
 }
-
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const createNewUser = async (data) => {
     try {
         //check email
@@ -92,7 +94,7 @@ const createNewUser = async (data) => {
         }
     }
 }
-
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const updateUser = async (dataUser) => {
     try {
         let user = await db.User.findOne({ where: { email: dataUser.email } });
@@ -141,8 +143,7 @@ const deleteUser = async (id) => {
         }
     }
 }
-
-// ---------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const checkEmail = async (email) => {
     try {
         let user = await db.User.findOne({
@@ -175,8 +176,12 @@ const checkEmail = async (email) => {
         }
     }
 }
-
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 export default {
-    getAllUser, updateUser, createNewUser, deleteUser, getUserPaginate,
-    checkEmail
+	checkEmail,
+	createNewUser,
+	deleteUser,
+	getAllUser,
+	getUserPaginate,
+	updateUser
 }

@@ -5,14 +5,19 @@
         return text.replace(regex, '<strong class="text-danger">$1</strong>');
     }
 %>
-<div class="p-3 border border-0 rounded shadow-sm bg-white">
-    <div class="d-flex justify-content-between align-items-center mb-2">
-        <h5 class="text-muted text-uppercase mb-0">Danh sách kỹ thuật viên</h5>
-        <a href="/admin/ky-thuat-vien/them-moi" class="btn btn-success rounded-pill">
-            <i class="fa-solid fa-plus"></i> Thêm kỹ thuật viên
-        </a>
-    </div>
-
+<div class="container mt-3">
+    <!-- Card 1: Tiêu đề và nút quay lại -->
+	<div class="card mb-3">
+		<div class="card-body d-flex justify-content-between align-items-center">
+			<h3 class="fw-semibold text-dark mb-0">Danh sách kỹ thuật viên</h3>
+            <div>
+                <a href="/admin/ky-thuat-vien/them-moi" class="btn btn-sm btn-primary me-2">
+                    <i class="fa-solid fa-plus"></i> Thêm kỹ thuật viên
+                </a>
+                <a href="javascript:history.back()" class="btn btn-sm btn-secondary">Quay lại</a>
+            </div>
+		</div>
+	</div>
     <%- include('../partials/searchs/searchTechnician') %>
 
     <hr>
@@ -20,7 +25,7 @@
     <% if (Array.isArray(technicians) && technicians.length > 0) { %>
         <div class="table-responsive">
             <table class="table table-hover align-middle">
-                <thead class="table-light">
+                <thead class="table-light text-center">
                     <tr>
                         <th>#</th>
                         <th>Họ tên</th>
@@ -40,19 +45,15 @@
                             <td><%- highlight(tech.User.phone || '', searchQuery) %></td>
                             <td><%= tech.Store?.name || 'Chưa rõ' %></td>
                             <td><%= tech.User?.last_active ? new Date(tech.User?.last_active).toLocaleString('vi-VN') : 'Chưa đăng nhập' %></td>
-                            <td>
-                                <a href="/admin/ky-thuat-vien/<%= tech.technician_id %>/chi-tiet" 
-                                class="btn btn-sm btn-secondary" title="Xem">
-                                    <i class="fa-solid fa-eye"></i>
-                                </a>
+                            <td class="text-center">
+                                <a href="/admin/ky-thuat-vien/<%= tech.technician_id %>/chi-tiet"
+                                    class="btn btn-sm btn-outline-primary">Xem</a>
                                 <a href="/admin/ky-thuat-vien/<%= tech.technician_id %>/sua" 
-                                class="btn btn-sm btn-secondary" title="Sửa">
-                                    <i class="fa-solid fa-pen-to-square"></i>
-                                </a>
+                                    class="btn btn-sm btn-outline-primary" title="Sửa">Sửa</a>
                                 <form action="/admin/ky-thuat-vien/<%= tech.technician_id %>/xoa" method="POST" class="d-inline">
-                                    <button type="submit" class="btn btn-sm btn-outline-secondary" title="Xoá"
-                                            onclick="return confirm('Xác nhận xoá?')">
-                                        <i class="fa-solid fa-trash"></i>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa"
+                                            onclick="return confirm('Xác nhận xoá kỹ thuật viên này?')">
+                                        Xóa
                                     </button>
                                 </form>
                             </td>

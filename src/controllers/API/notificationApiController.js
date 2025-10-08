@@ -1,4 +1,4 @@
-import notificationApiService from "../../services/notificationApiService";
+import notificationApiService from "../../services/newservices/notificationApiService";
 
 // --------------------------------------------------
 const readUserNotifications = async (req, res) => {

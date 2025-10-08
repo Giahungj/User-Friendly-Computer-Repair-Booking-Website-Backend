@@ -14,6 +14,7 @@ const renderRepairBookingListPage = async (req, res) => {
 			status: req.query.status || ''
 		};
 		const result = await repairBookingService.getAllRepairBooking(page, searchQuery, filters);
+		
 		if (result.EC === 0) {
 			return res.render('layouts/layout', {
 				page: 'pages/repairBookingListPage.ejs',
@@ -60,11 +61,20 @@ const renderRepairBookingDetailPage = async (req, res) => {
 			});
 		}
 		const result = await repairBookingService.getRepairBookingById(bookingId);
+		console.log(result.DT.managerData);
+		console.log("------------------------------------------------------------------");
+		console.log(result.DT.historyData);
 		if (result.EC === 0) {
 			return res.render('layouts/layout', {
 				page: 'pages/repairBookingDetailPage.ejs',
 				pageTitle: 'Chi tiết đơn đặt lịch',
-				repairBooking : result.DT,
+				repairBooking : result.DT.bookingData,
+				customerData: result.DT.customerData,
+				workScheduleData: result.DT.workScheduleData,
+				technicianData: result.DT.technicianData,	
+				storeData: result.DT.storeData,
+				managerData: result.DT.managerData,
+				historyData: result.DT.historyData,
 				EM: result.EM,
 				EC: result.EC
 			});

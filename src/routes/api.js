@@ -13,6 +13,7 @@ import ratingApiController from "../controllers/API/ratingApiController";
 import bookingApiController from "../controllers/API/bookingApiController";
 import technicianBookingApiController from "../controllers/API/technicianBookingApiController";
 import statisticApiController from "../controllers/API/statisticApiController";
+import notificationApiService from "../controllers/API/notificationApiController";
 
 const router = express.Router();
 
@@ -29,6 +30,9 @@ const initApiRoutes = (app) => {
 	router.post('/sign-up', registerApiController.handleSignUpNewUser);
 	router.post('/sign-in-email', loginApiController.signInByEmail);
 	router.post('/sign-in-phone', loginApiController.signInByPhone);
+
+	// Notification
+	router.get('/notifications/:userId', notificationApiService.readUserNotifications);
 
 	// Booking
 	router.get('/dat-lich/tao-lich-moi/:workScheduleId/:userId/lay-du-lieu', bookingApiController.readDataForCreateBookingApiController);
@@ -56,6 +60,7 @@ const initApiRoutes = (app) => {
 
 	router.get('/:technicianId/laydanhsachdondatlich', technicianBookingApiController.getBookingListByTechnician);
 	router.get('/laydondatlich/:bookingId', technicianBookingApiController.getBookingDetailByTechnician);
+	router.post('/don-dat-lich/xac-nhan-hoan-thanh-don', technicianBookingApiController.handleConfirmAndCompleteBooking);
 	router.get('/lichlamviec/:technicianId', technicianBookingApiController.getWorkScheduleByTechnician);
 	router.get('/chitietlichlamviec/:scheduleId', technicianBookingApiController.getTechnicianWorkScheduleDetail);
 	router.get('/hoso/:technicianId', technicianBookingApiController.getTechnicianProfile);
@@ -71,7 +76,8 @@ const initApiRoutes = (app) => {
 
 	// Technician Management
 	router.get('/cua-hang-truong/ky-thuat-vien/lich-lam-viec', technicianApiController.readTechnicianSchedulesForStoreManagerApiController);
-	router.get('/cua-hang-truong/ky-thuat-vien/con-trong', technicianApiController.readAvailableTechniciansForStoreManagerApiController);
+	router.get('/cua-hang-truong/:storeManagerId/ky-thuat-vien/con-trong', technicianApiController.readAvailableTechniciansForStoreManagerApiController);
+	router.get('/cua-hang-truong/:storeManagerId/ky-thuat-vien/doi-lich', technicianApiController.readAvailableTechniciansForStoreManagerApiController);
 	router.get('/cua-hang-truong/:storeManagerId/ky-thuat-vien/danh-sach', technicianApiController.readAllTechniciansForStoreManagerApiController);
 	router.post('/cua-hang-truong/ky-thuat-vien/tao-moi', upload.single('avatar'), technicianApiController.handleCreateTechnicianForStoreManagerApiController);
 	router.put('/cua-hang-truong/ky-thuat-vien/:technicianId/cap-nhat', technicianApiController.handleUpdateTechnicianForStoreManagerApiController);
@@ -80,6 +86,7 @@ const initApiRoutes = (app) => {
 	router.get('/cua-hang-truong/:storeManagerId/don-dat-lich/danh-sach', bookingApiController.readAllBookingForStoreManagerApiController);
 	router.get('/cua-hang-truong/don-dat-lich/:repair_booking_id/chi-tiet', bookingApiController.fuckYouApiController);
 	router.put('/cua-hang-truong/don-dat-lich/duyet-don', bookingApiController.approveRepairBookingController);
+	router.put('/cua-hang-truong/don-dat-lich/doi-nguoi-sua-chua', bookingApiController.reassignAndApproveBookingController);
 
 	// Work Schedule Management
 	router.post('/cua-hang-truong/lich-lam-viec/tao-moi', workScheduleApiController.handleCreateWorkScheduleForStoreManagerApiController);
@@ -88,6 +95,12 @@ const initApiRoutes = (app) => {
 	router.get('/cua-hang-truong/:storeManagerId/thong-ke/so-lieu/tong-quat', statisticApiController.getBookingSummary);
 	router.get('/cua-hang-truong/:storeManagerId/thong-ke/danh-sach/lich-hen', statisticApiController.getBookingList);
 	router.get('/cua-hang-truong/:storeManagerId/thong-ke/bieu-do/duong', statisticApiController.getBookingsTrendData);
+
+
+	// =========================
+	// TÀI KHOẢN
+	// =========================
+	router.get('/user/read/:email', accountApiController.readUser);
 
 	return app.use("/api/", router);
 };

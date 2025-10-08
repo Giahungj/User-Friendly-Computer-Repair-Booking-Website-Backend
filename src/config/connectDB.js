@@ -11,7 +11,7 @@ const connection = async () => {
         await sequelize.authenticate();
         console.log('Thiết lập kết nối cơ sở dữ liệu MySQL thành công.');
     } catch (error) {
-        console.error('Unable to connect to the database:', error);
+        console.error('Không thể kết nối cơ sở dữ liệu:', error);
     }
 }
 

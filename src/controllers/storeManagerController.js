@@ -1,14 +1,12 @@
 import storeManagerService from '../services/newservices/storeManagerService.js';
 import storeService from '../services/newservices/storeService.js';
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const renderStoreManagerListPage = async (req, res) => {
 	try {
         const page = parseInt(req.query.page) || 1;
 		const searchQuery = req.query.q || '';
 		const result = await storeManagerService.getAllStoreManager(page, searchQuery);
-		console.log('📋 Kết quả lấy danh sách cửa hàng trưởng:', result.DT.managers);
 		if (result.EC === 0) {
 			return res.render('layouts/layout', {
 				page: 'pages/storeManagerListPage.ejs',
@@ -39,16 +37,16 @@ const renderStoreManagerListPage = async (req, res) => {
 		});
 	}
 };
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const renderAddStoreManagerPage = async (req, res) => {
 	try {
-		const stores = await storeService.getAllStore();
+		const page = parseInt(req.query.page) || 1;
+		const result = await storeService.getAllStore(page);
 		return res.render('layouts/layout', {
 			page: 'pages/addStoreManagerPage.ejs',
 			pageTitle: 'Thêm cửa hàng trưởng',
-			stores: stores.DT || []
+			stores: result.DT.stores || []
 		});
 	} catch (error) {
 		console.error("Lỗi khi render trang thêm cửa hàng trưởng:", error);
@@ -60,14 +58,41 @@ const renderAddStoreManagerPage = async (req, res) => {
 		});
 	}
 };
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const renderEditStoreManagerPage = async (req, res) => {
+	try {
+		const storeManagerId = req.params.storeManagerId;
+		if (!storeManagerId) {
+			return res.status(400).render('layouts/layout', {
+				page: 'pages/errorPage.ejs',
+				pageTitle: 'Lỗi',
+				EM: 'Thiếu store_manager_id.',
+				EC: -1
+			});
+		}
+		const result = await storeManagerService.getStoreManagerById(storeManagerId);
+		const storesResult = await storeService.getAllStore(1);
+		return res.render('layouts/layout', {
+			page: 'pages/editStoreManagerPage.ejs',
+			pageTitle: 'Danh sách cửa hàng trưởng',
+			manager: result.DT,
+			stores: storesResult.DT.stores || [],
+		});
+	} catch (error) {
+		console.error('Lỗi khi lấy danh sách cửa hàng trưởng:', error);
+		return res.status(500).render('layouts/layout', {
+			page: 'pages/errorPage.ejs',
+			pageTitle: 'Lỗi 500',
+			EM: 'Không thể tải danh sách cửa hàng trưởng.',
+			EC: -1
+		});
+	}
+};
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const handleAddStoreManager = async (req, res) => {
 	try {
-		console.log('📥 Dữ liệu form:', req.body);
-		console.log('🖼️ Ảnh upload:', req.file);
-
 		if (!req.body || Object.keys(req.body).length === 0) {
 			console.warn('⚠️ Không nhận được dữ liệu từ form!');
 			return res.status(400).render('layouts/layout', {
@@ -102,7 +127,7 @@ const handleAddStoreManager = async (req, res) => {
 				pageTitle: 'Thêm cửa hàng trưởng',
 				EM: result.EM,
 				EC: result.EC,
-				stores: (await storeService.getAllStore()).DT || []
+				stores: (await storeService.getAllStore()).DT.stores || []
 			});
 		}
 	} catch (error) {
@@ -115,8 +140,40 @@ const handleAddStoreManager = async (req, res) => {
 		});
 	}
 };
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const handleEditStoreManagerPage = async (req, res) => {
+	try {
+		const user_id = req.params.user_id;
+		const { name, email, phone, store_id } = req.body;
+
+		// Chuẩn bị data
+		const data = { name, email, phone, store_id };
+		if (req.file) {
+			data.avatar = '/uploads/' + req.file.filename;
+		}
+
+		const result = await storeManagerService.updateStoreManager(user_id, data);
+
+		res.redirect('/admin/cua-hang-truong/danh-sach');
+	} catch (err) {
+		console.error(err);
+		res.redirect('/admin/cua-hang-truong/danh-sach?em=Lỗi khi cập nhật');
+	}
+};
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const handleDeleteStoreManager = async (req, res) => {
+	try {
+		const storeManagerId = req.params.storeManagerId;
+		await storeManagerService.deleteStoreManager(storeManagerId);
+		res.redirect('/admin/cua-hang-truong/danh-sach');
+	} catch (err) {
+		console.error(err);
+		res.redirect('/admin/cua-hang-truong/danh-sach?em=Lỗi khi cập nhật');
+	}
+};
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const renderStoreManagerDetailPage = async (req, res) => {
 	try {
@@ -156,55 +213,15 @@ const renderStoreManagerDetailPage = async (req, res) => {
 		});
 	}
 };
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// const renderStoreManagerDetailPage = async (req, res) => {
-// 	try {
-// 		const managerId = req.params.id;
-// 		if (!managerId) {
-// 			return res.status(400).render('layouts/layout', {
-// 				page: 'pages/errorPage.ejs',
-// 				pageTitle: 'Lỗi',
-// 				EM: 'Thiếu store_manager_id.',
-// 				EC: -1
-// 			});
-// 		}
 
-// 		const result = await storeManagerService.getStoreManagerById(managerId);
-
-// 		if (result.EC === 0) {
-// 			return res.render('layouts/layout', {
-// 				page: 'pages/storeManagerDetailPage.ejs',
-// 				pageTitle: 'Chi tiết cửa hàng trưởng',
-// 				manager: result.DT,
-// 				EM: result.EM,
-// 				EC: result.EC
-// 			});
-// 		} else {
-// 			return res.status(404).render('layouts/layout', {
-// 				page: 'pages/errorPage.ejs',
-// 				pageTitle: 'Không tìm thấy',
-// 				EM: result.EM || 'Không tìm thấy cửa hàng trưởng.',
-// 				EC: result.EC
-// 			});
-// 		}
-// 	} catch (error) {
-// 		console.error('Lỗi khi lấy chi tiết cửa hàng trưởng:', error);
-// 		return res.status(500).render('layouts/layout', {
-// 			page: 'pages/errorPage.ejs',
-// 			pageTitle: 'Lỗi 500',
-// 			EM: 'Không thể tải chi tiết cửa hàng trưởng.',
-// 			EC: -1
-// 		});
-// 	}
-// };
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 export default {
 	renderStoreManagerListPage,
 	renderAddStoreManagerPage,
+	renderStoreManagerDetailPage,
+	renderEditStoreManagerPage,
+	
 	handleAddStoreManager,
-	renderStoreManagerDetailPage
+	handleEditStoreManagerPage,
+	handleDeleteStoreManager
 };

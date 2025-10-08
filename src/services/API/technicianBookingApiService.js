@@ -31,7 +31,7 @@ const bookingDetailOfTechnician = async (bookingId) => {
 							model: db.Technician,
 							include: [
 								{ model: db.User },
-								{ model: db.Specialty } // thêm ở đây
+								{ model: db.Specialty }
 							]
 						}
 					]
@@ -126,11 +126,30 @@ const technicianRating = async (technicianId) => {
 	}
 };
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const confirmAndCompleteBooking = async (bookingId) => {
+	try {
+		const booking = await db.RepairBooking.findOne({
+			where: { booking_id: bookingId },
+		});
+		if (!booking) {
+			return { EC: -1, EM: "Không tìm thấy booking", DT: null };
+		}
+		booking.status = "completed";
+		await booking.save();
+
+		return { EC: 0, EM: "Cập nhật trạng thái thành công", DT: booking };
+	} catch (error) {
+		console.error("technicianProfile error:", error);
+		return { EC: -1, EM: "Lỗi truy vấn hoặc cập nhật booking", DT: null };
+	}
+};
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 export default {
 	bookingListOfTechnician, 
 	bookingDetailOfTechnician, 
 	technicianProfile, 
 	technicianWorkSchedules,
 	technicianWorkScheduleDetail,
-	technicianRating
+	technicianRating,
+	confirmAndCompleteBooking
 }
