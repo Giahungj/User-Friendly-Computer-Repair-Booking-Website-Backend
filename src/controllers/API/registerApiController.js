@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import registerApiService from '../../services/registerApiService'
-import checkApiService from '../../services/API/loginApiService';
+import loginApiService from '../../services/API/loginApiService';
 import userApiService from '../../services/userApiService'
 const salt = bcrypt.genSaltSync(10);
 
@@ -35,23 +35,22 @@ const handleSignUpNewUser = async (req, res) => {
         const { email, password, name, phone } = req.body;
         const emailCheck = await userApiService.checkEmail(email);
         if (emailCheck.EC !== 0) {
-            return res.status(400).json(emailCheck);
+            return res.json(emailCheck);
         }
         const phoneCheck = await userApiService.checkPhoneNumber(phone);
         if (phoneCheck.EC !== 0) {
-            return res.status(400).json(phoneCheck);
+            return res.json(phoneCheck);
         }
         const hashedPassword = await hashPassword(password);
         const userData = { email, hashedPassword, name, phone };
         const result = await registerApiService.createNewUser(userData);
-        console.log("✅ User registration result:", result);
         if (result.EC !== 0) {
-            return res.status(400).json(result);
+            return res.json(result);
         }
-        return res.status(200).json(result);
+        return res.json(result);
     } catch (error) {
         console.error("Lỗi khi xử lý đăng ký bác sĩ:", error);
-        return res.status(500).json({ EM: "Lỗi máy chủ!", EC: -1, DT: {} });
+        return res.json({ EM: "Lỗi máy chủ!", EC: -1, DT: {} });
     }
 }
 

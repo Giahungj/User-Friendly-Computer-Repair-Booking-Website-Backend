@@ -145,40 +145,32 @@ const deleteUser = async (id) => {
 }
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const checkEmail = async (email) => {
-    try {
-        let user = await db.User.findOne({
-            where: { email: email }
-        })
+	try {
+		const user = await db.User.findOne({ where: { email } });
+		return user
+			? { EM: "Email đã tồn tại", EC: 1, DT: "" }
+			: { EM: "Email hợp lệ", EC: 0, DT: "" };
+	} catch {
+		return { EM: "Lỗi hệ thống...", EC: -1, DT: "" };
+	}
+};
 
-        let doctor = await db.PendingDoctors.findOne({
-            where: { email: email}
-        })
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const checkPhoneNumber = async (phone) => {
+	try {
+		const user = await db.User.findOne({ where: { phone } });
+		return user
+			? { EM: "Số điện thoại đã tồn tại", EC: 1, DT: "" }
+			: { EM: "Số điện thoại hợp lệ", EC: 0, DT: "" };
+	} catch {
+		return { EM: "Lỗi hệ thống...", EC: -1, DT: "" };
+	}
+};
 
-        if (user || doctor) {
-            return {
-                EM: "Email đã tồn tại",
-                EC: 1,
-                DT: ""
-            }
-        }
-
-        return {
-            EM: "Email hợp lệ",
-            EC: 0,
-            DT: ""
-        }
-    } catch (error) {
-        console.log(error)
-        return {
-            EM: "Lỗi hệ thống...",
-            EC: -1,
-            DT: ""
-        }
-    }
-}
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 export default {
 	checkEmail,
+    checkPhoneNumber,
 	createNewUser,
 	deleteUser,
 	getAllUser,

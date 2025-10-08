@@ -60,6 +60,7 @@ const createNewUser = async (userData) => {
             password: userData.hashedPassword ,
             name: userData.name,
             phone: userData.phone,
+            role: 1
         })
         await db.Customer.create({
             user_id: newUser.user_id
