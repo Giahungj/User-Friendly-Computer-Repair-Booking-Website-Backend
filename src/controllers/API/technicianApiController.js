@@ -215,9 +215,11 @@ const handleCreateTechnicianForStoreManagerApiController = async (req, res) => {
             specialties: Array.isArray(specialties) ? specialties : specialties ? [specialties] : []
         };
 
+        console.log("Payload chuẩn bị tạo kỹ thuật viên:", payload);
+
         const data = await technicianApiService.createTechnicianForStoreManagerApiService(payload);
 
-		return res.status(200).json(data);
+		return res.json(data);
 	} catch (error) {
 		console.error("createTechnicianForStoreManager error:", error.message);
 		return res.status(500).json({ EM: error.message || "Lỗi máy chủ", EC: "-1", DT: {} });
@@ -279,6 +281,6 @@ export default {
     readTechnicianSchedulesForStoreManagerApiController,
 
     handleCreateTechnicianForStoreManagerApiController,
-    handleCreateTechnicianForStoreManagerApiController,
+    // handleCreateTechnicianForStoreManagerApiController,
     handleUpdateTechnicianForStoreManagerApiController,
 }

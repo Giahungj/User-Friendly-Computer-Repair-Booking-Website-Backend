@@ -79,7 +79,7 @@ const initApiRoutes = (app) => {
 	router.get('/cua-hang-truong/:storeManagerId/ky-thuat-vien/con-trong', technicianApiController.readAvailableTechniciansForStoreManagerApiController);
 	router.get('/cua-hang-truong/:storeManagerId/ky-thuat-vien/doi-lich', technicianApiController.readAvailableTechniciansForStoreManagerApiController);
 	router.get('/cua-hang-truong/:storeManagerId/ky-thuat-vien/danh-sach', technicianApiController.readAllTechniciansForStoreManagerApiController);
-	router.post('/cua-hang-truong/ky-thuat-vien/tao-moi', upload.single('avatar'), technicianApiController.handleCreateTechnicianForStoreManagerApiController);
+	router.post('/cua-hang-truong/:storeManagerId/ky-thuat-vien/tao-moi', upload.single('avatar'), technicianApiController.handleCreateTechnicianForStoreManagerApiController);
 	router.put('/cua-hang-truong/ky-thuat-vien/:technicianId/cap-nhat', technicianApiController.handleUpdateTechnicianForStoreManagerApiController);
 
 	// Booking Management

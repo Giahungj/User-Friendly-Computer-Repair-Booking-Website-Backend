@@ -11,6 +11,7 @@ import workScheduleController from '../controllers/workScheduleController.js';
 import repairBookingController from '../controllers/repairBookingController';
 import userController from '../controllers/userController';
 import storeController from '../controllers/storeController.js';
+import reportsController from '../controllers/reportsController.js';
 import syncData from '../utils/syncData';
 import getAllDataFromElasticSearch from '../utils/getAllDataFromElasticSearch';
 
@@ -55,6 +56,7 @@ const initWebRoutes = (app) => {
 	router.get("/admin/ky-thuat-vien/danh-sach", technicianController.renderTechnicianListPage);
 	router.get("/admin/ky-thuat-vien/:id/chi-tiet", technicianController.renderTechnicianDetailPage);
     router.get("/admin/ky-thuat-vien", technicianController.renderTechnicianListByQuery);
+    router.get('/reports/performance', reportsController.getPerformanceReport)
 	// router.put("/admin/ky-thuat-vien/:id/chinh-sua", controller.updateTechnician);
 	// router.get("/admin/ky-thuat-vien/:id/lich-lam-viec", controller.getTechnicianSchedule);
 
