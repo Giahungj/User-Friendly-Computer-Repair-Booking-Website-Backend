@@ -33,13 +33,11 @@ const handleCheckEmail = async (req, res) => {
 const handleSignUpNewUser = async (req, res) => {
     try {
         const { email, password, name, phone } = req.body;
-        const emailCheck = await checkApiService.checkEmail(email);
-        console.log("✅ Check email result:", emailCheck);
+        const emailCheck = await userApiService.checkEmail(email);
         if (emailCheck.EC !== 0) {
             return res.status(400).json(emailCheck);
         }
-        const phoneCheck = await checkApiService.checkPhoneNumber(phone);
-        console.log("✅ Check phone result:", phoneCheck);
+        const phoneCheck = await userApiService.checkPhoneNumber(phone);
         if (phoneCheck.EC !== 0) {
             return res.status(400).json(phoneCheck);
         }
