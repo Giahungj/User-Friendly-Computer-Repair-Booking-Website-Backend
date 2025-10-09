@@ -43,9 +43,9 @@
                                 <td><%= new Date(spec.createdAt).toLocaleDateString('vi-VN') %></td>
                                 <td>
                                     <a href="/admin/chuyen-mon/<%= spec.specialty_id %>/cap-nhat" class="btn btn-sm btn-outline-primary me-1">Sửa</a>
-                                    <form action="/admin/chuyen-mon/<%= spec.specialty_id %>/delete" method="POST" class="d-inline">
+                                    <!-- <form action="/admin/chuyen-mon/<%= spec.specialty_id %>/delete" method="POST" class="d-inline">
                                         <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Xác nhận xoá?')">Xóa</button>
-                                    </form>
+                                    </form> -->
                                 </td>
                             </tr>
                         <% }) %>

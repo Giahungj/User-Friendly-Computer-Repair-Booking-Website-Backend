@@ -64,7 +64,7 @@ const getCustomerById = async (customer_id) => {
 				model: db.User,
 				attributes: ['user_id', 'name', 'email', 'phone']
 			}],
-			attributes: ['customer_id', 'address', 'date_of_birth', 'preferred_contact', 'loyalty_points', 'last_active', 'createdAt'],
+			attributes: ['customer_id', 'address', 'date_of_birth', 'preferred_contact', 'createdAt'],
 			raw: true,
 			nest: true
 		});

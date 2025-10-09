@@ -31,8 +31,8 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 const initWebRoutes = (app) => {
    // Trang chủ
-    router.get('/', homeController.getHomePage);
-    router.get('/overview', homeController.getOverview);
+    router.get('/', homeController.getBookingStats);
+    router.get('/overview', homeController.getBookingStats);
     router.get('/bookings/statistics', homeController.getBookingStats);
     router.get('/customers/statistics', homeController.getCustomerStats);
     router.post('/reports/export', homeController.exportReport);
@@ -53,7 +53,6 @@ const initWebRoutes = (app) => {
     router.get("/admin/cua-hang-truong/:id/chi-tiet", storeManagerController.renderStoreManagerDetailPage);
     router.get("/admin/cua-hang-truong/:storeManagerId/cap-nhat", storeManagerController.renderEditStoreManagerPage);
     router.post("/admin/cua-hang-truong/:user_id/cap-nhat", upload.single('avatar'),storeManagerController.handleEditStoreManagerPage);
-    router.post("/admin/cua-hang-truong/:storeManagerId/xoa", storeManagerController.handleDeleteStoreManager);
 
 	// 👨‍🔧 Kỹ thuật viên
     router.get("/admin/ky-thuat-vien/them-moi", technicianController.renderAddTechnicianPage);
@@ -69,6 +68,7 @@ const initWebRoutes = (app) => {
     // 👨‍💼 Tài khoản
     router.get("/admin/tai-khoan/danh-sach", userController.renderUserListPage);
     router.get("/admin/tai-khoan/:id/chi-tiet", userController.renderUserDetailPage);
+    // router.get("/admin/tai-khoan/:/chi-tiet", userController.renderUserDetailPage);
 
     // 👨‍💼 Tài khoản
     router.get("/admin/lich-lam-viec/danh-sach", workScheduleController.renderWorkSchedulePage);
@@ -85,7 +85,6 @@ const initWebRoutes = (app) => {
     router.get("/admin/chuyen-mon/:specialtyId/cap-nhat", specialtyController.renderUpdateSpecialtyPage);
     router.post("/admin/chuyen-mon/:specialtyId/cap-nhat", upload.single('image'), specialtyController.handleUpdateSpecialty);
     router.post("/admin/chuyen-mon/them-moi", upload.single('image'), specialtyController.handleAddSpecialty);
-    // router.post("/admin/chuyen-mon/:specialtyId/xoa", upload.single('image'), specialtyController.handleUpdateSpecialty);
     
    
     // Admin routes

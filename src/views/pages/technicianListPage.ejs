@@ -47,15 +47,15 @@
                             <!-- <td><%= tech.User?.last_active ? new Date(tech.User?.last_active).toLocaleString('vi-VN') : 'Chưa đăng nhập' %></td> -->
                             <td class="text-center">
                                 <a href="/admin/ky-thuat-vien/<%= tech.technician_id %>/chi-tiet"
-                                    class="btn btn-sm btn-outline-primary">Xem</a>
-                                <a href="/admin/ky-thuat-vien/<%= tech.technician_id %>/sua" 
-                                    class="btn btn-sm btn-outline-primary" title="Sửa">Sửa</a>
-                                <form action="/admin/ky-thuat-vien/<%= tech.technician_id %>/xoa" method="POST" class="d-inline">
+                                    class="btn btn-sm w-100 btn-outline-primary">Xem</a>
+                                <!-- <a href="/admin/ky-thuat-vien/<%= tech.technician_id %>/sua" 
+                                    class="btn btn-sm btn-outline-primary" title="Sửa">Sửa</a> -->
+                                <!-- <form action="/admin/ky-thuat-vien/<%= tech.technician_id %>/xoa" method="POST" class="d-inline">
                                     <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa"
                                             onclick="return confirm('Xác nhận xoá kỹ thuật viên này?')">
                                         Xóa
                                     </button>
-                                </form>
+                                </form> -->
                             </td>
                         </tr>
                     <% }) %>

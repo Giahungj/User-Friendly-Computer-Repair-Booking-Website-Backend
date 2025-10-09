@@ -25,20 +25,19 @@
 
         <!-- User Info -->
         <div class="d-flex align-items-center ms-auto" style="z-index: 10;">
-            <div id="userInfo" class="user-info mx-3 p-2 rounded dropdown">
+            <div id="userInfo" class="user-info mx-3 p-2 rounded dropdown" style="min-width: 10;">
                 <!-- Nút kích hoạt dropdown -->
                 <div class="d-flex align-items-center" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
                     <i class="fa-solid fa-circle-user me-2"></i>
                     <span id="adminName">
-                        Tên Admin
+                        Âu Tấn Đạt
                     </span>
-                    <i class="fa-solid fa-caret-down ms-2"></i> <!-- Icon mũi tên xuống -->
+                    <i class="fa-solid fa-caret-down ms-2"></i> 
                 </div>
                 <!-- Menu dropdown -->
-                <ul class="dropdown-menu dropdown-menu-end shadow" style="min-width: 24em;">
-                    <li>
+                <ul class="dropdown-menu dropdown-menu-end shadow" style="min-width: 10;">
+                    <!-- <li>
                         <a class="dropdown-item" href="/user-detail">
-                            AdminId
                             <i class="fa-solid fa-user me-2"></i> Hồ sơ
                         </a>
                     </li>
@@ -55,7 +54,7 @@
                     <li class="nav-item dropdown ps-3 py-2">
                         <i class="fas fa-database me-2"></i>
                         <span>Elasticsearch: Đồng bộ dữ liệu</span>
-                        <i class="fa-solid fa-caret-down ms-2"></i> <!-- Icon mũi tên xuống -->
+                        <i class="fa-solid fa-caret-down ms-2"></i>
 
                         <ul class="dropdown-menu border rounded" style="right: 100%; top: 0;  width: 25em;">
                             <li>
@@ -92,7 +91,7 @@
                     <li class="nav-item dropdown ps-3 py-2">
                         <i class="fas fa-database me-2"></i>
                         <span>Elasticsearch: Lấy dữ liệu</span>
-                        <i class="fa-solid fa-caret-down ms-2"></i> <!-- Icon mũi tên xuống -->
+                        <i class="fa-solid fa-caret-down ms-2"></i>
                         <ul class="dropdown-menu border rounded"  style="right: 100%; top: 0; width: 25em;">
                             <li>
                                 <a class="dropdown-item" href="/getAllDoctorsDataOfElasticSearch">
@@ -116,7 +115,7 @@
                             </li>
                         </ul>
                     </li>
-                    <li><hr class="dropdown-divider"></li>
+                    <li><hr class="dropdown-divider"></li> -->
                     <li>
                         <form class="m-0" action="/admin-logout" method="POST">
                             <a class="dropdown-item text-danger" href="#" onclick="this.closest('form').submit()">

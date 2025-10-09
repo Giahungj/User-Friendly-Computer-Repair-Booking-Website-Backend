@@ -178,41 +178,6 @@ const updateStoreManager = async (user_id, data) => {
 };
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// Xóa cửa hàng trưởng
-const deleteStoreManager = async (store_manager_id) => {
-	try {
-		if (!store_manager_id) return { EC: -1, EM: 'Thiếu mã quản lý cửa hàng.' };
-
-		const result = await db.sequelize.transaction(async (t) => {
-			// 1. Lấy StoreManager
-			const storeManager = await db.StoreManager.findOne({ where: { store_manager_id }, transaction: t });
-			if (!storeManager) throw new Error('Không tìm thấy StoreManager.');
-
-			const userId = storeManager.user_id;
-
-			// 2. Set store_manager_id của cửa hàng đang quản lý về null
-			const updatedStores = await db.Store.update(
-				{ store_manager_id: null },
-				{ where: { store_manager_id }, transaction: t }
-			);
-
-			// 3. Xóa StoreManager
-			const deletedStoreManager = await db.StoreManager.destroy({ where: { store_manager_id }, transaction: t });
-			console.log('Số bản ghi StoreManager đã xóa:', deletedStoreManager);
-
-			// 4. Xóa User
-			const deletedUser = await db.User.destroy({ where: { user_id: userId }, transaction: t });
-			console.log('Số bản ghi User đã xóa:', deletedUser);
-
-			return { EC: 0, EM: 'Xóa quản lý cửa hàng thành công.' };
-		});
-
-		return result;
-	} catch (error) {
-		console.error('Error deleting store manager:', error);
-		return { EC: -1, EM: 'Lỗi server khi xóa quản lý cửa hàng.' };
-	}
-};
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 export default {
@@ -220,5 +185,4 @@ export default {
     getStoreManagerById,
     createStoreManager,
 	updateStoreManager,
-	deleteStoreManager
 }

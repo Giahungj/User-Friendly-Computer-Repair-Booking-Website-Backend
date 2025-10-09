@@ -187,13 +187,6 @@ const getAllFacility = async () => {
     }
 }
 
-const deleteUser = async (userId) => {
-    await db.User.destroy({
-        where: { id: userId }
-    })
-
-}
-
 const getUserById = async (userId) => {
     let user = {}
     user = await db.User.findOne({
@@ -216,7 +209,6 @@ const updateUserInfor = async (email, username, address, id) => {
 export default {
 	// 📌 User
 	createNewUser,
-	deleteUser,
 	getAllUser,
 	getUserById,
 	updateUserInfor,

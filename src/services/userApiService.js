@@ -113,36 +113,6 @@ const updateUser = async (dataUser) => {
         }
     }
 }
-
-const deleteUser = async (id) => {
-    try {
-        let user = await db.User.findOne({
-            where: { id: id }
-        })
-        if (user) {
-            await user.destroy()
-            return {
-                EM: "Delete user success!",
-                EC: 0,
-                DT: []
-            }
-
-        } else {
-            return {
-                EM: "User not found",
-                EC: 2,
-                DT: []
-            }
-        }
-    } catch (error) {
-        console.log(error)
-        return {
-            EM: "Something wrong from service!!!",
-            EC: 1,
-            DT: []
-        }
-    }
-}
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const checkEmail = async (email) => {
 	try {
@@ -172,7 +142,6 @@ export default {
 	checkEmail,
     checkPhoneNumber,
 	createNewUser,
-	deleteUser,
 	getAllUser,
 	getUserPaginate,
 	updateUser

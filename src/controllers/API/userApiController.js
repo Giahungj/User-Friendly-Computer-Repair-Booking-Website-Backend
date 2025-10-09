@@ -72,23 +72,7 @@ const updateUser = async (req, res) => {
         });
     }
 };
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-const deleteUser = async (req, res) => {
-    try {
-        let data = await userApiService.deleteUser(req.body.id);
-        return res.status(200).json({
-            EM: data.EM,
-            EC: data.EC,
-            DT: data.DT
-        })
-    } catch (error) {
-        return res.status(200).json({
-            EM: "Something wrong from server!",
-            EC: 1,
-            DT: []
-        })
-    }
-}
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const getUserAccount = async (req, res) => {
     return res.status(200).json({
@@ -107,5 +91,5 @@ const getUserAccount = async (req, res) => {
 }
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 export default {
-    readUser, updateUser, deleteUser, createUser, getUserAccount
+    readUser, updateUser, createUser, getUserAccount
 }

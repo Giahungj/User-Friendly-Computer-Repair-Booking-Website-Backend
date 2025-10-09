@@ -163,18 +163,6 @@ const handleEditStoreManagerPage = async (req, res) => {
 };
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-const handleDeleteStoreManager = async (req, res) => {
-	try {
-		const storeManagerId = req.params.storeManagerId;
-		await storeManagerService.deleteStoreManager(storeManagerId);
-		res.redirect('/admin/cua-hang-truong/danh-sach');
-	} catch (err) {
-		console.error(err);
-		res.redirect('/admin/cua-hang-truong/danh-sach?em=Lỗi khi cập nhật');
-	}
-};
-
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const renderStoreManagerDetailPage = async (req, res) => {
 	try {
 		const storeManagerId = req.params.id;
@@ -223,5 +211,4 @@ export default {
 	
 	handleAddStoreManager,
 	handleEditStoreManagerPage,
-	handleDeleteStoreManager
 };

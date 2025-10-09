@@ -20,7 +20,6 @@ const getHomePage = async (req, res) => {
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const getOverview = async (req, res) => {
     try {
-        // Render the home page with necessary data
         res.render('layouts/layout', {
             page: 'pages/adminHomePage.ejs',
             pageTitle: 'Home',
