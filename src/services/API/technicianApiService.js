@@ -9,7 +9,7 @@ async function getTechniciansBase() {
 	return await db.Technician.findAll({
 		attributes: ['technician_id', 'user_id', 'store_id', 'avg_rating'],
 		include: [
-			{ model: db.User, attributes: ['name', 'phone', 'email', 'avatar'], order: [['createdAt', 'DESC']] },
+			{ model: db.User, attributes: ['name', 'phone', 'email', 'avatar'], order: [['updatedAt', 'DESC']] },
 			{ model: db.Store, attributes: ['store_id', 'name', 'address'] },
 		],
 		raw: true,

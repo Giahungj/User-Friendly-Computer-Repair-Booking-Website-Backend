@@ -15,7 +15,7 @@ const readTechnicianRatingsApiService = async (technicianId) => {
                 }]
             }],
             raw: true, nest: true,
-            order: [['createdAt', 'DESC']], // Sắp xếp đánh giá mới nhất trước
+            order: [['updatedAt', 'DESC']], // Sắp xếp đánh giá mới nhất trước
         });
 
         if (!ratings || ratings.length === 0) {

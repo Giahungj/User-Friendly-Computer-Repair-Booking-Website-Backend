@@ -1,4 +1,5 @@
 import db from '../../models';
+import { Op } from "sequelize"
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const getAllStore = async (page = 1) => {
@@ -8,13 +9,11 @@ const getAllStore = async (page = 1) => {
 			include: [{
 				model: db.StoreManager,
 				attributes: ['store_manager_id'],
+				include: [{ model: db.User, attributes: ['user_id', 'name']}],
 				required: false
 			}],
-			where: {
-				'$StoreManager.store_manager_id$': null
-			},
 			attributes: ['store_id', 'name', 'address', 'phone', 'createdAt'],
-			order: [['createdAt', 'DESC']],
+			order: [['updatedAt', 'DESC']],
 			limit: 20,
 			offset,
 			raw: true,
@@ -40,11 +39,42 @@ const getAllStore = async (page = 1) => {
 };
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const getStoresSuport = async () => {
+	try {
+		const stores = await db.Store.findAll({
+			include: [{
+				model: db.StoreManager,
+				attributes: ['store_manager_id'],
+				required: false
+			}],
+			where: {
+				'$StoreManager.store_manager_id$': null
+			},
+			attributes: ['store_id', 'name', 'address', 'phone', 'createdAt'],
+			order: [['updatedAt', 'DESC']],
+			raw: true,
+			nest: true
+		});
+		return {
+			EC: 0,
+			EM: 'Lấy danh sách cửa hàng thành công',
+			DT: { stores }
+		};
+	} catch (error) {
+		console.error('Lỗi getAllStore:', error);
+		return {
+			EC: -1,
+			EM: 'Lỗi khi lấy danh sách cửa hàng',
+			DT: []
+		};
+	}
+};
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const getStoreById = async (store_id) => {
 	try {
 		const store = await db.Store.findOne({
 			where: { store_id },
-			attributes: ['store_id', 'name', 'address', 'phone', 'store_image', 'createdAt'],
 			raw: true, nest: true
 		});
 		if (!store) {
@@ -94,8 +124,49 @@ const createStore = async (data, imagePath) => {
 };
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const updateStore = async (data) => {
+	const t = await db.sequelize.transaction();
+	try {
+		const { storeId, name, phone, address, storeImage } = data;
+
+		if (!name || !phone || !address) {
+			await t.rollback();
+			return { EC: -1, EM: 'Thiếu tên, số điện thoại hoặc địa chỉ cửa hàng.' };
+		}
+
+		const existing = await db.Store.findOne({
+			where: { 
+				name, 
+				store_id: { [Op.ne]: storeId } 
+			},
+			transaction: t
+		});
+		if (existing) {
+			await t.rollback();
+			return { EC: -1, EM: 'Tên cửa hàng đã tồn tại.' };
+		}
+
+		const updateData = { name, phone, address };
+		if (storeImage) updateData.store_image = storeImage;
+
+		await db.Store.update(updateData, {
+			where: { store_id: storeId },
+			transaction: t
+		});
+
+		await t.commit();
+		return { EC: 0, EM: 'Cập nhật cửa hàng thành công.' };
+	} catch (error) {
+		await t.rollback();
+		return { EC: -1, EM: 'Cập nhật cửa hàng thất bại.' };
+	}
+};
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 export default {
 	getAllStore,
+	getStoresSuport,
 	getStoreById,
-	createStore
+	createStore,
+	updateStore
 };

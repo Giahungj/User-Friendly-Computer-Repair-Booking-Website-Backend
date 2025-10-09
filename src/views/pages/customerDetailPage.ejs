@@ -1,95 +1,91 @@
-<div class="p-3 border border-0 rounded shadow-sm bg-white">
-    <div class="d-flex justify-content-between align-items-center mb-2">
-        <h5 class="text-muted text-uppercase mb-0">Chi tiết khách hàng</h5>
-        <a href="/admin/khach-hang/danh-sach" class="btn btn-secondary rounded-pill">
-            <i class="fa-solid fa-arrow-left"></i> Quay lại danh sách
-        </a>
+<div class="container mt-3">
+    <!-- Card 1: Tiêu đề và nút quay lại -->
+    <div class="card mb-3">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <h3 class="fw-semibold text-dark mb-0">Chi Tiết Khách Hàng</h3>
+            <a href="/admin/khach-hang/danh-sach" class="btn btn-secondary btn-sm">Quay lại</a>
+        </div>
     </div>
 
-    <hr>
-
-    <% if (customer) { %>
-        <div class="row g-4 align-items-start my-4">
-            <div class="col text-center">
-                <img src="/images/uploads/avatars/<%= customer.User.user_id %>.jpg"
-                    alt="Avatar"
-                    class="rounded-circle"
-                    style="width: 140px; height: 140px; object-fit: cover; border: 2px solid #ccc;"
-                    onerror="this.onerror=null; this.src='/images/user.png';">
-                <h5 class="mt-3 mb-1"><%= customer.User.name || '' %></h5>
-                <small class="text-muted">Mã KH: <%= customer.customer_id %></small>
-            </div>
-
-            <div class="col-8">
-                <div class="row g-3">
-                    <div class="col">
-                        <div class="p-3 border rounded bg-light">
-                            <i class="fa-solid fa-envelope text-danger me-2"></i>
-                            <strong>Email:</strong> <span class="text-dark"><%= customer.User.email || '' %></span>
-                        </div>
+    <!-- Card: Thông tin khách hàng -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title fw-medium text-dark mb-3">Thông Tin Chi Tiết</h5>
+            <% if (customer) { %>
+                <div class="row">
+                    <div class="col-md-4">
+                        <table class="table table-bordered align-middle">
+                            <tbody>
+                                <tr>
+                                    <th class="text-end" style="width:40%">Mã khách hàng:</th>
+                                    <td class="<%= !customer.customer_id ? 'text-danger' : '' %>"><%= customer.customer_id || 'Không rõ' %></td>
+                                </tr>
+                                <tr>
+                                    <th class="text-end">Họ tên:</th>
+                                    <td class="<%= !customer.User?.name ? 'text-danger' : '' %>"><%= customer.User?.name || 'Không rõ' %></td>
+                                </tr>
+                                <tr>
+                                    <th class="text-end">Email:</th>
+                                    <td class="<%= !customer.User?.email ? 'text-danger' : '' %>"><%= customer.User?.email || 'Không rõ' %></td>
+                                </tr>
+                                <tr>
+                                    <th class="text-end">Số điện thoại:</th>
+                                    <td class="<%= !customer.User?.phone ? 'text-danger' : '' %>"><%= customer.User?.phone || 'Không rõ' %></td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
 
-                    <div class="col">
-                        <div class="p-3 border rounded bg-light">
-                            <i class="fa-solid fa-phone text-success me-2"></i>
-                            <strong>Điện thoại:</strong> <span class="text-dark"><%= customer.User.phone || '' %></span>
-                        </div>
+                    <div class="col-md-4">
+                        <table class="table table-bordered align-middle">
+                            <tbody>
+                                <tr>
+                                    <th class="text-end" style="width:10em">Liên hệ ưa thích:</th>
+                                    <td class="<%= !customer.preferred_contact ? 'text-danger' : '' %>"><%= customer.preferred_contact || 'Không rõ' %></td>
+                                </tr>
+                                <tr>
+                                    <th class="text-end">Điểm tích lũy:</th>
+                                    <td class="<%= !customer.loyalty_points ? 'text-danger' : '' %>"><%= customer.loyalty_points || 'Không rõ' %></td>
+                                </tr>
+                                <tr>
+                                    <th class="text-end">Ngày sinh:</th>
+                                    <td class="<%= !customer.date_of_birth ? 'text-danger' : '' %>">
+                                        <%= customer.date_of_birth ? new Date(customer.date_of_birth).toLocaleDateString('vi-VN') : 'Không rõ' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="text-end">Hình ảnh:</th>
+                                    <td>
+                                        <img src="/images/<%= customer.User.avatar %>.jpg"
+                                             alt="Avatar"
+                                             style="height: 80px; object-fit: cover; border: 2px solid #ccc;"
+                                             onerror="this.onerror=null; this.src='/images/user.png';">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
 
-                    <div class="col">
-                        <div class="p-3 border rounded bg-light">
-                            <i class="fa-solid fa-comments text-secondary me-2"></i>
-                            <strong>Liên hệ ưa thích:</strong> <span class="text-dark"><%= customer.preferred_contact || '' %></span>
-                        </div>
-                    </div>
-
-                    <div class="col">
-                        <div class="p-3 border rounded bg-light">
-                            <i class="fa-solid fa-gift text-info me-2"></i>
-                            <strong>Điểm tích lũy:</strong> <span class="text-dark"><%= customer.loyalty_points || 0 %></span>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="p-3 border rounded bg-light">
-                            <i class="fa-solid fa-location-dot text-warning me-2"></i>
-                            <strong>Địa chỉ:</strong> <span class="text-dark"><%= customer.address || 'Chưa cập nhật' %></span>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="p-3 border rounded bg-light">
-                            <i class="fa-solid fa-cake-candles text-pink me-2"></i>
-                            <strong>Ngày sinh:</strong> 
-                            <span class="text-dark">
-                                <%= customer.date_of_birth ? new Date(customer.date_of_birth).toLocaleDateString('vi-VN') : 'Chưa cập nhật' %>
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- <div class="col-md-6">
-                        <div class="p-3 border rounded bg-light">
-                            <i class="fa-solid fa-clock-rotate-left text-dark me-2"></i>
-                            <strong>Hoạt động gần nhất:</strong> 
-                            <span class="text-dark">
-                                <%= customer.last_active ? new Date(customer.last_active).toLocaleString('vi-VN') : 'Không có' %>
-                            </span>
-                        </div>
-                    </div> -->
-
-                    <div class="col-md-6">
-                        <div class="p-3 border rounded bg-light">
-                            <i class="fa-solid fa-calendar-plus text-primary me-2"></i>
-                            <strong>Ngày tạo:</strong> 
-                            <span class="text-dark">
-                                <%= customer.createdAt ? new Date(customer.createdAt).toLocaleString('vi-VN') : '' %>
-                            </span>
-                        </div>
+                    <div class="col-md-4">
+                        <table class="table table-bordered align-middle">
+                            <tbody>
+                                <tr>
+                                    <th class="text-end" style="width:35%">Địa chỉ:</th>
+                                    <td class="<%= !customer.address ? 'text-danger' : '' %>"><%= customer.address || 'Không rõ' %></td>
+                                </tr>
+                                <tr>
+                                    <th class="text-end">Ngày tạo:</th>
+                                    <td class="<%= !customer.createdAt ? 'text-danger' : '' %>">
+                                        <%= customer.createdAt ? new Date(customer.createdAt).toLocaleString('vi-VN') : 'Không rõ' %>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-            </div>
+            <% } else { %>
+                <div class="alert alert-warning mb-0">Không tìm thấy thông tin khách hàng.</div>
+            <% } %>
         </div>
-    <% } else { %>
-        <div class="alert alert-warning mb-0">Không tìm thấy thông tin khách hàng.</div>
-    <% } %>
+    </div>
 </div>

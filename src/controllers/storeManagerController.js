@@ -42,7 +42,7 @@ const renderStoreManagerListPage = async (req, res) => {
 const renderAddStoreManagerPage = async (req, res) => {
 	try {
 		const page = parseInt(req.query.page) || 1;
-		const result = await storeService.getAllStore(page);
+		const result = await storeService.getStoresSuport(page);
 		return res.render('layouts/layout', {
 			page: 'pages/addStoreManagerPage.ejs',
 			pageTitle: 'Thêm cửa hàng trưởng',
@@ -72,7 +72,7 @@ const renderEditStoreManagerPage = async (req, res) => {
 			});
 		}
 		const result = await storeManagerService.getStoreManagerById(storeManagerId);
-		const storesResult = await storeService.getAllStore(1);
+		const storesResult = await storeService.getStoresSuport();
 		return res.render('layouts/layout', {
 			page: 'pages/editStoreManagerPage.ejs',
 			pageTitle: 'Danh sách cửa hàng trưởng',
@@ -100,7 +100,7 @@ const handleAddStoreManager = async (req, res) => {
 				pageTitle: 'Thêm cửa hàng trưởng',
 				EM: 'Không nhận được dữ liệu từ form.',
 				EC: -1,
-				stores: (await storeService.getAllStore()).DT || []
+				stores: (await storeService.getStoresSuport()).DT || []
 			});
 		}
 
@@ -111,7 +111,7 @@ const handleAddStoreManager = async (req, res) => {
 				pageTitle: 'Thêm cửa hàng trưởng',
 				EM: 'Thiếu mật khẩu.',
 				EC: -1,
-				stores: (await storeService.getAllStore()).DT || []
+				stores: (await storeService.getStoresSuport()).DT || []
 			});
 		}
 
@@ -127,7 +127,7 @@ const handleAddStoreManager = async (req, res) => {
 				pageTitle: 'Thêm cửa hàng trưởng',
 				EM: result.EM,
 				EC: result.EC,
-				stores: (await storeService.getAllStore()).DT.stores || []
+				stores: (await storeService.getStoresSuport()).DT.stores || []
 			});
 		}
 	} catch (error) {

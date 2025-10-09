@@ -35,7 +35,7 @@ const getAllRepairBooking = async (page = 1, searchQuery = '', filters = '') => 
 					]
 				}
 			],
-			order: [['createdAt', 'DESC']],
+			order: [['updatedAt', 'DESC']],
 			limit: 20, offset
 		});
 		return {
@@ -141,7 +141,7 @@ const getBookingsByTechnicianId = async (technicianId) => {
 					model: db.WorkSchedule, attributes: [], where: { technician_id: technicianId },
 				}
 			],
-			order: [['createdAt', 'DESC']],
+			order: [['updatedAt', 'DESC']],
 			limit: 20
 		});
 

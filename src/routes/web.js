@@ -68,7 +68,6 @@ const initWebRoutes = (app) => {
     // 👨‍💼 Tài khoản
     router.get("/admin/tai-khoan/danh-sach", userController.renderUserListPage);
     router.get("/admin/tai-khoan/:id/chi-tiet", userController.renderUserDetailPage);
-    // router.get("/admin/tai-khoan/:/chi-tiet", userController.renderUserDetailPage);
 
     // 👨‍💼 Tài khoản
     router.get("/admin/lich-lam-viec/danh-sach", workScheduleController.renderWorkSchedulePage);
@@ -78,6 +77,8 @@ const initWebRoutes = (app) => {
     router.get("/admin/cua-hang/them-moi", storeController.renderAddStorePage);
     router.post("/admin/cua-hang/them-moi", upload.single('image'), storeController.handleAddStore);
     router.get("/admin/cua-hang/:id/chi-tiet", storeController.renderStoreDetailPage);
+    router.get("/admin/cua-hang/:storeId/cap-nhat", storeController.renderStoreUpdatePage);
+    router.post("/admin/cua-hang/:storeId/cap-nhat", upload.single('store_image'), storeController.handleUpdateStore);
     
     // 📚 Chuyên môn
     router.get("/admin/chuyen-mon/danh-sach", specialtyController.renderSpecialtyListPage);

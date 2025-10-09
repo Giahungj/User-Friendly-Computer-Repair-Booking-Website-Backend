@@ -48,15 +48,7 @@
                                     <!-- <td><%= user.last_active ? new Date(user.last_active).toLocaleString('vi-VN') : 'Chưa đăng nhập' %></td> -->
                                     <td>
                                         <a href="/admin/tai-khoan/<%= user.user_id %>/chi-tiet" 
-                                           class="btn btn-sm btn-outline-primary" title="Xem">Xem</a>
-                                        <a href="/admin/tai-khoan/<%= user.user_id %>/sua" 
-                                           class="btn btn-sm btn-outline-primary" title="Sửa">Sửa</a>
-                                        <form action="/admin/tai-khoan/<%= user.user_id %>/xoa" method="POST" class="d-inline">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa"
-                                                    onclick="return confirm('Xác nhận xóa?')">
-                                                Xóa
-                                            </button>
-                                        </form>
+                                           class="btn btn-sm btn-outline-primary w-100" title="Xem">Xem</a>
                                     </td>
                                 </tr>
                             <% }) %>

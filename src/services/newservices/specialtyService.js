@@ -7,7 +7,7 @@ const getAllSpecialties = async (page = 1) => {
 		const offset = (page - 1) * 20;
 		const { count, rows } = await db.Specialty.findAndCountAll({
 			attributes: ['specialty_id', 'name', 'description', 'image', 'createdAt'],
-			order: [['createdAt', 'DESC']],
+			order: [['updatedAt', 'DESC']],
 			limit: 20,
 			offset,
 			raw: true, nest: true

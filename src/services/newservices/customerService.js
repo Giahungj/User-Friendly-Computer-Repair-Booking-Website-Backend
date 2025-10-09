@@ -25,7 +25,7 @@ const getAllCustomers = async (page = 1, searchQuery = '') => {
 					attributes: ['user_id', 'name', 'email', 'phone', 'createdAt', 'last_active'],
 				}
 			],
-			order: [['createdAt', 'DESC']],
+			order: [['updatedAt', 'DESC']],
 			limit: 20,
 			offset,
 			raw: true,
@@ -62,7 +62,7 @@ const getCustomerById = async (customer_id) => {
 			where: { customer_id },
 			include: [{
 				model: db.User,
-				attributes: ['user_id', 'name', 'email', 'phone']
+				attributes: ['user_id', 'name', 'email', 'phone', 'avatar']
 			}],
 			attributes: ['customer_id', 'address', 'date_of_birth', 'preferred_contact', 'createdAt'],
 			raw: true,
@@ -71,7 +71,6 @@ const getCustomerById = async (customer_id) => {
 		if (!customer) {
 			return { EC: -1, EM: 'Không tìm thấy khách hàng.' };
 		}
-		console.log('getCustomerById:', customer);
 		return {
 			EC: 0,
 			EM: 'Lấy chi tiết khách hàng thành công.',
