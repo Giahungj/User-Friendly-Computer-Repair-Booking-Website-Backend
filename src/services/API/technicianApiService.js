@@ -331,8 +331,6 @@ const getAllTechniciansForStoreManagerApiService = async (storeManagerId) => {
     }
 };
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const getAvailableTechniciansForStoreManagerApiService = async (storeManagerId) => {
     try {   
 		const technicians = await db.Technician.findAll({
@@ -340,7 +338,7 @@ const getAvailableTechniciansForStoreManagerApiService = async (storeManagerId) 
 			include: [
 				{
 					model: db.User,
-					attributes: ['name', 'phone', 'email', 'avatar']
+					attributes: ['name', 'avatar']
 				},
 				{
 					model: db.WorkSchedule,
@@ -357,6 +355,8 @@ const getAvailableTechniciansForStoreManagerApiService = async (storeManagerId) 
 				}
 			],
 		});
+
+        console.log(technicians)
 
 		if (!technicians || technicians.length === 0) {
 			return { EM: "Không tìm thấy kỹ thuật viên", EC: -1, DT: [] };

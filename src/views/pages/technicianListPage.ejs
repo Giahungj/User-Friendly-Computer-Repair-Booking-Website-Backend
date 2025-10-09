@@ -32,7 +32,7 @@
                         <th>Email</th>
                         <th>Điện thoại</th>
                         <th>Cửa hàng</th>
-                        <th>Hoạt động gần nhất</th>
+                        <!-- <th>Hoạt động gần nhất</th> -->
                         <th>Thao tác</th>
                     </tr>
                 </thead>
@@ -44,7 +44,7 @@
                             <td><%- highlight(tech.User.email || '', searchQuery) %></td>
                             <td><%- highlight(tech.User.phone || '', searchQuery) %></td>
                             <td><%= tech.Store?.name || 'Chưa rõ' %></td>
-                            <td><%= tech.User?.last_active ? new Date(tech.User?.last_active).toLocaleString('vi-VN') : 'Chưa đăng nhập' %></td>
+                            <!-- <td><%= tech.User?.last_active ? new Date(tech.User?.last_active).toLocaleString('vi-VN') : 'Chưa đăng nhập' %></td> -->
                             <td class="text-center">
                                 <a href="/admin/ky-thuat-vien/<%= tech.technician_id %>/chi-tiet"
                                     class="btn btn-sm btn-outline-primary">Xem</a>

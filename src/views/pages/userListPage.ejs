@@ -33,7 +33,7 @@
                                 <th>Email</th>
                                 <th>Điện thoại</th>
                                 <th>Vai trò</th>
-                                <th>Hoạt động gần nhất</th>
+                                <!-- <th>Hoạt động gần nhất</th> -->
                                 <th>Thao tác</th>
                             </tr>
                         </thead>
@@ -45,7 +45,7 @@
                                     <td><%- highlight(user.email || '', searchQuery) %></td>
                                     <td><%- highlight(user.phone || '', searchQuery) %></td>
                                     <td><%= user.role || 'Chưa phân quyền' %></td>
-                                    <td><%= user.last_active ? new Date(user.last_active).toLocaleString('vi-VN') : 'Chưa đăng nhập' %></td>
+                                    <!-- <td><%= user.last_active ? new Date(user.last_active).toLocaleString('vi-VN') : 'Chưa đăng nhập' %></td> -->
                                     <td>
                                         <a href="/admin/tai-khoan/<%= user.user_id %>/chi-tiet" 
                                            class="btn btn-sm btn-outline-primary" title="Xem">Xem</a>

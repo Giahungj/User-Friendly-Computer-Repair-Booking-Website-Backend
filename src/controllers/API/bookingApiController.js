@@ -1,4 +1,5 @@
 import bookingApiService from '../../services/bookingApiService';
+import bookingApiServiceTrue from '../../services/API/bookingApiService';
 import notificationService from '../../services/newservices/notificationApiService';
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // CRUD Operations
@@ -251,14 +252,15 @@ const approveRepairBookingController = async (req, res) => {
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const reassignAndApproveBookingController = async (req, res) => {
 	try {
-		const { bookingId, workScheduleId, technicianId } = req.body;
-		if (!bookingId || !workScheduleId || !technicianId) {
+		const { bookingId, oldworkScheduleId, newWorkScheduleId, technicianId } = req.body;
+		if (!bookingId || !oldworkScheduleId || !newWorkScheduleId || !technicianId) {
 			return res.json({ EC: 1, EM: "Thiếu dữ liệu bắt buộc", DT: null });
 		}
 
-		const data = await bookingApiService.reassignAndApproveBooking({
+		const data = await bookingApiServiceTrue.reassignAndApproveBooking({
 			bookingId,
-			workScheduleId,
+			oldworkScheduleId,
+			newWorkScheduleId,
 			technicianId
 		});
 

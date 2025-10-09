@@ -29,7 +29,7 @@
                         <th>Địa chỉ</th>
                         <th>Liên hệ ưa thích</th>
                         <th>Điểm tích lũy</th>
-                        <th>Hoạt động gần nhất</th>
+                        <!-- <th>Hoạt động gần nhất</th> -->
                         <th>Thao tác</th>
                     </tr>
                 </thead>
@@ -43,7 +43,7 @@
                             <td><%= customer.address || '' %></td>
                             <td><%= customer.preferred_contact || '' %></td>
                             <td><%= customer.loyalty_points || 0 %></td>
-                            <td><%= customer.User?.last_active ? new Date(customer.User?.last_active).toLocaleString('vi-VN') : 'Chưa đăng nhập' %></td>
+                            <!-- <td><%= customer.User?.last_active ? new Date(customer.User?.last_active).toLocaleString('vi-VN') : 'Chưa đăng nhập' %></td> -->
                             <td>
                                 <a href="/admin/khach-hang/<%= customer.customer_id %>/chi-tiet" 
                                 class="btn btn-sm btn-secondary" title="Xem">

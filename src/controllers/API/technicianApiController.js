@@ -281,6 +281,5 @@ export default {
     readTechnicianSchedulesForStoreManagerApiController,
 
     handleCreateTechnicianForStoreManagerApiController,
-    // handleCreateTechnicianForStoreManagerApiController,
     handleUpdateTechnicianForStoreManagerApiController,
 }

@@ -55,7 +55,7 @@ const handleAdminLogin = async (req, res) => {
             maxAge: 7200000, // 2 giờ
         });
         console.log("Cookie adminToken đã được thiết lập");
-        return res.redirect("/dashboard");
+        return res.redirect("/reports/performance");
     } catch (error) {
         console.error(error);
         return res.render('layouts/layout', {

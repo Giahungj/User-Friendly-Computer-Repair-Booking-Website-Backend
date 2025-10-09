@@ -37,6 +37,11 @@ const initWebRoutes = (app) => {
     router.get('/customers/statistics', homeController.getCustomerStats);
     router.post('/reports/export', homeController.exportReport);
 
+    // Thống kê
+    router.get('/reports/performance', reportsController.getPerformanceReport)
+    router.get("/reports/performance/export", reportsController.exportPerformanceReport);
+    router.get("/reports/overview", reportsController.getOverviewReport);
+
 	// 📅 Đặt lịch
 	router.get("/admin/dat-lich/danh-sach", repairBookingController.renderRepairBookingListPage);
 	router.get("/admin/dat-lich/:id/chi-tiet", repairBookingController.renderRepairBookingDetailPage);
@@ -56,12 +61,7 @@ const initWebRoutes = (app) => {
 	router.get("/admin/ky-thuat-vien/danh-sach", technicianController.renderTechnicianListPage);
 	router.get("/admin/ky-thuat-vien/:id/chi-tiet", technicianController.renderTechnicianDetailPage);
     router.get("/admin/ky-thuat-vien", technicianController.renderTechnicianListByQuery);
-    router.get('/reports/performance', reportsController.getPerformanceReport)
-    router.get("/reports/performance/export", reportsController.exportPerformanceReport);
-    router.get("/reports/overview", reportsController.getOverviewReport);
-	// router.put("/admin/ky-thuat-vien/:id/chinh-sua", controller.updateTechnician);
-	// router.get("/admin/ky-thuat-vien/:id/lich-lam-viec", controller.getTechnicianSchedule);
-
+   
 	// 👤 Khách hàng
 	router.get("/admin/khach-hang/danh-sach", customerController.renderCustomerListPage);
 	router.get("/admin/khach-hang/:id/chi-tiet", customerController.renderCustomerDetailPage);
@@ -82,8 +82,12 @@ const initWebRoutes = (app) => {
     // 📚 Chuyên môn
     router.get("/admin/chuyen-mon/danh-sach", specialtyController.renderSpecialtyListPage);
     router.get("/admin/chuyen-mon/them-moi", specialtyController.renderAddSpecialtyPage);
+    router.get("/admin/chuyen-mon/:specialtyId/cap-nhat", specialtyController.renderUpdateSpecialtyPage);
+    router.post("/admin/chuyen-mon/:specialtyId/cap-nhat", upload.single('image'), specialtyController.handleUpdateSpecialty);
     router.post("/admin/chuyen-mon/them-moi", upload.single('image'), specialtyController.handleAddSpecialty);
+    // router.post("/admin/chuyen-mon/:specialtyId/xoa", upload.single('image'), specialtyController.handleUpdateSpecialty);
     
+   
     // Admin routes
     router.get('/admin-login', AuthAdminController.getAdminLoginPage)
     router.post('/admin-login/login', AuthAdminController.handleAdminLogin)

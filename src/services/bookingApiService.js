@@ -113,6 +113,7 @@ const readAllBookingsForStoreManagerApiService = async (storeManagerId) => {
                     include: [{ model: db.User }]
                 }
             ],
+            order: [['createdAt', 'DESC']],
             raw: true, nest: true
         });
 
@@ -422,56 +423,7 @@ const approveRepairBooking = async (bookingId) => {
 	}
 };
 
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-const reassignAndApproveBooking = async ({ bookingId, workScheduleId, technicianId }) => {
-	try {
-		// Lấy booking hiện tại
-		const booking = await db.RepairBooking.findOne({
-			where: { booking_id: bookingId },
-			include: [{ model: db.WorkSchedule }]
-		});
-		if (!booking) return { EC: 1, EM: "Không tìm thấy đơn đặt lịch", DT: null };
-		if (booking.status === "cancelled") return { EC: 2, EM: "Đơn đã bị hủy, không thể đổi kỹ thuật viên", DT: null };
 
-		const oldWorkScheduleId = booking.work_schedule_id;
-
-		// Cập nhật booking với technician mới
-		await booking.update({
-			work_schedule_id: workScheduleId
-		});
-
-		// Giảm current_number của work schedule cũ
-		if (oldWorkScheduleId && oldWorkScheduleId !== workScheduleId) {
-			await db.WorkSchedule.decrement('current_number', {
-				by: 1,
-				where: { work_schedule_id: oldWorkScheduleId, current_number: { [Op.gt]: 0 } }
-			});
-		}
-
-		// Tăng current_number của work schedule mới
-		await db.WorkSchedule.increment('current_number', {
-			by: 1,
-			where: { work_schedule_id: workScheduleId }
-		});
-
-		// Cập nhật status booking thành "in-progress"
-		await booking.update({ status: "in-progress" });
-
-		// Thêm vào RepairHistory
-		await db.RepairHistory.create({
-			booking_id: bookingId,
-			status: "in-progress",
-			notes: `Đổi kỹ thuật viên thành công và duyệt đơn (technician_id: ${technicianId})`,
-			action_date: new Date()
-		});
-
-		return { EC: 0, EM: "Đã đổi kỹ thuật viên và duyệt đơn thành công", DT: booking };
-
-	} catch (error) {
-		console.error("reassignAndApproveBooking error:", error);
-		return { EC: -1, EM: "Lỗi khi xử lý đổi kỹ thuật viên và duyệt đơn", DT: null };
-	}
-};
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 export default {
@@ -486,5 +438,4 @@ export default {
     getAllBooking,
     getRepairBookingDetailForStoreManager,
     approveRepairBooking,
-    reassignAndApproveBooking
 }

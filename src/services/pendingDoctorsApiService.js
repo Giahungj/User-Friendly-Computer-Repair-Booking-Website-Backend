@@ -81,7 +81,6 @@ const approve = async (data) => {
             facilityId: data.facilityId
         }, { returning: true, raw: true, transaction });
 
-        // 🔹 Xóa bản ghi PendingDoctors (bác sĩ đã được phê duyệt)
         await db.PendingDoctors.destroy({
             where: { id: data.id },
             transaction

@@ -5,8 +5,6 @@ import { raw } from "body-parser";
 // ---------------------------------------------------------
 const createRating = async (ratingData) => {
     try {
-        // Kiểm tra dữ liệu đầu vào
-        console.log("ratingData", ratingData);
         const newRating = await db.Rating.create(ratingData);
         if (!newRating) {
             return { EM: "Không thể tạo đánh giá!", EC: -1, DT: [] };
@@ -39,7 +37,7 @@ const createBooking = async () => {
 	try {
 		// Tạo đơn đặt lịch mới
 		const bookingData = await db.RepairBooking.findAll({
-            where: {}, // thêm điều kiện nếu cần
+            where: {},
             include: [
                 { model: db.Customer },
                 { model: db.Technician },
@@ -59,7 +57,6 @@ const createBooking = async () => {
 		return { EC: -1, EM: "Lỗi hệ thống! Không thể tạo booking.", DT: null };
 	}
 };
-
 
 // ---------------------------------------------------------
 export default {

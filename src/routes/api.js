@@ -8,6 +8,7 @@ import registerApiController from "../controllers/API/registerApiController";
 import accountApiController from "../controllers/API/accountApiController";
 import technicianApiController from "../controllers/API/technicianApiController";
 import specialtyApiController from "../controllers/API/specialtyApiController";
+import storeApiController from "../controllers/API/storeApiController";
 import workScheduleApiController from "../controllers/API/workScheduleApiController";
 import ratingApiController from "../controllers/API/ratingApiController";
 import bookingApiController from "../controllers/API/bookingApiController";
@@ -44,6 +45,10 @@ const initApiRoutes = (app) => {
 
 	// Specialty
 	router.get('/chuyen-mon/danh-sach', specialtyApiController.readSpecialties);
+
+	// Store
+	router.get('/cua-hang/danh-sach', storeApiController.getAllStores);
+	router.get('/cua-hang/:storeId/thong-tin/chi-tiet', storeApiController.getStoreDetail);
 
 	// Technician
 	router.get('/ky-thuat-vien/danh-sach', technicianApiController.readTechnicians);

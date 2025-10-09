@@ -1,54 +1,66 @@
-<!-- Card 1: Tiêu đề -->
-<div class="card mb-3">
-    <div class="card-body d-flex justify-content-between align-items-center">
-        <h5 class="fw-semibold text-dark mb-0">Danh Sách Chuyên Môn</h5>
-        <a href="/admin/chuyen-mon/them-moi" class="btn btn-success btn-sm">
-            <i class="fa-solid fa-plus"></i> Thêm chuyên môn
-        </a>
+<div class="container mt-3">
+    <!-- Card 1: Tiêu đề -->
+    <div class="card mb-3">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <h5 class="fw-semibold text-dark mb-0">Danh Sách Chuyên Môn</h5>
+            <a href="/admin/chuyen-mon/them-moi" class="btn btn-success btn-sm">
+                <i class="fa-solid fa-plus"></i> Thêm chuyên môn
+            </a>
+        </div>
     </div>
-</div>
 
-<!-- Card 2: Table -->
-<div class="card mb-3">
-    <div class="card-body">
-        <% if (EC === 0 && specialties.length > 0) { %>
-            <table class="table table-hover table-bordered align-middle">
-                <thead class="text-center">
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Tên chuyên môn</th>
-                        <th scope="col">Mô tả</th>
-                        <th scope="col">Hình ảnh</th>
-                        <th scope="col">Ngày tạo</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% specialties.forEach((spec, index) => { %>
+    <!-- Card 2: Table -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <% if (EC === 0 && specialties.length > 0) { %>
+                <table class="table table-hover align-middle text-center">
+                    <thead class="table-light">
                         <tr>
-                            <td class="text-center"><%= index + 1 %></td>
-                            <td><%= spec.name %></td>
-                            <td><%= spec.description || 'Không rõ' %></td>
-                            <td>
-                                <% if (spec.image) { %>
-                                    <img src="/Uploads/<%= spec.image %>" alt="avatar" style="height: 80px;" class="rounded">
-                                <% } else { %>
-                                    <span class="text-danger">Không rõ</span>
-                                <% } %>
-                            </td>
-                            <td><%= new Date(spec.createdAt).toLocaleDateString('vi-VN') %></td>
+                            <th>#</th>
+                            <th>Tên chuyên môn</th>
+                            <th>Mô tả</th>
+                            <th>Hình ảnh</th>
+                            <th>Ngày tạo</th>
+                            <th>Thao tác</th>
                         </tr>
-                    <% }) %>
-                </tbody>
-            </table>
-        <% } else { %>
-            <div class="alert alert-warning">Chưa có chuyên môn nào.</div>
-        <% } %>
-        <% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>
-            <%- include('../partials/common/paginationmall', {
-                currentPage: currentPage,
-                totalPages: totalPages,
-                baseUrl: '/admin/chuyen-mon/danh-sach'
-            }) %>
-        <% } %>
+                    </thead>
+                    <tbody>
+                        <% specialties.forEach((spec, index) => { %>
+                            <tr>
+                                <td><%= index + 1 %></td>
+                                <td class="text-start"><%= spec.name %></td>
+                               <td class="text-start" style="max-width:250px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                    <%= spec.description || 'Không rõ' %>
+                                </td>
+                                <td>
+                                    <% if (spec.image) { %>
+                                        <img src="/images/<%= spec.image %>" alt="avatar" class="rounded" style="height:60px;">
+                                    <% } else { %>
+                                        <span class="text-danger">Không rõ</span>
+                                        <span class="text-danger">/images/<%= spec.image %></span>
+                                    <% } %>
+                                </td>
+                                <td><%= new Date(spec.createdAt).toLocaleDateString('vi-VN') %></td>
+                                <td>
+                                    <a href="/admin/chuyen-mon/<%= spec.specialty_id %>/cap-nhat" class="btn btn-sm btn-outline-primary me-1">Sửa</a>
+                                    <form action="/admin/chuyen-mon/<%= spec.specialty_id %>/delete" method="POST" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Xác nhận xoá?')">Xóa</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            <% } else { %>
+                <div class="alert alert-warning">Chưa có chuyên môn nào.</div>
+            <% } %>
+            <% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>
+                <%- include('../partials/common/paginationmall', {
+                    currentPage: currentPage,
+                    totalPages: totalPages,
+                    baseUrl: '/admin/chuyen-mon/danh-sach'
+                }) %>
+            <% } %>
+        </div>
     </div>
 </div>
