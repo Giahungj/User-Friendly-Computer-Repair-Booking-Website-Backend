@@ -34,6 +34,7 @@ const initApiRoutes = (app) => {
 
 	// Notification
 	router.get('/notifications/:userId', notificationApiService.readUserNotifications);
+	router.get('/notifications/:notificationId/danh-dau-da-doc', notificationApiService.markAsReadNotifications);
 
 	// Booking
 	router.get('/dat-lich/tao-lich-moi/:workScheduleId/:userId/lay-du-lieu', bookingApiController.readDataForCreateBookingApiController);
@@ -63,14 +64,20 @@ const initApiRoutes = (app) => {
 	router.post('/sign-in-email/technician', loginApiController.signInByEmailForTechnician);
 	router.post('/sign-in-phone/technician', loginApiController.signInByPhoneForTechnician);
 
-	router.get('/:technicianId/laydanhsachdondatlich', technicianBookingApiController.getBookingListByTechnician);
+	// Booking
+	router.get('/ky-thuat-vien/:technicianId/don-dat-lich/danh-sach', technicianBookingApiController.getBookingListByTechnician);
 	router.get('/laydondatlich/:bookingId', technicianBookingApiController.getBookingDetailByTechnician);
 	router.post('/don-dat-lich/xac-nhan-hoan-thanh-don', technicianBookingApiController.handleConfirmAndCompleteBooking);
-	router.get('/lichlamviec/:technicianId', technicianBookingApiController.getWorkScheduleByTechnician);
-	router.get('/chitietlichlamviec/:scheduleId', technicianBookingApiController.getTechnicianWorkScheduleDetail);
-	router.get('/hoso/:technicianId', technicianBookingApiController.getTechnicianProfile);
-	router.get('/danhgia/:technicianId', technicianBookingApiController.getTechnicianRating);
 
+	// WorkSchedule
+	router.get('/ky-thuat-vien/:technicianId/lich-lam-viec/danh-sach', technicianBookingApiController.getWorkScheduleByTechnician);
+	router.get('/chitietlichlamviec/:scheduleId', technicianBookingApiController.getTechnicianWorkScheduleDetail);
+
+	// Profile
+	router.get('/hoso/:technicianId', technicianBookingApiController.getTechnicianProfile);
+
+	// Rating
+	router.get('/danhgia/:technicianId', technicianBookingApiController.getTechnicianRatings);
 
 	// =========================
 	// CỬA HÀNG TRƯỞNG

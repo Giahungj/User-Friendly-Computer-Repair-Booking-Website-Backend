@@ -1,7 +1,7 @@
 import { where } from "sequelize/lib/sequelize";
 import db from "../models";
 import { Op } from "sequelize";
-import notificationService from "./newservices/notificationApiService";
+import notificationApiService from "./newservices/notificationApiService";
 import syncData from "../utils/syncData";
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const getAllBooking = async () => {
@@ -292,7 +292,6 @@ const getBookingByIdApiService = async (bookingId) => {
 			{
 				model: db.RepairHistory,
 				attributes: ['history_id', 'notes', 'action_date', 'createdAt', 'status'],
-				separate: true,
 				order: [['action_date', 'DESC']]
 			}
 		]
@@ -402,10 +401,24 @@ const approveRepairBooking = async (bookingId) => {
 	try {
 		const booking = await db.RepairBooking.findOne({
 			where: { booking_id: bookingId },
+            include: [{ model: db.Customer }, { model: db.WorkSchedule }]
 		});
+
 		if (!booking) {
 			return { EC: 2, EM: "Không tìm thấy lịch hẹn", DT: {} };
 		}
+
+        // Tạo nội dung thông báo cho kỹ thuật viên và khách hàng
+        if (!booking.Customer.user_id) return { EC: 1, EM: "Không tìm thấy thông tin khách hàng", DT: null };
+        if (!booking.WorkSchedule.technician_id) return { EC: 1, EM: "Không tìm thấy thông tin kỹ thuật viên", DT: null };
+
+        const technician = await db.Technician.findOne({
+            where: { technician_id: booking.WorkSchedule.technician_id },
+        })
+		const customerUserId = booking.Customer.user_id;
+        
+		if (!technician) return { EC: 1, EM: "Không tìm thấy thông tin kỹ thuật viên", DT: null };
+		const technicianUserId = technician.user_id;
 
 		await booking.update({ status: "in-progress" });
 
@@ -415,6 +428,12 @@ const approveRepairBooking = async (bookingId) => {
 			notes: "Duyệt đơn thành công",
 			action_date: new Date(),
 		});
+
+        // Gửi thông báo đến khách hàng
+        await notificationApiService.createNotification(customerUserId, 'Đơn đặt lịch của bạn đã được duyệt', `/dat-lich/${bookingId}/thong-tin/chi-tiet`);
+
+        // Gửi thông báo đến kỹ thuật viên
+        await notificationApiService.createNotification(technicianUserId, 'Bạn vừa có đơn đặt lịch mới', '/ky-thuat-vien/don-dat-lich/danh-sach');
 
 		return { EC: 0, EM: "Đơn đã được duyệt thành công", DT: booking };
 	} catch (error) {

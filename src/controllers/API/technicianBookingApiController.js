@@ -4,17 +4,11 @@ import technicianBookingApiService from "../../services/API/technicianBookingApi
 const getBookingListByTechnician = async (req, res) => {
 	try {
 		const { technicianId } = req.params;
-		const { startDate, endDate } = req.query;
 
-		if (!startDate || !endDate) {
+		if (!technicianId) {
 			return res.json({ EC: -1, EM: "Thiếu tham số", DT: [] });
 		}
-		const result = await technicianBookingApiService.bookingListOfTechnician(
-			technicianId,
-			startDate,
-			endDate
-		);
-
+		const result = await technicianBookingApiService.bookingListOfTechnician(technicianId);
 		return res.json(result);
 	} catch (error) {
 		console.error("getTechnicianWorkSchedules error:", error);
@@ -86,14 +80,14 @@ const getTechnicianWorkScheduleDetail = async (req, res) => {
 	}
 };
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-const getTechnicianRating = async (req, res) => {
+const getTechnicianRatings = async (req, res) => {
 	try {
 		const { technicianId } = req.params;
 		
 		if (!technicianId) {
 			return res.json({ EC: -1, EM: "Thiếu tham số", DT: [] });
 		}
-		const result = await technicianBookingApiService.technicianRating(technicianId);
+		const result = await technicianBookingApiService.technicianRatings(technicianId);
 
 		return res.json(result);
 	} catch (error) {
@@ -122,6 +116,6 @@ export default {
 	getTechnicianProfile, 
 	getWorkScheduleByTechnician,
 	getTechnicianWorkScheduleDetail,
-	getTechnicianRating,
+	getTechnicianRatings,
 	handleConfirmAndCompleteBooking
 }

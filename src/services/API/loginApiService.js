@@ -42,7 +42,7 @@ const signInUserByEmail = async ( email, password ) => {
 const signInUserByPhone = async ( phone, password ) => {
 	try {
 		const user = await db.User.findOne({
-			where: { email: email },
+			where: { phone: phone },
 			attributes: ['user_id', 'name', 'phone', 'email', 'avatar', 'password', 'role'],
 		});
 		if (!user) return { EM: 'Tài khoản không tồn tại!', EC: 1, DT: "" };

@@ -1,6 +1,6 @@
 import bookingApiService from '../../services/bookingApiService';
 import bookingApiServiceTrue from '../../services/API/bookingApiService';
-import notificationService from '../../services/newservices/notificationApiService';
+import notificationApiService from '../../services/newservices/notificationApiService';
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // CRUD Operations
 const readDataForCreateBookingApiController = async (req, res) => {
@@ -89,7 +89,8 @@ const createBookingApiController = async (req, res) => {
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const cancelBookingApiController = async (req, res) => {
     try {
-        const { bookingId, reason } = req.body;
+        const { bookingId } = req.params;
+        const { reason } = req.body;
         if (!bookingId) {
             return res.status(400).json({
                 EM: "Thiếu bookingId để hủy lịch",
@@ -103,7 +104,7 @@ const cancelBookingApiController = async (req, res) => {
             reason
         });
 
-        return res.status(200).json(data);
+        return res.json(data);
     } catch (error) {
         console.error("Cancel booking error:", error);
         return res.status(500).json({
@@ -237,7 +238,6 @@ const approveRepairBookingController = async (req, res) => {
             return res.status(400).json({ EC: 1, EM: "Thiếu dữ liệu", DT: {} });
         }
         const data = await bookingApiService.approveRepairBooking(repair_booking_id);
-        await notificationService.createNotification(data.DT.customer_id, `Đơn đặt lịch #${repair_booking_id} của bạn đã được duyệt!`, `/dat-lich/${repair_booking_id}/thong-tin/chi-tiet`);
         return res.json(data);
     } catch (error) {
         console.error("Lỗi server:", error);

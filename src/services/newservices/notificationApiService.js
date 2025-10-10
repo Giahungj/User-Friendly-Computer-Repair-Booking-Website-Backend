@@ -1,5 +1,7 @@
 import db from "../../models/index"
 import emailApiService from "./emailApiService";
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const getUserNotificationsByUserId = async (userId) => {
     try {
         // Lấy ngày hiện tại (bắt đầu từ 00:00:00)
@@ -7,9 +9,8 @@ const getUserNotificationsByUserId = async (userId) => {
         todayStart.setHours(0, 0, 0, 0);
 
         const notifications = await db.Notification.findAll({
-            where: { userId },
+            where: { user_id: userId },
             order: [["createdAt", "DESC"]],
-            raw: true
         });
 
         if (!notifications.length) {
@@ -22,12 +23,12 @@ const getUserNotificationsByUserId = async (userId) => {
     }
 };
 
-// --------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const markAsReadNotificationsByNotificationId = async (notificationId) => {
     try {
         await db.Notification.update(
-            { isRead: 1 },
-            { where: { id: notificationId } }
+            { is_read: 1 },
+            { where: { notification_id: notificationId } }
         );
     } catch (error) {
         console.error("Lỗi trong markAsReadNotificationsByNotificationId:", error);
@@ -35,26 +36,31 @@ const markAsReadNotificationsByNotificationId = async (notificationId) => {
     }
 };
 
-// --------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const createNotification = async (userId, message, action = null) => {
     try {
-        console.log("====================================================");
-        console.log("notificationData: ", userId, message, action);
         // Kiểm tra userId có hợp lệ không
-        const user = await db.User.findOne({ where: { id: userId } });
+        const user = await db.User.findOne({ where: { user_id: userId } });
         if (!user) {
             return { EC: 1, EM: "Người dùng không tồn tại!", DT: null };
         }
 
-        // Tạo thông báo mới
+        console.log("=============================================================================================")
+        console.log("Mã người dùng: ", userId)
+        console.log("Nội dung thông báo: ", message)
+        console.log("Đường dẫn: ", action)
+        console.log("Thông tin gmail: ", user.email)
+        console.log("=============================================================================================")
+
+        // // Tạo thông báo mới
         const notification = await db.Notification.create({
-            userId,
+            user_id: userId,
             message,
             action,
-            isRead: false
+            isRead: 0
         });
 
-        emailApiService.sendNotificationEmail(user.email, message, link ? `http://localhost:3000${action}` : 'http://localhost:3000');
+        emailApiService.sendNotificationEmail(user.email, message, action);
 
         // const io = getIO();
         // console.log(`===================================================================`);   // <‑‑ log
@@ -77,7 +83,7 @@ const createNotification = async (userId, message, action = null) => {
     }
 };
 
-// --------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 export default { 
     getUserNotificationsByUserId,
     createNotification,

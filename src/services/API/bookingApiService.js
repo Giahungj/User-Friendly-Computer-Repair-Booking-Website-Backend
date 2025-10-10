@@ -1,5 +1,7 @@
 import db from "../../models";
 import { Op } from "sequelize";
+import notificationApiService from "../newservices/notificationApiService";
+import { where } from "sequelize/lib/sequelize";
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const getDataForCreateBookingApiService = async (workScheduleId, userId) => {
@@ -34,19 +36,23 @@ const reassignAndApproveBooking = async ({ bookingId, oldWorkScheduleId, newWork
 		// Lấy booking hiện tại
 		const booking = await db.RepairBooking.findOne({
 			where: { booking_id: bookingId },
-			include: [{ model: db.WorkSchedule }]
+			include: [{ model: db.WorkSchedule }, { model: db.Customer }]
 		});
-		console.log("Booking hiện tại:", booking?.toJSON());
+
 		if (!booking) return { EC: 1, EM: "Không tìm thấy đơn đặt lịch", DT: null };
 		if (booking.status === "cancelled") return { EC: 2, EM: "Đơn đã bị hủy, không thể đổi kỹ thuật viên", DT: null };
 
-		console.log("Old WorkSchedule ID:", oldWorkScheduleId);
-		console.log("New WorkSchedule ID:", newWorkScheduleId);
-		console.log("Technician ID:", technicianId);
+		// Tạo nội dung thông báo cho kỹ thuật viên và khách hàng
+		const technician = await db.Technician.findOne({
+			where: { technician_id: technicianId },
+		})
+		if (!booking.Customer.user_id) return { EC: 1, EM: "Không tìm thấy thông tin khách hàng", DT: null };
+		const customerUserId = booking.Customer.user_id;
+		if (!technician) return { EC: 1, EM: "Không tìm thấy thông tin kỹ thuật viên", DT: null };
+		const technicianUserId = technician.user_id;
 
 		// Cập nhật booking sang lịch mới
 		await booking.update({ work_schedule_id: newWorkScheduleId });
-		console.log("Booking sau khi đổi technician:", booking?.toJSON());
 
 		// Giảm current_number của work schedule cũ
 		if (oldWorkScheduleId && oldWorkScheduleId !== newWorkScheduleId) {
@@ -54,7 +60,6 @@ const reassignAndApproveBooking = async ({ bookingId, oldWorkScheduleId, newWork
 				by: 1,
 				where: { work_schedule_id: oldWorkScheduleId, current_number: { [Op.gt]: 0 } }
 			});
-			console.log("Giảm current_number WorkSchedule cũ:", dec);
 		}
 
 		// Tăng current_number của work schedule mới
@@ -62,7 +67,6 @@ const reassignAndApproveBooking = async ({ bookingId, oldWorkScheduleId, newWork
 			by: 1,
 			where: { work_schedule_id: newWorkScheduleId }
 		});
-		console.log("Tăng current_number WorkSchedule mới:", inc);
 
 		// Ghi vào lịch sử
 		const history = await db.RepairHistory.create({
@@ -71,7 +75,12 @@ const reassignAndApproveBooking = async ({ bookingId, oldWorkScheduleId, newWork
 			notes: `Đổi kỹ thuật viên thành công (technician_id: ${technicianId})`,
 			action_date: new Date()
 		});
-		console.log("RepairHistory mới tạo:", history?.toJSON());
+
+		// Gửi thông báo đến khách hàng
+		await notificationApiService.createNotification(customerUserId, 'Đơn đặt lịch của bạn đã được đổi sang cho kỹ thuật viên mới', `/dat-lich/${bookingId}/thong-tin/chi-tiet`);
+
+		// Gửi thông báo đến kỹ thuật viên
+		await notificationApiService.createNotification(technicianUserId, 'Bạn vừa được cửa hàng trưởng đổi đơn đặt lịch', '/ky-thuat-vien/don-dat-lich/danh-sach');
 
 		return { EC: 0, EM: "Đã đổi kỹ thuật viên thành công", DT: booking };
 	} catch (error) {

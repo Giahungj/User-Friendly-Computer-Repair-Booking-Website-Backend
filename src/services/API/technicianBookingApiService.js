@@ -1,21 +1,22 @@
 import db from '../../models';
-import { Op } from 'sequelize'
+import { Op } from 'sequelize';
+import notificationApiService from '../../services/newservices/notificationApiService';
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-const bookingListOfTechnician = async (technicianId, startDate, endDate) => {
+const bookingListOfTechnician = async (technicianId) => {
 	try {
 		const bookings = await db.RepairBooking.findAll({
             include: [
-                { model: db.WorkSchedule, where: { technician_id: technicianId, work_date: { [Op.between]: [new Date(startDate), new Date(endDate)] } } },
+                { model: db.WorkSchedule, where: { technician_id: technicianId }},
                 { model: db.Customer, include: [{ model: db.User }] }
             ],
-            order: [[db.WorkSchedule, "work_date", "ASC"]]
+            order: [["createdAt", "DESC"]]
         });
 
-		return { EC: 0, EM: "Lấy lịch làm việc thành công", DT: bookings };
+		return { EC: 0, EM: "Lấy danh sách đơn đặt lịch của kỹ thuật viên thành công", DT: bookings };
 	} catch (error) {
 		console.error("getWorkSchedulesByTechnician error:", error);
-		return { EC: -1, EM: "Lỗi truy vấn lịch làm việc", DT: [] };
+		return { EC: -1, EM: "Lỗi truy vấn danh sách đơn đặt lịch", DT: [] };
 	}
 };
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -38,7 +39,8 @@ const bookingDetailOfTechnician = async (bookingId) => {
 				},
 				{ model: db.Customer, include: [{ model: db.User }] },
 				{ model: db.RepairHistory }
-			]
+			],
+			// order: [['updatedAt'], 'DESC']
 		});
 
 		return { EC: 0, EM: "Lấy lịch làm việc thành công", DT: bookings };
@@ -70,14 +72,26 @@ const technicianWorkSchedules = async (technicianId) => {
 	try {
 		const workSchedules = await db.WorkSchedule.findAll({
 			include: [
-				{ model: db.Technician, where: { technician_id: technicianId }, include: [{ model: db.Store }] },
-			]
+				{ 
+					model: db.Technician,
+					where: { technician_id: technicianId },
+					include: [
+						{ 
+							model: db.Store
+						}
+					] 
+				}, {
+					model: db.RepairBooking,
+					attributes: ['booking_id']
+				}
+			],
+			order: [['work_date','DESC']]
 		});
 
-		return { EC: 0, EM: "Lấy hồ sơ kỹ thuật viên thành công", DT: workSchedules };
+		return { EC: 0, EM: "Lấy danh sách lịch làm việc của kỹ thuật viên thành công", DT: workSchedules };
 	} catch (error) {
 		console.error("technicianProfile error:", error);
-		return { EC: -1, EM: "Lỗi truy vấn hồ sơ kỹ thuật viên", DT: null };
+		return { EC: -1, EM: "Lỗi truy vấn danh sách lịch làm việ kỹ thuật viên", DT: null };
 	}
 };
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -99,14 +113,14 @@ const technicianWorkScheduleDetail = async (scheduleId) => {
 			]
 		});
 
-		return { EC: 0, EM: "Lấy hồ sơ kỹ thuật viên thành công", DT: workSchedules };
+		return { EC: 0, EM: "Lấy thông tin lịch hẹn của kỹ thuật viên thành công", DT: workSchedules };
 	} catch (error) {
 		console.error("technicianProfile error:", error);
-		return { EC: -1, EM: "Lỗi truy vấn hồ sơ kỹ thuật viên", DT: null };
+		return { EC: -1, EM: "Lỗi truy vấn thông tin lịch hẹn của thuật viên", DT: null };
 	}
 };
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-const technicianRating = async (technicianId) => {
+const technicianRatings = async (technicianId) => {
 	try {
 		const ratings = await db.Rating.findAll({
 			include: [
@@ -118,11 +132,10 @@ const technicianRating = async (technicianId) => {
 			]
 		});
 
-
-		return { EC: 0, EM: "Lấy hồ sơ kỹ thuật viên thành công", DT: ratings };
+		return { EC: 0, EM: "Lấy đánh giá của kỹ thuật viên thành công", DT: ratings };
 	} catch (error) {
 		console.error("technicianProfile error:", error);
-		return { EC: -1, EM: "Lỗi truy vấn hồ sơ kỹ thuật viên", DT: null };
+		return { EC: -1, EM: "Lỗi truy vấn đánh giá của kỹ thuật viên", DT: null };
 	}
 };
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -130,13 +143,28 @@ const confirmAndCompleteBooking = async (bookingId) => {
 	try {
 		const booking = await db.RepairBooking.findOne({
 			where: { booking_id: bookingId },
+			include: [{ model: db.Customer }]
 		});
+
 		if (!booking) {
 			return { EC: -1, EM: "Không tìm thấy booking", DT: null };
 		}
 		booking.status = "completed";
 		await booking.save();
 
+		const customerUserId = booking.Customer.user_id;
+
+		// Ghi vào lịch sử
+		const history = await db.RepairHistory.create({
+			booking_id: bookingId,
+			status: 'completed',
+			notes: `Hoàn thành đơn hàng`,
+			action_date: new Date()
+		});
+
+		// Gửi thông báo đến khách hàng
+		await notificationApiService.createNotification(customerUserId, 'Đơn đặt lịch của bạn đã hoàn thành', `/dat-lich/${bookingId}/thong-tin/chi-tiet`);
+		
 		return { EC: 0, EM: "Cập nhật trạng thái thành công", DT: booking };
 	} catch (error) {
 		console.error("technicianProfile error:", error);
@@ -150,6 +178,6 @@ export default {
 	technicianProfile, 
 	technicianWorkSchedules,
 	technicianWorkScheduleDetail,
-	technicianRating,
+	technicianRatings,
 	confirmAndCompleteBooking
 }
