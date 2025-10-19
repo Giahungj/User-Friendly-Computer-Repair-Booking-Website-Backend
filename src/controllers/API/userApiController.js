@@ -74,22 +74,6 @@ const updateUser = async (req, res) => {
 };
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-const getUserAccount = async (req, res) => {
-    return res.status(200).json({
-        EM: 'ok',
-        EC: 0,
-        DT: {
-            access_token: req.token,
-            email: req.user.email,
-            name: req.user.name,
-            id: req.user.id,
-            userType: req.user.userType,
-            doctorId: req.user.doctorId ? req.user.doctorId : null,
-            patientId: req.user.patientId ? req.user.patientId : null
-        }
-    })
-}
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 export default {
     readUser, updateUser, createUser, getUserAccount
 }

@@ -59,7 +59,7 @@ const handleAdminLogin = async (req, res) => {
     } catch (error) {
         console.error(error);
         return res.render('layouts/layout', {
-            page: 'pages/errorPage.ejs',
+            page: 'pages/misc/errorPage.ejs',
             pageTitle: 'Lỗi 404',
             EM: "Lỗi server ...",
             EC: -1,
@@ -75,7 +75,7 @@ const handleAdminLogout = async (req, res) => {
     } catch (error) {
         console.error(error);
         return res.render('layouts/layout', {
-            page: 'pages/errorPage.ejs',
+            page: 'pages/misc/errorPage.ejs',
             pageTitle: 'Lỗi 404',
             EM: "Lỗi server ...",
             EC: -1,

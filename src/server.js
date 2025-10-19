@@ -105,10 +105,6 @@ configViewEngine(app);
 initWebRoutes(app);
 initApiRoutes(app);
 
-// Khởi động cron job để kiểm tra dịch vụ hết hạn
-import serviceApiService from "./services/serviceApiService";
-serviceApiService.updateDoctorServiceStatus(); // Kiểm tra trạng thái dịch vụ
-
 // Cấu hình port và khởi động server
 const PORT = process.env.PORT || 8080;
 server.listen(PORT, '0.0.0.0', () => {

@@ -1,21 +1,19 @@
-// <% if (EM && EM.trim() !== '') { %>
-//     <script>
-//         let EC = '<%= EC %>';  // Lấy giá trị của EC từ server
-//         const iconMap = {
-//             '0': 'success',     // Thành công
-//             '-1': 'error',      // Lỗi
-//             '1': 'warning',     // Cảnh báo
-//             '2': 'info',        // Thông tin
-//             '3': 'question'     // Câu hỏi
-//         };
-//         const iconType = iconMap[EC] || 'info';
-//         window.addEventListener('load', () => {
-//             Swal.fire({
-//                 title: 'Thông báo!',
-//                 text: '<%= EM %>',
-//                 icon: iconType,
-//                 confirmButtonText: 'OK',
-//             });
-//         });
-//     </script>
-// <% } %>
+if (EM && EM.trim() !== '') {
+    let EC = EC_value; // thay bằng giá trị thực từ server
+    const iconMap = {
+            '0': 'success',
+            '-1': 'error',
+            '1': 'warning',
+            '2': 'info',
+            '3': 'question'
+    };
+    const iconType = iconMap[EC] || 'info';
+    window.addEventListener('load', () => {
+            Swal.fire({
+                    title: 'Thông báo!',
+                    text: EM,
+                    icon: iconType,
+                    confirmButtonText: 'OK',
+            });
+    });
+}

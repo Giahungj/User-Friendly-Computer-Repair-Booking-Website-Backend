@@ -1,0 +1,69 @@
+<%
+	function highlight(text, keyword) {
+		if (!keyword) return text;
+		const regex = new RegExp(`(${keyword})`, 'gi');
+		return text.replace(regex, '<strong class="text-danger">$1</strong>');
+	}
+%>
+
+<div class="container py-5">
+	<!-- Breadcrumb -->
+	<% if (typeof breadcrumbs !== 'undefined' && breadcrumbs.length) { %>
+		<%- include('../../partials/common/breadcrumb', { breadcrumbs }) %>
+	<% } %>
+
+	<!-- Tiêu đề trang và nút thêm -->
+    <div class="d-flex justify-content-between align-items-center">
+        <h1 class="text-cyan-700 mb-4">Chi Tiết Quản Lý Cửa Hàng Trưởng</h1>
+        <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">
+            <i class="fa-solid fa-arrow-left me-1"></i> Quay lại
+        </a>
+    </div>
+
+	<!-- Thông tin quản lý -->
+	<div class="card border-cyan-700 shadow-sm">
+		<div class="card-body p-4">
+			<% if (storeManager) { %>
+				<div class="row g-3 align-items-center">
+					<div class="col-md-4 text-center">
+						<img src="/images<%= storeManager.User.avatar || '/images/user.png' %>"
+							alt="Avatar"
+							class="rounded-circle border border-cyan-700"
+							style="width: 120px; height: 120px; object-fit: cover;">
+						<h6 class="mt-3 mb-1 fw-semibold text-cyan-700"><%= storeManager.User.name || '' %></h6>
+						<small class="text-muted">Mã QLCH: <%= storeManager.store_manager_id %></small>
+					</div>
+					<div class="col-md-8">
+						<table class="table table-bordered table-striped mb-0">
+							<tbody>
+								<tr>
+									<th class="w-50">Email</th>
+									<td><%= storeManager.User.email || '' %></td>
+								</tr>
+								<tr>
+									<th>Điện thoại</th>
+									<td><%= storeManager.User.phone || '' %></td>
+								</tr>
+								<tr>
+									<th>Cửa hàng</th>
+									<td><%= storeManager.Store?.name || 'Không rõ' %></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			<% } else { %>
+				<div class="alert alert-warning mb-0">Không tìm thấy thông tin quản lý cửa hàng.</div>
+			<% } %>
+		</div>
+	</div>
+
+	<!-- Phân trang (nếu có) -->
+	<% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>
+		<%- include('../../partials/common/pagination', {
+			currentPage: currentPage,
+			totalPages: totalPages,
+			baseUrl: '/admin/quan-ly-cua-hang/danh-sach'
+		}) %>
+	<% } %>
+</div>

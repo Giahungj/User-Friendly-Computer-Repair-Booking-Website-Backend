@@ -4,21 +4,23 @@ import storeService from "../services/newservices/storeService.js";
 const renderStoreListPage = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const result = await storeService.getAllStore(page);
+        const searchQuery = req.query.q?.trim() || '';
+        const result = await storeService.getAllStore(page, searchQuery);
         if (result.EC === 0) {
             return res.render('layouts/layout', {
-                page: 'pages/storeListPage.ejs',
+                page: 'pages/store/storeListPage.ejs',
                 pageTitle: 'Danh sách cửa hàng',
                 stores: result.DT.stores,
                 totalStores: result.DT.total,
                 totalPages: result.DT.totalPages,
                 currentPage: page,
+                searchQuery: searchQuery,
                 EM: result.EM,
                 EC: result.EC
             });
         } else {
             return res.status(400).render('layouts/layout', {
-                page: 'pages/errorPage.ejs',
+                page: 'pages/misc/errorPage.ejs',
                 pageTitle: 'Lỗi',
                 EM: result.EM,
                 EC: result.EC
@@ -27,7 +29,7 @@ const renderStoreListPage = async (req, res) => {
     } catch (error) {
         console.error('Lỗi khi lấy danh sách cửa hàng:', error);
         return res.status(500).render('layouts/layout', {
-            page: 'pages/errorPage.ejs',
+            page: 'pages/misc/errorPage.ejs',
             pageTitle: 'Lỗi 500',
             EM: 'Không thể tải danh sách cửa hàng.',
             EC: -1
@@ -39,13 +41,18 @@ const renderStoreListPage = async (req, res) => {
 const renderAddStorePage = async (req, res) => {
     try {
         return res.render('layouts/layout', {
-            page: 'pages/addStorePage.ejs',
+            page: 'pages/store/addStorePage.ejs',
             pageTitle: 'Thêm cửa hàng',
+            breadcrumbs: [
+                { name: 'Trang chủ', url: '/' },
+                { name: 'Cửa hàng', url: '/admin/cua-hang/danh-sach' },
+                { name: `Thêm cửa hàng`, url: ``, active: true },
+            ]
         });
     } catch (error) {
         console.error("Lỗi khi render trang thêm cửa hàng:", error);
         return res.status(500).render('layouts/layout', {
-            page: 'pages/errorPage.ejs',
+            page: 'pages/misc/errorPage.ejs',
             pageTitle: 'Lỗi 500',
             EM: "Không thể tải trang thêm cửa hàng.",
             EC: -1
@@ -60,15 +67,20 @@ const renderStoreDetailPage = async (req, res) => {
 		const result = await storeService.getStoreById(storeId);
 		if (result.EC === 0) {
                 return res.render('layouts/layout', {
-                page: 'pages/storeDetailPage.ejs',
+                page: 'pages/store/storeDetailPage.ejs',
                 pageTitle: 'Chi tiết cửa hàng',
                 store: result.DT,
                 EM: result.EM,
-                EC: result.EC
+                EC: result.EC,
+                breadcrumbs: [
+					{ name: 'Trang chủ', url: '/' },
+					{ name: 'Cửa hàng', url: '/admin/cua-hang/danh-sach' },
+					{ name: result.DT.name || `Cửa hàng`, url: '', active: true }
+				]
             });
 		} else {
             return res.status(404).render('layouts/layout', {
-                page: 'pages/errorPage.ejs',
+                page: 'pages/misc/errorPage.ejs',
                 pageTitle: 'Không tìm thấy cửa hàng',
                 EM: result.EM,
                 EC: result.EC
@@ -87,15 +99,21 @@ const renderStoreUpdatePage = async (req, res) => {
 		const result = await storeService.getStoreById(storeId);
 		if (result.EC === 0) {
                 return res.render('layouts/layout', {
-                page: 'pages/storeUpdatePage.ejs',
+                page: 'pages/store/storeUpdatePage.ejs',
                 pageTitle: 'Cập nhật cửa hàng',
                 store: result.DT,
                 EM: result.EM,
-                EC: result.EC
+                EC: result.EC,
+                breadcrumbs: [
+					{ name: 'Trang chủ', url: '/' },
+					{ name: 'Cửa hàng', url: '/admin/cua-hang/danh-sach' },
+					{ name: result.DT.name || `Cửa hàng`, url: `/admin/cua-hang/${storeId}/chi-tiet` },
+					{ name: `Cập nhật`, url: '', active: true },
+				]
             });
 		} else {
             return res.status(404).render('layouts/layout', {
-                page: 'pages/errorPage.ejs',
+                page: 'pages/misc/errorPage.ejs',
                 pageTitle: 'Không tìm thấy cửa hàng',
                 EM: result.EM,
                 EC: result.EC
@@ -110,10 +128,9 @@ const renderStoreUpdatePage = async (req, res) => {
 const renderStoreListByQuery = async (req, res) => {
     try {
         const keyword = req.query.q?.trim() || '';
-        console.log('🔍 Từ khóa tìm kiếm:', keyword);
         if (!keyword) {
             return res.render('layouts/layout', {
-                page: 'pages/StoreListPage.ejs',
+                page: 'pages/store/StoreListPage.ejs',
                 pageTitle: 'Tìm kiếm kỹ thuật viên',
                 Stores: [],
                 query: '',
@@ -125,7 +142,7 @@ const renderStoreListByQuery = async (req, res) => {
         const result = await storeService.searchStore(keyword);
 
         return res.render('layouts/layout', {
-            page: 'pages/StoreListPage.ejs',
+            page: 'pages/store/StoreListPage.ejs',
             pageTitle: 'Kết quả tìm kiếm kỹ thuật viên',
             Stores: result.DT.Stores || [],
             query: keyword,
@@ -135,7 +152,7 @@ const renderStoreListByQuery = async (req, res) => {
     } catch (error) {
         console.error("Lỗi khi render trang tìm kiếm kỹ thuật viên:", error);
         return res.status(500).render('layouts/layout', {
-            page: 'pages/errorPage.ejs',
+            page: 'pages/misc/errorPage.ejs',
             pageTitle: 'Lỗi 500',
             EM: "Không thể tải trang tìm kiếm kỹ thuật viên.",
             EC: -1,
@@ -152,7 +169,7 @@ const handleAddStore = async (req, res) => {
         if (!req.body || Object.keys(req.body).length === 0) {
             console.warn('⚠️ Không nhận được dữ liệu từ form!');
             return res.status(400).render('layouts/layout', {
-                page: 'pages/addStorePage.ejs',
+                page: 'pages/store/addStorePage.ejs',
                 pageTitle: 'Thêm cửa hàng',
                 EM: 'Không nhận được dữ liệu từ form.',
                 EC: -1,
@@ -167,7 +184,7 @@ const handleAddStore = async (req, res) => {
             return res.redirect('/admin/cua-hang/danh-sach');
         } else {
             return res.status(400).render('layouts/layout', {
-                page: 'pages/addStorePage.ejs',
+                page: 'pages/store/addStorePage.ejs',
                 pageTitle: 'Thêm cửa hàng',
                 EM: result.EM,
                 EC: result.EC,
@@ -176,7 +193,7 @@ const handleAddStore = async (req, res) => {
     } catch (error) {
         console.error("Lỗi khi thêm cửa hàng:", error);
         return res.status(500).render('layouts/layout', {
-            page: 'pages/errorPage.ejs',
+            page: 'pages/misc/errorPage.ejs',
             pageTitle: 'Lỗi 500',
             EM: "Không thể thêm cửa hàng.",
             EC: -1
@@ -189,7 +206,7 @@ const handleUpdateStore = async (req, res) => {
     try {
         if (!req.body || Object.keys(req.body).length === 0) {
             return res.render('layouts/layout', {
-                page: 'pages/errorPage.ejs',
+                page: 'pages/misc/errorPage.ejs',
                 pageTitle: 'Lỗi 500',
                 EM: "Không thể cập nhật cửa hàng.",
                 EC: -1
@@ -209,7 +226,7 @@ const handleUpdateStore = async (req, res) => {
     } catch (error) {
         console.error("Lỗi khi thêm chuyên môn:", error);
         return res.render('layouts/layout', {
-            page: 'pages/errorPage.ejs',
+            page: 'pages/misc/errorPage.ejs',
             pageTitle: 'Lỗi 500',
             EM: "Không thể thêm chuyên môn.",
             EC: -1

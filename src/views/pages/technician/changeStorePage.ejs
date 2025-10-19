@@ -1,0 +1,96 @@
+<div class="container py-5">
+	<!-- Breadcrumb (có thể tái sử dụng) -->
+    <% if (typeof breadcrumbs !== 'undefined' && breadcrumbs.length) { %>
+        <%- include('../../partials/common/breadcrumb', { breadcrumbs }) %>
+    <% } %>
+
+	<!-- Tiêu đề trang -->
+    <div class="d-flex justify-content-between align-items-center">
+        <h1 class="mb-4">Chuyển Cửa Hàng</h1>
+		<a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-arrow-left me-1"></i> Quay lại</a>
+    </div>
+
+	<div class="card shadow-sm">
+		<div class="card-body">
+			<form action="/admin/ky-thuat-vien/<%= technicianData.technician_id %>/doi-cua-hang" method="POST">
+				<div class="form-floating mb-3">
+					<input type="text" class="form-control" id="technicianName" 
+						value="<%= technicianData.User?.name || 'Không rõ' %>" disabled>
+					<label for="technicianName">Kỹ thuật viên</label>
+				</div>
+
+				<div class="form-floating mb-3">
+					<input type="text" class="form-control" id="currentStore" 
+						value="<%= technicianData.Store?.name || 'Không rõ' %>" disabled>
+					<label for="currentStore">Cửa hàng hiện tại</label>
+				</div>
+
+				<div class="form-floating mb-3">
+					<input type="hidden" name="store_id" id="store_id">
+					<input type="text" id="store_name" class="form-control" placeholder="Chưa chọn cửa hàng" readonly>
+					<label for="store_name">Cửa hàng mới</label>
+				</div>
+
+				<label class="form-label fw-semibold text-secondary mb-2">
+					<i class="fa-solid fa-store me-2"></i> Danh sách cửa hàng:
+				</label>
+				<div class="border rounded p-2" style="max-height: 300px; overflow-y: auto;">
+					<div class="d-grid gap-2">
+						<% storeData.forEach(store => { %>
+							<button 
+								type="button"
+								class="btn text-start d-flex justify-content-between align-items-center select-store"
+								data-id="<%= store.store_id %>"
+								data-name="<%= store.name %>"
+								data-address="<%= store.address %>"
+							>
+								<div class="text-truncate" style="max-width: 80%;">
+									<i class="fa-solid fa-store me-2"></i>
+									<span class="fw-medium"><%= store.name %></span>
+									<div class="small text-truncate"><%= store.address %></div>
+								</div>
+								<i class="fa-solid fa-chevron-right text-secondary"></i>
+							</button>
+						<% }) %>
+					</div>
+				</div>
+
+				<div class="text-end mt-4">
+                    <button type="submit" class="btn btn-secondary border-0 bg-cyan-700 text-white shadow-sm">
+                        <i class="fa-solid fa-rotate me-1"></i> Chuyển cửa hàng
+                        <span class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
+                    </button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<style>
+    .select-store {
+		color: #6C757D;
+        transition: all 0.3s ease-in-out;
+    }
+    .select-store:hover {
+        font-weight: bold;
+		color: #fff;
+        background-color: #08799078;
+    }
+	.select-store.active {
+        font-weight: bold;
+		background-color: #087990;
+		color: #fff;
+		border-color: #087990;
+	}
+</style>
+
+<script>
+	document.querySelectorAll('.select-store').forEach(btn => {
+		btn.addEventListener('click', () => {
+			document.getElementById('store_id').value = btn.dataset.id;
+			document.getElementById('store_name').value = `${btn.dataset.name} - ${btn.dataset.address}`;
+			document.querySelectorAll('.select-store').forEach(b => b.classList.remove('active'));
+			btn.classList.add('active');
+		});
+	});
+</script>

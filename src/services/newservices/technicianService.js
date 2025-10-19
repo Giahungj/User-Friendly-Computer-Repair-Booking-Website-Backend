@@ -3,12 +3,11 @@ import bcrypt from 'bcryptjs';
 import { raw } from "body-parser";
 import { Op }  from 'sequelize';
 import { where } from "sequelize/lib/sequelize";
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const searchTechnician = async (page = 1, searchQuery = '') => {
 	try {
-		const offset = (page - 1) * 10;
+		const offset = (page - 1) * 20;
 		const technicians = await db.Technician.findAndCountAll({
 			include: [{ 
 				model: db.User, attributes: [ 'name', 'email', 'phone', 'avatar', 'last_active' ],
@@ -21,7 +20,7 @@ const searchTechnician = async (page = 1, searchQuery = '') => {
 				},
 			}],
 			order: [['createdAt', 'DESC']],
-			limit: 10,
+			limit: 20,
 			offset,
 			raw: true,
 			nest: true
@@ -33,7 +32,7 @@ const searchTechnician = async (page = 1, searchQuery = '') => {
 			DT: {
 				technicians: rows,
 				total: count,
-				totalPages: Math.ceil(count / 10)
+				totalPages: Math.ceil(count / 20)
 			}
 		};
 	} catch (error) {
@@ -45,10 +44,9 @@ const searchTechnician = async (page = 1, searchQuery = '') => {
 		};
 	}
 };
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-const getAllTechnician = async (page = 1, searchQuery) => {
+const getAllTechnician = async (page = 1, searchQuery = '') => {
 	try {
 		const offset = (page - 1) * 20;
 		const whereClause = {};
@@ -92,8 +90,7 @@ const getAllTechnician = async (page = 1, searchQuery) => {
 		};
 	}
 };
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const createTechnician = async (data, avatarPath) => {
 	try {
@@ -121,6 +118,7 @@ const createTechnician = async (data, avatarPath) => {
 		return { EC: -1, EM: "Lỗi server khi tạo kỹ thuật viên." };
 	}
 };
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const getTechnicianById = async (technician_id) => {
 	try {
@@ -173,12 +171,120 @@ const getTechnicianById = async (technician_id) => {
 		return { EC: -1, EM: 'Lỗi server khi lấy chi tiết kỹ thuật viên.' };
 	}
 };
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const changeTechnicianStore = async (technicianId, storeId) => {
+	try {
+		// Kiểm tra đầu vào
+		if (!technicianId || !storeId) return { EC: -1, EM: 'Thiếu thông tin kỹ thuật viên hoặc cửa hàng mới.' };
+
+		// Lấy kỹ thuật viên
+		const technician = await db.Technician.findByPk(technicianId);
+		if (!technician) return { EC: -1, EM: 'Không tìm thấy kỹ thuật viên.' };
+
+		// Cập nhật cửa hàng mới
+		technician.store_id = storeId;
+		await technician.save(); // Lưu thay đổi vào DB
+
+		return { EC: 0, EM: 'Đổi cửa hàng kỹ thuật viên thành công.' };
+	} catch (error) {
+		console.error('Lỗi changeTechnicianStore:', error);
+		return { EC: -1, EM: 'Lỗi server khi đổi cửa hàng kỹ thuật viên.' };
+	}
+};
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const getTechnicianRatings = async ({date, storeId}) => {
+	try {
+		if (!storeId) return { EC: -1, EM: 'Thiếu mã cửa hàng.' };
+
+		const whereCondition = {};
+		if (date) {
+			whereCondition.createdAt = {
+				[Op.between]: [
+					new Date(`${date} 00:00:00`),
+					new Date(`${date} 23:59:59`)
+				]
+			};
+		}
+
+		const ratings = await db.Rating.findAll({
+			where: whereCondition,
+			include: [
+				{
+					model: db.Technician,
+					where: { store_id: storeId },
+					include: [{ model: db.User, attributes: ['name'] }]
+				},
+				{ model: db.Customer, include: [{ model: db.User, attributes: ['name'] }] }
+			],
+			order: [['createdAt', 'DESC']],
+			raw: true,
+			nest: true
+		});
+
+		return {
+			EC: 0,
+			EM: 'Lấy danh sách đánh giá kỹ thuật viên thành công.',
+			DT: ratings.map(r => ({
+				customer: r.Customer?.User?.name || 'Không xác định',
+				technician: r.Technician?.User?.name || 'Không xác định',
+				rating: r.rating,
+				comment: r.comment,
+				date: r.createdAt
+			}))
+		};
+	} catch (error) {
+		console.error('Lỗi getTechnicianRatings:', error);
+		return { EC: -1, EM: 'Lỗi server khi lấy đánh giá kỹ thuật viên.' };
+	}
+};
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const getLeaveTechnicians = async ({date, storeId}) => {
+	try {
+		if (!storeId) return { EC: -1, EM: 'Thiếu mã cửa hàng.' };
+
+		const whereDate = date ? { work_date: date } : {};
+
+		const technicians = await db.Technician.findAll({
+			where: { store_id: storeId },
+			include: [
+				{ model: db.User, attributes: ['name'] },
+				{
+					model: db.WorkSchedule,
+					required: false,
+					where: whereDate,
+					attributes: ['work_schedule_id']
+				}
+			]
+		});
+
+		const techniciansWithoutSchedule = technicians
+			.filter(t => !t.WorkSchedules || t.WorkSchedules.length === 0)
+			.map(t => ({
+				technicianId: t.technician_id,
+				technicianName: t.User?.name || 'Không xác định'
+			}));
+
+		return {
+			EC: 0,
+			EM: 'Lấy danh sách kỹ thuật viên không có lịch làm việc trong ngày thành công.',
+			DT: techniciansWithoutSchedule
+		};
+	} catch (error) {
+		console.error('Lỗi getTechnicianRatings:', error);
+		return { EC: -1, EM: 'Lỗi server khi lấy đánh giá kỹ thuật viên.' };
+	}
+};
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 export default {
     searchTechnician,
 	getAllTechnician,
 	createTechnician,
-	getTechnicianById
+	getTechnicianById,
+	changeTechnicianStore,
+	getTechnicianRatings,
+	getLeaveTechnicians,
 }

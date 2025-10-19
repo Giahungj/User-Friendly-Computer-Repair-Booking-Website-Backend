@@ -4,6 +4,7 @@ import path from "path";
 
 import homeHomeControllerController from "../controllers/homeController.js";
 import AuthAdminController from "../controllers/AuthAdminController";
+import errorController from "../controllers/errorController.js";
 import technicianController from "../controllers/technicianController.js";
 import storeManagerController from '../controllers/storeManagerController';
 import specialtyController from '../controllers/specialtyController.js';
@@ -31,13 +32,13 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 const initWebRoutes = (app) => {
    // Trang chủ
-    router.get('/', homeController.getBookingStats);
+    router.get('/', homeController.getHomePage);
     router.get('/overview', homeController.getBookingStats);
     router.get('/bookings/statistics', homeController.getBookingStats);
     router.get('/customers/statistics', homeController.getCustomerStats);
-    router.post('/reports/export', homeController.exportReport);
-
+    
     // Thống kê
+    router.post('/reports/export', homeController.exportReport);
     router.get('/reports/performance', reportsController.getPerformanceReport)
     router.get("/reports/performance/export", reportsController.exportPerformanceReport);
     router.get("/reports/overview", reportsController.getOverviewReport);
@@ -59,6 +60,8 @@ const initWebRoutes = (app) => {
     router.post("/admin/ky-thuat-vien/them-moi", upload.single('avatar'), technicianController.handleAddTechnician);
 	router.get("/admin/ky-thuat-vien/danh-sach", technicianController.renderTechnicianListPage);
 	router.get("/admin/ky-thuat-vien/:id/chi-tiet", technicianController.renderTechnicianDetailPage);
+	router.get("/admin/ky-thuat-vien/:technicianId/doi-cua-hang", technicianController.renderChangeStorePage);
+	router.post("/admin/ky-thuat-vien/:technicianId/doi-cua-hang", technicianController.handleChangeStorePage);
     router.get("/admin/ky-thuat-vien", technicianController.renderTechnicianListByQuery);
    
 	// 👤 Khách hàng
@@ -69,7 +72,7 @@ const initWebRoutes = (app) => {
     router.get("/admin/tai-khoan/danh-sach", userController.renderUserListPage);
     router.get("/admin/tai-khoan/:id/chi-tiet", userController.renderUserDetailPage);
 
-    // 👨‍💼 Tài khoản
+    // 👨‍💼 Lịch làm việc
     router.get("/admin/lich-lam-viec/danh-sach", workScheduleController.renderWorkSchedulePage);
 
     // 🏪 Cửa hàng
@@ -93,7 +96,9 @@ const initWebRoutes = (app) => {
     router.post('/admin-login/login', AuthAdminController.handleAdminLogin)
     router.post('/admin-logout', AuthAdminController.handleAdminLogout)
 
-	return app.use("/", router);
+	app.use("/", router);
+    
+    app.use('/*', errorController.renderNotFoundPage)
 };
 
 export default initWebRoutes;

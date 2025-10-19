@@ -7,14 +7,14 @@ const authMiddleware = (req, res, next) => {
 	if (!token) {
 		res.locals.adminName = null;
 		res.locals.adminId = null;
-		return res.render('pages/not-logged-in');
+		return res.render('pages/notLoggedInPage');
 	}
 	try {
 		const decoded = jwt.verify(token, process.env.JWT_SECRET);
 		if (decoded.role !== "admin") {
 			res.locals.adminName = null;
 			res.locals.adminId = null;
-			return res.render('pages/not-logged-in');
+			return res.render('pages/notLoggedInPage');
 		}
 		req.admin = decoded;
 		res.locals.adminName = decoded.name;
@@ -24,7 +24,7 @@ const authMiddleware = (req, res, next) => {
 		res.locals.adminName = 'Người dùng ẩn danh';
 		res.locals.adminId = null;
 		res.clearCookie("adminToken");
-		return res.render('pages/not-logged-in');
+		return res.render('pages/notLoggedInPage');
 	}
 };
 

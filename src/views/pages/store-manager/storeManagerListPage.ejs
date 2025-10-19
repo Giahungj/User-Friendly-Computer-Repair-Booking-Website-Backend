@@ -1,0 +1,76 @@
+
+<%
+    function highlight(text, keyword) {
+        if (!keyword) return text;
+        const regex = new RegExp(`(${keyword})`, 'gi');
+        return text.replace(regex, '<strong class="text-danger">$1</strong>');
+    }
+%>
+
+<div class="container py-5">
+     <!-- Breadcrumb (có thể tái sử dụng) -->
+    <% if (typeof breadcrumbs !== 'undefined' && breadcrumbs.length) { %>
+        <%- include('../../partials/common/breadcrumb', { breadcrumbs }) %>
+    <% } %>
+
+    <!-- Card 1: Tiêu đề và nút quay lại -->
+    <div class="d-flex justify-content-between align-items-center">
+        <h1 class="text-cyan-700 mb-4">Danh Sách Cửa Hàng Trưởng</h1>
+        <a href="/admin/cua-hang-truong/them-moi" class="btn btn-outline-secondary bg-cyan-700 text-white">
+            <i class="fa-solid fa-plus me-1"></i> Thêm cửa hàng trưởng
+        </a>
+    </div>
+
+    <!-- Card: Tìm kiếm -->
+    <%- include('../../partials/search/searchStoreManager') %>
+
+    <!-- Card: Bảng danh sách -->
+    <div class="card border-cyan-700">
+        <div class="card-body">
+            <% if (Array.isArray(managers) && managers.length > 0) { %>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light text-center">
+                            <tr>
+                                <th>#</th>
+                                <th>Họ tên</th>
+                                <th>Email</th>
+                                <th>Điện thoại</th>
+                                <th>Cửa hàng</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% managers.forEach((manager, index) => { %>
+                                <tr>
+                                    <td class="text-center"><%= (currentPage - 1) * 20 + index + 1 %></td>
+                                    <td><%- highlight(manager.User.name || '', searchQuery) %></td>
+                                    <td><%- highlight(manager.User.email || '', searchQuery) %></td>
+                                    <td><%- highlight(manager.User.phone || '', searchQuery) %></td>
+                                    <td><%- highlight(manager.Store?.name || 'Chưa rõ', searchQuery) %></td>
+                                    <td class="text-center">
+                                        <a href="/admin/cua-hang-truong/<%= manager.store_manager_id %>/chi-tiet" 
+                                            class="btn btn-sm btn-outline-primary" title="Xem">Xem</a>
+                                        <a href="/admin/cua-hang-truong/<%= manager.store_manager_id %>/cap-nhat" 
+                                            class="btn btn-sm btn-outline-primary" title="Sửa">Sửa</a>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <div class="alert alert-info mb-0">Chưa có cửa hàng trưởng nào được thêm.</div>
+            <% } %>
+
+            <!-- Phân trang -->
+            <% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>
+                <%- include('../../partials/common/pagination', {
+                    currentPage: currentPage,
+                    totalPages: totalPages,
+                    baseUrl: '/admin/cua-hang-truong/danh-sach'
+                }); %>
+            <% } %>
+        </div>
+    </div>
+</div>

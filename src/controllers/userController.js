@@ -7,7 +7,7 @@ const renderUserListPage = async (req, res) => {
 		const result = await userService.getAllUsers(page, searchQuery);
 		if (result.EC === 0) {
 			return res.render('layouts/layout', {
-				page: 'pages/userListPage.ejs',
+				page: 'pages/user/userListPage.ejs',
 				pageTitle: 'Danh sách tài khoản',
 				users: result.DT.usersWithRole,
 				currentPage: page,
@@ -18,7 +18,7 @@ const renderUserListPage = async (req, res) => {
 			});
 		} else {
 			return res.status(400).render('layouts/layout', {
-				page: 'pages/errorPage.ejs',
+				page: 'pages/misc/errorPage.ejs',
 				pageTitle: 'Lỗi',
 				EM: result.EM,
 				EC: result.EC
@@ -27,7 +27,7 @@ const renderUserListPage = async (req, res) => {
 	} catch (error) {
 		console.error('Lỗi khi lấy danh sách tài khoản:', error);
 		return res.status(500).render('layouts/layout', {
-			page: 'pages/errorPage.ejs',
+			page: 'pages/misc/errorPage.ejs',
 			pageTitle: 'Lỗi 500',
 			EM: 'Không thể tải danh sách tài khoản.',
 			EC: -1
@@ -43,7 +43,7 @@ const renderUserDetailPage = async (req, res) => {
 
 		if (result.EC === 0) {
 			return res.render('layouts/layout', {
-				page: 'pages/userDetailPage.ejs',
+				page: 'pages/user/userDetailPage.ejs',
 				pageTitle: 'Chi tiết tài khoản',
 				user: result.DT,
 				EM: result.EM,
@@ -51,7 +51,7 @@ const renderUserDetailPage = async (req, res) => {
 			});
 		} else {
 			return res.status(404).render('layouts/layout', {
-				page: 'pages/errorPage.ejs',
+				page: 'pages/misc/errorPage.ejs',
 				pageTitle: 'Lỗi',
 				EM: result.EM,
 				EC: result.EC
@@ -60,7 +60,7 @@ const renderUserDetailPage = async (req, res) => {
 	} catch (error) {
 		console.error('Lỗi khi hiển thị chi tiết tài khoản:', error);
 		return res.status(500).render('layouts/layout', {
-			page: 'pages/errorPage.ejs',
+			page: 'pages/misc/errorPage.ejs',
 			pageTitle: 'Lỗi 500',
 			EM: 'Không thể hiển thị chi tiết tài khoản.',
 			EC: -1

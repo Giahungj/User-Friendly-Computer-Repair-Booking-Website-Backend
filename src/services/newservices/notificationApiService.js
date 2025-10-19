@@ -62,20 +62,6 @@ const createNotification = async (userId, message, action = null) => {
 
         emailApiService.sendNotificationEmail(user.email, message, action);
 
-        // const io = getIO();
-        // console.log(`===================================================================`);   // <‑‑ log
-        // console.log("Bắt đầu chạy io ===============================================================================================================================================================================================================================================================================================================================================");
-        // if (io) {
-        //     console.log(`===================================================================`);   // <‑‑ log
-        //     console.log('io', io);   // <‑‑ log
-        //     console.log(`===================================================================`);   // <‑‑ log
-        //     console.log('Emit socket cho user', userId, notification.id);
-        //     io.to(`user:${userId}`).emit('new-notification', notification);
-        // } else {
-        //     console.log(`===================================================================`);   // <‑‑ log
-        //     console.warn('Không tìm thấy kết nối socket.io.');
-        // }
-
         return { EC: 0, EM: "Tạo thông báo thành công!", DT: notification };
     } catch (error) {
         console.error("Lỗi trong createNotification:", error);

@@ -2,23 +2,33 @@ import db from '../../models';
 import { Op } from "sequelize"
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-const getAllStore = async (page = 1) => {
+const getAllStore = async (page = 1, searchQuery = '') => {
 	try {
 		const offset = (page - 1) * 20;
+		const whereClause = {};
+		if (searchQuery) {
+			whereClause[Op.or] = [
+				{ '$Store.name$': { [Op.like]: `%${searchQuery}%` } },
+				{ '$Store.address$': { [Op.like]: `%${searchQuery}%` } },
+				{ '$Store.phone$': { [Op.like]: `%${searchQuery}%` } },
+			];
+		}
 		const { count, rows } = await db.Store.findAndCountAll({
+			attributes: ['store_id', 'name', 'address', 'phone', 'createdAt'],
+			where: whereClause,
 			include: [{
 				model: db.StoreManager,
 				attributes: ['store_manager_id'],
-				include: [{ model: db.User, attributes: ['user_id', 'name']}],
+				include: [{ model: db.User, attributes: ['user_id', 'name', 'avatar']}],
 				required: false
 			}],
-			attributes: ['store_id', 'name', 'address', 'phone', 'createdAt'],
 			order: [['updatedAt', 'DESC']],
 			limit: 20,
 			offset,
 			raw: true,
 			nest: true
 		});
+
 		return {
 			EC: 0,
 			EM: 'Lấy danh sách cửa hàng thành công',
@@ -59,6 +69,29 @@ const getStoresSuport = async () => {
 			EC: 0,
 			EM: 'Lấy danh sách cửa hàng thành công',
 			DT: { stores }
+		};
+	} catch (error) {
+		console.error('Lỗi getAllStore:', error);
+		return {
+			EC: -1,
+			EM: 'Lỗi khi lấy danh sách cửa hàng',
+			DT: []
+		};
+	}
+};
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const getAllStoreSuport = async () => {
+	try {
+		const stores = await db.Store.findAll({
+			attributes: ['store_id', 'name'],
+			order: [['updatedAt', 'DESC']],
+			raw: true
+		});
+		return {
+			EC: 0,
+			EM: 'Lấy danh sách cửa hàng thành công',
+			DT: stores
 		};
 	} catch (error) {
 		console.error('Lỗi getAllStore:', error);
@@ -166,6 +199,7 @@ const updateStore = async (data) => {
 export default {
 	getAllStore,
 	getStoresSuport,
+	getAllStoreSuport,
 	getStoreById,
 	createStore,
 	updateStore

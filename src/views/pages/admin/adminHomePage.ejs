@@ -1,0 +1,363 @@
+<!-- views/pages/dashboard.ejs -->
+<div class="container my-5">
+	<!-- Header -->
+	<div class="d-flex justify-content-between align-items-center mb-3">
+		<h1 class="text-cyan-700">Tổng quan hệ thống</h1>
+		<form class="d-flex align-items-end gap-2" method="GET" action="/">
+			<div class="form-floating">
+				<input type="date" class="form-control" id="filterDate" name="date" value="<%= data?.date || '' %>">
+				<label for="filterDate">Ngày</label>
+			</div>
+			<div class="form-floating">
+				<select class="form-select" id="filterBranch" name="storeId">
+					<option value="" selected>Chọn chi nhánh</option>
+					<% stores.forEach(s => { %>
+						<option 
+							value="<%= s.storeId %>" 
+							<%= data?.store?.storeId == s.storeId ? 'selected' : '' %>>
+							<%= s.name %>
+						</option>
+					<% }) %>
+				</select>
+				<label for="filterBranch">Chi nhánh</label>
+			</div>
+			<button type="submit" class="btn h-100 btn-cyan-700 text-white fw-semibold px-3">Xem</button>
+		</form>
+	</div>
+
+	<div class="row">
+		<!-- Cột trái -->
+		<div class="col-lg-6">
+			<!-- UC1: Thống kê nhanh -->
+			<div class="card mb-3 border-cyan-700">
+				<div class="card-body">
+					<h5 class="fw-semibold text-cyan-700 mb-3">Thống kê nhanh</h5>
+					<div class="row">
+						<div class="col-6 col-md-3 mb-2">
+							<div class="card text-center bg-cyan-700 text-white">
+								<div class="card-body p-2">
+									<div class="fw-bold fs-5"><%= data.quickStats?.totalOrders || 0 %></div>
+									<small>Tổng đơn</small>
+								</div>
+							</div>
+						</div>
+						<div class="col-6 col-md-3 mb-2">
+							<div class="card text-center bg-cyan-700 text-white">
+								<div class="card-body p-2">
+									<div class="fw-bold fs-5"><%= data.quickStats?.processedOrders || 0 %></div>
+									<small>Đơn xử lý</small>
+								</div>
+							</div>
+						</div>
+						<div class="col-6 col-md-3 mb-2">
+							<div class="card text-center bg-cyan-700 text-white">
+								<div class="card-body p-2">
+									<div class="fw-bold fs-5"><%= data.quickStats?.activeTechnicians || 0 %></div>
+									<small>KTV hoạt động</small>
+								</div>
+							</div>
+						</div>
+						<div class="col-6 col-md-3 mb-2">
+							<div class="card text-center bg-cyan-700 text-white">
+								<div class="card-body p-2">
+									<div class="fw-bold fs-5"><%= data.quickStats?.openStores || 0 %></div>
+									<small>Cửa hàng mở</small>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- UC2: Lịch làm việc hôm nay -->
+			<div class="card mb-3 border-cyan-700">
+				<div class="card-body">
+					<h5 class="fw-semibold text-cyan-700 mb-3">Lịch làm việc hôm nay</h5>
+
+					<table class="table table-hover align-middle mb-0">
+						<thead class="table-light text-cyan-800">
+							<tr>
+								<th>#</th>
+								<th>Kỹ thuật viên</th>
+								<th>Ca làm</th>
+								<th>Chi nhánh</th>
+								<th>Trạng thái</th>
+							</tr>
+						</thead>
+						<tbody>
+							<% if (data.todaySchedules && data.todaySchedules.length > 0) { %>
+								<% data.todaySchedules.forEach((item, index) => { %>
+									<tr>
+										<td><%= index + 1 %></td>
+										<td><%= item.technicianName %></td>
+										<td><%= item.shift %></td>
+										<td><%= item.storeName %></td>
+										<td>
+											<span class="badge 
+												<%= item.status === 0 ? 'bg-cyan-700' : 'bg-gray-700' %>">
+												<%= item.status === 0 ? 'Còn trống' : 'Đã đầy' %>
+											</span>
+										</td>
+									</tr>
+								<% }) %>
+							<% } else { %>
+								<tr>
+									<td colspan="5" class="text-center text-muted">Không có lịch làm việc hôm nay</td>
+								</tr>
+							<% } %>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<!-- UC5: Truy cập nhanh -->
+			<div class="card mb-3 border-cyan-700">
+				<div class="card-body">
+					<h5 class="fw-semibold text-cyan-700 mb-3">Truy cập nhanh</h5>
+					<div class="row g-2">
+						<div class="col-6">
+							<a href="/admin/dat-lich/danh-sach" class="text-decoration-none">
+								<div class="card bg-cyan-700 text-white text-center p-3">Đơn hàng</div>
+							</a>
+						</div>
+						<div class="col-6">
+							<a href="/admin/ky-thuat-vien/danh-sach" class="text-decoration-none">
+								<div class="card bg-cyan-700 text-white text-center p-3">Kỹ thuật viên</div>
+							</a>
+						</div>
+						<div class="col-6">
+							<a href="/admin/cua-hang/danh-sach" class="text-decoration-none">
+								<div class="card bg-cyan-700 text-white text-center p-3">Cửa hàng</div>
+							</a>
+						</div>
+						<div class="col-6">
+							<a href="/reports/overview?fromDate=2025-01-01&toDate=2025-12-31" class="text-decoration-none">
+								<div class="card bg-cyan-700 text-white text-center p-3">Báo cáo</div>
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- UC6: Phản hồi khách hàng -->
+			<div class="card mb-3 border-cyan-700">
+				<div class="card-body">
+					<h5 class="fw-semibold text-cyan-700 mb-3">Phản hồi khách hàng</h5>
+					<% if (data.feedbacks && data.feedbacks.length > 0) { %>
+						<ul class="list-group list-group-flush">
+							<% data.feedbacks.forEach(fb => { %>
+								<li class="list-group-item">
+									<div class="d-flex justify-content-between">
+										<strong><%= fb.customer %></strong>
+										<span class="text-warning">
+											<%= '★'.repeat(fb.rating) + '☆'.repeat(5 - fb.rating) %>
+										</span>
+									</div>
+									<p class="mb-1 text-muted"><%= fb.comment %></p>
+									<small class="text-secondary"><%= new Date(fb.date).toLocaleString('vi-VN') %></small>
+								</li>
+							<% }) %>
+						</ul>
+					<% } else { %>
+						<div class="text-center py-4 text-muted">
+							<i class="fa-regular fa-comments fs-3 text-cyan-800 d-block mb-2"></i>
+							<p class="text-muted fst-italic">Chưa có phản hồi nào từ khách hàng hôm nay.</p>
+						</div>
+					<% } %>
+				</div>
+			</div>
+		</div>
+
+		<!-- Cột phải -->
+		<div class="col-lg-6">
+			<!-- UC3: Hiệu suất làm việc -->
+			<div class="card mb-3 border-cyan-700">
+				<div class="card-body">
+					<h5 class="fw-semibold text-cyan-700 mb-3">Hiệu suất làm việc</h5>
+
+					<p class="mb-2 text-end text-cyan-800">
+						Ngày: <b><%= new Date(data.date).toLocaleDateString('vi-VN') %></b> • 
+						Chi nhánh: <b>CN <%= data.store.storeId %></b>
+					</p>
+
+					<canvas id="performanceChart" height="120"></canvas>
+
+					<ul class="list-group list-group-flush mt-3">
+						<li class="list-group-item">Tổng số đơn: <b><%= data.performance.reduce((sum, t) => sum + t.completed + t.cancelled, 0) %></b></li>
+						<li class="list-group-item">Hoàn thành: <b class="text-success"><%= data.performance.reduce((sum, t) => sum + t.completed, 0) %></b></li>
+						<li class="list-group-item">Hủy: <b class="text-danger"><%= data.performance.reduce((sum, t) => sum + t.cancelled, 0) %></b></li>
+					</ul>
+				</div>
+			</div>
+
+			<!-- UC4: Cảnh báo / Thông báo -->
+			<div class="card mb-3 border-cyan-700">
+				<div class="card-body">
+					<h5 class="fw-semibold text-cyan-700 mb-3">Cảnh báo / Thông báo hệ thống</h5>
+
+					<ul class="nav nav-tabs border-cyan-700" id="alertTabs" role="tablist">
+						<li class="nav-item" role="presentation">
+							<button class="nav-link active border-cyan-700" id="late-tab" data-bs-toggle="tab" data-bs-target="#late" type="button" role="tab">
+								Đơn chậm
+							</button>
+						</li>
+						<li class="nav-item" role="presentation">
+							<button class="nav-link border-cyan-700" id="leave-tab" data-bs-toggle="tab" data-bs-target="#leave" type="button" role="tab">
+								KTV nghỉ
+							</button>
+						</li>
+						<li class="nav-item" role="presentation">
+							<button class="nav-link border-cyan-700" id="sync-tab" data-bs-toggle="tab" data-bs-target="#sync" type="button" role="tab">
+								Lỗi đồng bộ
+							</button>
+						</li>
+					</ul>
+
+					<div class="tab-content mt-3" id="alertTabsContent">
+						
+						<!-- Tab: Đơn chậm -->
+						<div class="tab-pane fade show active" id="late" role="tabpanel">
+							<ul class="list-group list-group-flush">
+								<% if (data.alerts.lateOrders && data.alerts.lateOrders.length > 0) { %>
+									<% data.alerts.lateOrders.forEach(order => { %>
+										<li class="list-group-item d-flex align-items-start justify-content-between align-items-center border-0 border-bottom py-2">
+											<div class="d-flex align-items-start">
+												<i class="fa-solid fa-triangle-exclamation text-cyan-700 me-3 mt-1 fs-5"></i>
+												<div>
+													<div class="fw-semibold text-cyan-800">Đơn đặt #<%= order.bookingId %> • <%= order.customerName %></div>
+													<small class="text-muted">
+														Ngày đặt: <span class="text-cyan-700"><%= new Date(order.bookingDate).toLocaleDateString('vi-VN') %></span> • 
+														KTV: <%= order.technicianName || 'Không xác định' %> • 
+														<%= order.daysLate %> ngày trễ • 
+														<span class="text-cyan-700">
+															<%= order.status === 'pending' 
+																? 'Vẫn chưa duyệt đơn' 
+																: order.status === 'in-progress' 
+																	? 'Vẫn chưa sửa xong' 
+																	: order.status %>
+														</span>
+													</small>
+												</div>
+											</div>
+										</li>
+									<% }) %>
+								<% } else { %>
+									<li class="list-group-item text-muted fst-italic">Không có đơn chậm</li>
+								<% } %>
+							</ul>
+						</div>
+
+						<!-- Tab: Kỹ thuật viên nghỉ -->
+						<div class="tab-pane fade" id="leave" role="tabpanel">
+							<ul class="list-group list-group-flush">
+								<% if (data?.alerts?.technicianLeaves?.length) { %>
+									<% data.alerts.technicianLeaves.forEach(t => { %>
+										<li class="list-group-item d-flex align-items-center">
+											<i class="fa-solid fa-user-clock text-cyan-700 me-2"></i>
+											<div>
+												<b class="text-cyan-800">Kỹ thuật viên nghỉ:</b> <%= t.technicianName %>
+											</div>
+										</li>
+									<% }) %>
+								<% } else { %>
+									<li class="list-group-item text-muted fst-italic">Không có kỹ thuật viên nghỉ hôm nay</li>
+								<% } %>
+							</ul>
+						</div>
+
+						<!-- Tab: Lỗi đồng bộ -->
+						<div class="tab-pane fade" id="sync" role="tabpanel" style="max-height: 17.58em; overflow-y: auto;">
+							<ul class="list-group list-group-flush">
+								<% if (data.alerts?.syncErrors?.length) { %>
+									<% data.alerts.syncErrors.forEach(err => { %>
+										<li class="list-group-item d-flex align-items-center">
+											<i class="fa-solid fa-circle-exclamation text-cyan-700 me-2"></i>
+											<div><b class="text-cyan-800">Lỗi đồng bộ:</b> <%= err.message %></div>
+										</li>
+									<% }) %>
+								<% } else { %>
+									<li class="list-group-item text-muted fst-italic">Không có lỗi đồng bộ</li>
+								<% } %>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Footer -->
+	<div class="text-end text-muted small mt-3">
+		Phiên bản hệ thống 1.0 • Cập nhật: --
+	</div>
+</div>
+
+<style>
+	.nav-tabs .nav-link.active {
+		background-color: #087990 !important;
+		color: #fff !important;
+		border-color: #087990 #087990 #fff !important;
+	}
+	.nav-tabs .nav-link {
+		color: #055160 !important;
+		transition: all 0.2s ease-in-out;
+	}
+	.nav-tabs .nav-link:hover {
+		background-color: #e0f7fa !important;
+		color: #087990 !important;
+		border-color: #b2ebf2 #b2ebf2 #fff !important;
+	}
+
+	/* --- Thẻ truy cập nhanh --- */
+	.card.bg-cyan-700, .btn {
+		background-color: #087990 !important;
+		transition: transform 0.2s ease, box-shadow 0.2s ease;
+		cursor: pointer;
+	}
+	.card.bg-cyan-700:hover, .btn:hover {
+		transform: translateY(-4px);
+		box-shadow: 0 4px 10px #1f91a8;
+		background-color: #0999b5 !important;
+	}
+	.card.bg-cyan-700:active, .btn:active {
+		transform: scale(0.9);
+	}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+	const ctx = document.getElementById('performanceChart').getContext('2d');
+	const labels = <%- JSON.stringify(data.performance.map(t => t.technicianName)) %>;
+	const completed = <%- JSON.stringify(data.performance.map(t => t.completed)) %>;
+	const cancelled = <%- JSON.stringify(data.performance.map(t => t.cancelled)) %>;
+
+	new Chart(ctx, {
+		type: 'bar',
+		data: {
+			labels,
+			datasets: [
+				{
+					label: 'Hoàn thành',
+					data: completed,
+					backgroundColor: '#79DFC1'
+				},
+				{
+					label: 'Hủy',
+					data: cancelled,
+					backgroundColor: '#EA868F'
+				}
+			]
+		},
+		options: {
+			responsive: true,
+			plugins: {
+				legend: { position: 'top' },
+				title: { display: true, text: 'Hiệu suất làm việc kỹ thuật viên' }
+			},
+			scales: {
+				y: { beginAtZero: true, title: { display: true, text: 'Số lượng đơn' } }
+			}
+		}
+	});
+</script>

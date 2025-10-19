@@ -1,0 +1,135 @@
+<div class="container py-5">
+	<!-- Breadcrumb (có thể tái sử dụng) -->
+    <% if (typeof breadcrumbs !== 'undefined' && breadcrumbs.length) { %>
+        <%- include('../../partials/common/breadcrumb', { breadcrumbs }) %>
+    <% } %>
+
+	<!-- Tiêu đề trang -->
+    <div class="d-flex justify-content-between align-items-center">
+        <h1 class="mb-4">Thông Tin Kỹ Thuật Viên</h1>
+		<a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-arrow-left me-1"></i> Quay lại</a>
+    </div>
+
+	<!-- Card: Thông tin kỹ thuật viên & cửa hàng -->
+	<div class="card mb-3">
+		<div class="card-body">
+			<h5 class="card-title fw-semibold text-cyan-700 mb-4">
+				<i class="fa-solid fa-id-card-clip me-1"></i>Thông tin chi tiết
+			</h5>
+			<div class="row g-4 align-items-start">
+				<!-- Ảnh đại diện -->
+				<div class="col-md-3 text-center">
+					<img src="/images/<%= data.User?.avatar || 'default.png' %>" alt="Avatar" class="rounded-circle border shadow-sm mb-3" style="width:120px; height:120px; object-fit:cover;">
+					<h6 class="fw-bold mb-0"><%= data.User?.name || 'Không rõ' %></h6>
+					<small class="text-muted">Mã: <%= data.technician_id || '---' %></small>
+				</div>
+
+				<!-- Thông tin chi tiết -->
+				<div class="col-md-9">
+					<div class="row">
+						<div class="col-md-6 mb-3">
+							<p class="mb-1 text-muted"><i class="fa-solid fa-envelope me-2 text-secondary"></i>Email</p>
+							<p class="fw-medium"><%= data.User?.email || 'Không rõ' %></p>
+						</div>
+						<div class="col-md-6 mb-3">
+							<p class="mb-1 text-muted"><i class="fa-solid fa-phone me-2 text-secondary"></i>Số điện thoại</p>
+							<p class="fw-medium"><%= data.User?.phone || 'Không rõ' %></p>
+						</div>
+						<div class="col-md-6 mb-3">
+							<p class="mb-1 text-muted"><i class="fa-solid fa-store me-2 text-secondary"></i>Cửa hàng</p>
+							<p class="fw-medium"><%= data.Store?.name || 'Không rõ' %></p>
+						</div>
+						<div class="col-md-6 mb-3">
+							<p class="mb-1 text-muted"><i class="fa-solid fa-location-dot me-2 text-secondary"></i>Địa chỉ</p>
+							<p class="fw-medium"><%= data.Store?.address || 'Không rõ' %></p>
+						</div>
+						<div class="col-md-6 mb-3">
+							<p class="mb-1 text-muted">
+								<i class="fa-solid fa-screwdriver-wrench me-2 text-secondary"></i>Chuyên ngành
+							</p>
+							<% if (data.Specialties && data.Specialties.length > 1) { %>
+								<ul class="mb-0">
+									<% data.Specialties.forEach(s => { %>
+										<li class="fw-medium"><%= s.name %></li>
+									<% }) %>
+								</ul>
+							<% } else { %>
+								<p class="fw-medium">
+									<%= (data.Specialties && data.Specialties.length > 0) ? data.Specialties[0].name : 'Không rõ' %>
+								</p>
+							<% } %>
+						</div>
+						<div class="col-md-6 mb-3">
+							<p class="mb-1 text-muted"><i class="fa-solid fa-star me-2 text-warning"></i>Đánh giá trung bình</p>
+							<p class="fw-medium">
+								<%= data.avg_rating ? data.avg_rating + '/5 (' + data.total_reviews + ' đánh giá)' : 'Chưa có đánh giá' %>
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Card 5: Đơn đặt lịch / công việc -->
+	<div class="card mb-3">
+		<div class="card-body">
+			<h5 class="card-title mb-3">Đơn Đặt Lịch / Công Việc</h5>
+			<table class="table table-hover">
+				<thead class="text-center">
+					<tr>
+						<th>#</th>
+						
+						<th>Khách hàng</th>
+						<th>Ngày đặt</th>
+						<th>Thiết bị</th>
+						<th>Trạng thái</th>
+						<th>Hành động</th>
+					</tr>
+				</thead>
+				<tbody>
+					<% if (data.Bookings && data.Bookings.length > 0) { %>
+						<% data.Bookings.forEach((item, index) => { %>
+							<tr>
+								<td class="text-center"><%= index + 1 %></td>
+								
+								<td><%= item.customer_name %></td>
+								<td><%= new Date(item.booking_date).toLocaleDateString('vi-VN') %></td>
+								<td><%= item.device_type %></td>
+								<td class="<%= item.status === 'pending' ? 'bg-secondary text-white text-center' :
+									item.status === 'in-progress' ? 'bg-warning text-dark text-center' :
+									item.status === 'completed' ? 'bg-success text-white text-center' : 'bg-info text-white text-center' %>">
+									<%= item.status %>
+								</td>
+								<td class="text-center">
+									<a href="/admin/dat-lich/<%= item.booking_id %>/chi-tiet" class="btn btn-outline-info btn-sm">
+										Xem chi tiết
+									</a>
+									<!-- <% if(item.status !== 'completed'){ %>
+										<button class="btn btn-outline-primary btn-sm">Chuyển kỹ thuật viên</button>
+										<button class="btn btn-outline-success btn-sm">Cập nhật trạng thái</button>
+									<% } %> -->
+								</td>
+							</tr>
+						<% }) %>
+					<% } else { %>
+						<tr>
+							<td colspan="7" class="text-center text-muted">Chưa có đơn đặt lịch</td>
+						</tr>
+					<% } %>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<!-- Card 7: Chức năng quản trị -->
+	<!-- <div class="card">
+		<div class="card-body">
+			<h5 class="card-title fw-medium text-dark mb-3">Chức Năng Quản Trị</h5>
+			<div class="d-flex gap-2">
+				<button class="btn btn-warning">Ngưng hoạt động</button> 
+				<button class="btn btn-danger">Xóa kỹ thuật viên</button> 
+			</div>
+		</div>
+	</div>-->
+</div>

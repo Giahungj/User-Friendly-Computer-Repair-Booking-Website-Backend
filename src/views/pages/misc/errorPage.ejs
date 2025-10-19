@@ -1,0 +1,25 @@
+<div class="container py-5">
+	<div class="d-flex flex-column justify-content-center align-items-center text-center">
+		<% if (EC === -1) { %>
+			<div class="mb-3" style="font-size: 4rem; color: #006064;"><span class="material-icons">error</span></div>
+			<h1 class="mb-3" style="color: #006064;">Lỗi hệ thống!</h1>
+		<% } else if (EC === 1) { %>
+			<div class="mb-3" style="font-size: 4rem; color: #006064;"><span class="material-icons">warning</span></div>
+			<h1 class="mb-3" style="color: #006064;">Cảnh báo!</h1>
+		<% } else { %>
+			<div class="mb-3" style="font-size: 4rem; color: #006064;"><span class="material-icons">info</span></div>
+			<h1 class="mb-3" style="color: #006064;">Thông báo!</h1>
+		<% } %>
+
+		<p class="lead mb-4" style="color: #006064;"><strong>Thông báo:</strong> <%= EM || "Đã có lỗi xảy ra, vui lòng thử lại sau!" %></p>
+
+		<div class="d-flex gap-2">
+            <a href="/" class="btn btn-outline-secondary btn-lg" style="border-color:#006064; color:#006064;">
+                <i class="fas fa-sync-alt"></i> Quay lại trang chủ
+            </a>
+            <a href="javascript:history.back()" class="btn btn-outline-secondary btn-lg" style="border-color:#006064; color:#006064;">
+                <i class="fas fa-arrow-left"></i> Quay lại trang trước
+            </a>
+        </div>
+	</div>
+</div>

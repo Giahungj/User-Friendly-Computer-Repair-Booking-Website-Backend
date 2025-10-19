@@ -1,0 +1,84 @@
+<div class="container py-5">
+	<div class="row justify-content-center">
+		<div class="col-lg-8 col-xl-6">
+			<div class="card border-0 overflow-hidden">
+				<div class="card-header bg-cyan-700 text-white border-bottom-0 py-3">
+					<h5 class="mb-0 text-uppercase fw-semibold d-flex align-items-center">
+						<i class="fa-solid fa-briefcase me-2"></i> Thêm chuyên môn
+					</h5>
+				</div>
+				<div class="card-body p-4">
+                    <form action="/admin/chuyen-mon/them-moi" method="POST" enctype="multipart/form-data" class="row g-3">
+                        <div class="col-12">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="name" name="name" placeholder="Nhập tên chuyên môn" required>
+                                <label for="name">Tên chuyên môn <span class="badge bg-danger ms-1">*</span></label>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-floating">
+                                <textarea class="form-control" id="description" name="description" placeholder="Nhập mô tả chi tiết" style="height: 100px" required></textarea>
+                                <label for="description">Mô tả <span class="badge bg-danger ms-1">*</span></label>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label d-block">Hình ảnh <span class="badge bg-danger ms-1">*</span></label>
+                            <input type="file" class="form-control mb-2" id="image" name="image" accept="image/*" required>
+                            <div class="form-text mb-2">JPG/PNG, tối đa 2MB.</div>
+                            <div class="text-center">
+                                <img id="image-preview" class="img-thumbnail d-none" style="max-height: 100px; max-width: 100%;" alt="Preview hình ảnh" />
+                                <p id="no-preview-text" class="text-muted small m-0">Preview sẽ hiển thị sau khi chọn.</p>
+                            </div>
+                        </div>
+                        <div class="col-12 d-flex justify-content-end gap-3">
+                            <a href="javascript:history.back()" class="btn btn-outline-secondary px-4">
+                                <i class="fa-solid fa-arrow-left me-1"></i> Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-secondary border-0 bg-cyan-700 text-white shadow-sm">
+                                <i class="fa-solid fa-plus me-1"></i> Thêm chuyên môn
+                            </button>
+                        </div>
+                    </form>
+                </div>
+				<div class="card-footer bg-white border-top-0 text-muted small">
+					<i class="fa-solid fa-info-circle me-1"></i> Các trường đánh dấu * là bắt buộc. Dữ liệu sẽ được lưu sau khi submit.
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<style>
+    .card { 
+        transition: none; 
+    }
+    .card:focus-within {
+        box-shadow: 0 0 1em 0.2rem rgba(58, 169, 194, 0.35);
+    }
+    .form-floating > label { 
+        font-size: 0.9rem; 
+    }
+    .badge { 
+        font-size: 0.7rem; 
+    }
+</style>
+
+<script>
+    document.getElementById('image').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const preview = document.getElementById('image-preview');
+        const noPreviewText = document.getElementById('no-preview-text');
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                preview.src = ev.target.result;
+                preview.classList.remove('d-none');
+                noPreviewText.classList.add('d-none');
+            };
+            reader.readAsDataURL(file);
+        } else {
+            preview.classList.add('d-none');
+            noPreviewText.classList.remove('d-none');
+        }
+    });
+</script>

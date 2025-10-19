@@ -1,0 +1,59 @@
+<div class="container py-5">
+     <!-- Card 1: Breadcrumb -->
+    <% if (typeof breadcrumbs !== 'undefined' && breadcrumbs.length) { %>
+		<%- include('../../partials/common/breadcrumb', { breadcrumbs }) %>
+    <% } %>
+
+    <!-- Tiêu đề trang -->
+    <div class="d-flex justify-content-between align-items-center">
+        <h1 class="mb-4">Cập nhật chuyên môn</h1>
+		<a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-arrow-left me-1"></i> Quay lại</a>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <form action="/admin/chuyen-mon/<%= specialty.specialty_id %>/cap-nhat" method="POST" enctype="multipart/form-data" class="row g-3">
+                <div class="col">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control form-control-sm" id="name" name="name" placeholder="Tên chuyên môn" 
+                            value="<%= specialty.name %>" required>
+                        <label class="text-cyan-800" for="name">Tên chuyên môn</label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <textarea class="form-control form-control-sm" id="description" name="description" placeholder="Mô tả chi tiết" style="height: 9rem;" required><%= specialty.description %></textarea>
+                        <label class="text-cyan-800" for="description">Mô tả</label>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <% if(specialty.image){ %>
+                        <div class="text-center mb-3">
+                            <img id="imagePreview" class="rounded mx-auto d-block" src="/images/<%= specialty.image %>" alt="Hình ảnh" style="max-width: 15em;">
+                        </div>
+                    <% } %>
+                    <div class="form-floating">
+                        <input type="file" class="form-control form-control-sm" id="image" name="image" accept="image/*" placeholder="Chọn ảnh" required>
+                        <label class="text-cyan-800" for="image">Hình ảnh</label>
+                    </div>
+                </div>
+
+                <div class="col-12 d-flex justify-content-end gap-2">
+                    <button type="submit" class="btn btn-outline-secondary bg-cyan-700 text-white">
+                        <i class="fa-solid fa-pen me-1"></i> Cập nhật chuyên môn
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function previewImage(event) {
+    const output = document.getElementById('imagePreview');
+    const file = event.target.files[0];
+    if(file){
+        output.src = URL.createObjectURL(file);
+    }
+}
+</script>

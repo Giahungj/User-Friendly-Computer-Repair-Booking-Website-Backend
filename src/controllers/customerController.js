@@ -1,6 +1,5 @@
 import customerService from "../services/newservices/customerService.js";
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const renderCustomerListPage = async (req, res) => {
 	try {
@@ -9,19 +8,19 @@ const renderCustomerListPage = async (req, res) => {
 		const result = await customerService.getAllCustomers(page, searchQuery);
 		if (result.EC === 0) {
 			return res.render('layouts/layout', {
-				page: 'pages/customerListPage.ejs',
+				page: 'pages/customer/customerListPage.ejs',
 				pageTitle: 'Danh sách khách hàng',
 				customers: result.DT.customers,
 				totalCustomers: result.DT.total,
 				totalPages: result.DT.totalPages,
-				curentPage: page,
+				currentPage: page,
 				searchQuery: searchQuery,
 				EM: result.EM,
 				EC: result.EC
 			});
 		} else {
 			return res.status(400).render('layouts/layout', {
-				page: 'pages/errorPage.ejs',
+				page: 'pages/misc/errorPage.ejs',
 				pageTitle: 'Lỗi',
 				EM: result.EM,
 				EC: result.EC
@@ -30,13 +29,14 @@ const renderCustomerListPage = async (req, res) => {
 	} catch (error) {
 		console.error('Lỗi khi lấy danh sách khách hàng:', error);
 		return res.status(500).render('layouts/layout', {
-			page: 'pages/errorPage.ejs',
+			page: 'pages/misc/errorPage.ejs',
 			pageTitle: 'Lỗi 500',
 			EM: 'Không thể tải danh sách khách hàng.',
 			EC: -1
 		});
 	}
 };
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const renderCustomerDetailPage = async (req, res) => {
 	try {
@@ -46,7 +46,7 @@ const renderCustomerDetailPage = async (req, res) => {
 
 		if (result.EC === 0) {
 			return res.render('layouts/layout', {
-				page: 'pages/customerDetailPage.ejs',
+				page: 'pages/customer/customerDetailPage.ejs',
 				pageTitle: 'Chi tiết khách hàng',
 				customer: result.DT,
 				EM: result.EM,
@@ -54,7 +54,7 @@ const renderCustomerDetailPage = async (req, res) => {
 			});
 		} else {
 			return res.status(404).render('layouts/layout', {
-				page: 'pages/errorPage.ejs',
+				page: 'pages/misc/errorPage.ejs',
 				pageTitle: 'Lỗi',
 				EM: result.EM,
 				EC: result.EC
@@ -63,7 +63,7 @@ const renderCustomerDetailPage = async (req, res) => {
 	} catch (error) {
 		console.error('Lỗi khi hiển thị chi tiết khách hàng:', error);
 		return res.status(500).render('layouts/layout', {
-			page: 'pages/errorPage.ejs',
+			page: 'pages/misc/errorPage.ejs',
 			pageTitle: 'Lỗi 500',
 			EM: 'Không thể hiển thị chi tiết khách hàng.',
 			EC: -1

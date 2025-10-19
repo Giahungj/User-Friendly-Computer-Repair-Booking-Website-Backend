@@ -1,0 +1,94 @@
+<div class="container py-5">
+    <!-- Card 1: Breadcrumb -->
+    <% if (typeof breadcrumbs !== 'undefined' && breadcrumbs.length) { %>
+		<%- include('../../partials/common/breadcrumb', { breadcrumbs }) %>
+    <% } %>
+
+    <!-- Tiêu đề trang -->
+    <div class="d-flex justify-content-between align-items-center">
+        <h1 class="mb-4">Lịch làm việc kỹ thuật viên</h1>
+		<a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-arrow-left me-1"></i> Quay lại</a>
+    </div>
+
+    <!-- Card 3: Form tìm kiếm -->
+	<div class="card border-0 mb-3 p-0" style="background: transparent;">
+		<form method="GET" action="/admin/lich-lam-viec/danh-sach" class="row g-3">
+			<div class="col-5 form-floating">
+				<select name="technicianId" id="technicianId" class="form-select" required>
+					<option value=""> Chọn kỹ thuật viên </option>
+					<% technicians.forEach(t => { %>
+						<option value="<%= t.technician_id %>" <%= selectedTechnician == t.technician_id ? 'selected' : '' %>>
+							<%= t.name %>
+						</option>
+					<% }) %>
+				</select>
+				<label for="technicianId" class="text-cyan-700 fw-medium">Kỹ thuật viên</label>
+			</div>
+
+			<div class="col-4 form-floating">
+				<input type="date" id="date" name="date" class="form-control" value="<%= selectedDate || '' %>">
+				<label for="date" class="text-cyan-700 fw-medium">Ngày</label>
+			</div>
+
+			<div class="col-3 d-flex align-items-end">
+				<button type="submit" class="btn btn-outline-secondary shadow-sm w-100 fw-semibold text-white h-100 bg-cyan-700">Xem</button>
+			</div>
+		</form>
+	</div>
+
+    <!-- Card 4: Thông tin kỹ thuật viên -->
+    <div class="card mb-3">
+		<div class="card-body text-center">
+			<p class="fw-medium m-0">Kỹ thuật viên</p>
+			<% if (technicianName) { %>
+				<h2 class="text-cyan-700 fw-semibold"><%= technicianName %></h2>
+			<% } %>
+		</div>
+	</div>
+
+    <!-- Card 5: Lịch làm việc -->.
+	<h2 class="mb-3">Danh sách lịch làm việc</h2>
+	<div class="row row-cols-3 g-4">
+		<% if (events && events.length) { %>
+			<% events.forEach((e, i) => { %>
+				<div class="col">
+					<div class="card shadow-sm  h-100 bg-light mb-3 cursor-pointer workschedule-card">
+						<div class="card-header text-dark <%= e.color %>"><%= e.title || 'Không tiêu đề' %></div>
+						<div class="card-body">
+							<div class="row mb-2 align-items-center">
+								<div class="col-4 d-flex align-items-center">
+									<i class="fa-regular fa-calendar-days me-2 fs-5 text-cyan-700"></i>
+									<span class="fw-medium">Ngày:</span>
+								</div>
+								<div class="col-8"><%= new Date(e.start).toLocaleDateString('vi-VN') %></div>
+							</div>
+							<div class="row mb-2 align-items-center">
+								<div class="col-4 d-flex align-items-center">
+									<i class="fa-regular fa-clock me-2 fs-5 text-cyan-700"></i>
+									<span class="fw-medium">Ca:</span>
+								</div>
+								<div class="col-8"><%= e.shift || 'Không xác định' %></div>
+							</div>
+							<div class="row mb-2 align-items-center">
+								<div class="col-4 d-flex align-items-center">
+									<i class="fa-solid fa-store me-2 fs-5 text-cyan-700"></i>
+									<span class="fw-medium">Cửa hàng:</span>
+								</div>
+								<div class="col-8"><%= e.extendedProps?.storeName || '-' %></div>
+							</div>
+							<div class="row align-items-center">
+								<div class="col-4 d-flex align-items-center">
+									<i class="fa-solid fa-location-dot me-2 fs-5 text-cyan-700"></i>
+									<span class="fw-medium">Địa chỉ:</span>
+								</div>
+								<div class="col-8"><%= e.extendedProps?.storeAddress || '-' %></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			<% }) %>
+		<% } else { %>
+			<div class="col-12 text-center text-muted">Không có lịch làm việc nào.</div>
+		<% } %>
+	</div>
+</div>

@@ -38,4 +38,46 @@ const getDailyStatistics = async (fromDate, toDate) => {
 };
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-export default { getDailyStatistics };
+const getStoreStatistics = async ({ date, storeId }) => {
+	try {
+		// Lấy danh sách kỹ thuật viên thuộc cửa hàng
+		const technicians = await db.Technician.findAll({
+			where: { store_id: storeId },
+			include: [{ model: db.User, attributes: ['name'] }],
+			attributes: ['technician_id'],
+			raw: true
+		});
+
+		const results = [];
+
+		for (const tech of technicians) {
+			const data = await db.RepairBooking.findOne({
+				attributes: [
+					[fn("SUM", literal("CASE WHEN status = 'completed' THEN 1 ELSE 0 END")), "completed"],
+					[fn("SUM", literal("CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END")), "cancelled"],
+				],
+				include: [{
+					model: db.WorkSchedule,
+					attributes: [],
+					where: { technician_id: tech.technician_id }
+				}],
+				where: { booking_date: { [Op.eq]: date } },
+				raw: true
+			});
+
+			results.push({
+				technicianName: tech["User.name"],
+				completed: +(data?.completed || 0),
+				cancelled: +(data?.cancelled || 0)
+			});
+		}
+
+		return results;
+	} catch (error) {
+		console.error(error);
+		throw error;
+	}
+};
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+export default { getDailyStatistics, getStoreStatistics };

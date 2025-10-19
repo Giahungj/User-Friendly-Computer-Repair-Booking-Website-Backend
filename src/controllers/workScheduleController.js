@@ -4,85 +4,73 @@ import technicianService from '../services/newservices/technicianService.js';
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const renderWorkSchedulePage = async (req, res) => {
 	try {
-        const { technicianId, date } = req.query;
+       const { technicianId, date } = req.query;
 
         const techResult = await technicianService.getAllTechnician();
-		const technicians = (techResult?.DT?.technicians || []).map(t => ({
+        const technicians = (techResult?.DT?.technicians || []).map(t => ({
             technician_id: t.technician_id,
             user_id: t.user_id,
             name: t.User?.name || 'Không xác định'
         }));
 
+        let scheduleData = [];
+        let technicianName = '';
 
-		let scheduleData = [];
-		let technicianName = '';
-
-		if (technicianId) {
-			const result = await workScheduleService.getScheduleByTechnicianAndDate(technicianId, date);
-            console.log('Work schedule fetch result:', result);
-			if (result.EC === 0) {
-				scheduleData = result.DT.schedules;
-				technicianName = result.DT.technicianName;
-			}
-		}
-		// ✅ Dữ liệu mẫu (fallback)
-		const sampleData = {
-            technicians,
-            selectedTechnician: technicianId || '',
-            selectedDate: date || '',
-            technicianName: technicianName || 'Nguyễn Văn Hoài',
-            scheduleData: scheduleData || []
-        };
-
-        // ✅ Chuyển scheduleData phẳng → events cho FullCalendar
-        const events = sampleData.scheduleData.map(s => {
-            let shiftLabel = '';
-            let color = '#007bff'; // mặc định
-
-            switch (s.shift) {
-                case '1':
-                    shiftLabel = 'Ca sáng';
-                    color = '#28a745';
-                    break;
-                case '2':
-                    shiftLabel = 'Ca trưa';
-                    color = '#ffc107';
-                    break;
-                case '3':
-                    shiftLabel = 'Ca chiều';
-                    color = '#6c757d';
-                    break;
-                default:
-                    shiftLabel = 'Ca khác';
+        // ✅ Gọi lịch làm việc nếu có technicianId
+        if (technicianId) {
+            const result = await workScheduleService.getScheduleByTechnicianAndDate(technicianId, date);
+            if (result.EC === 0) {
+                scheduleData = result.DT.schedules;
+                technicianName = result.DT.technicianName;
             }
+        }
+
+        // ✅ Tạo danh sách sự kiện cho FullCalendar
+        const events = scheduleData.map(s => {
+            const shiftMap = {
+                '1': { label: 'Ca sáng', color: 'bg-teal-300' },
+                '2': { label: 'Ca trưa', color: 'bg-yellow-300' },
+                '3': { label: 'Ca chiều', color: 'bg-gray-300' }
+            };
+            const shift = shiftMap[s.shift] || { label: 'Ca khác', color: 'bg-cyan-300' };
+
             return {
-                title: `${shiftLabel} (${s.current_number}/${s.max_number})`,
+                title: `${shift.label} (${s.current_number}/${s.max_number})`,
+                color: shift.color,
                 start: `${s.work_date}T08:00`,
                 end: `${s.work_date}T17:00`,
-                backgroundColor: color,
+                shift: shift.label,
                 extendedProps: {
                     technicianId: s.technician_id,
                     workScheduleId: s.work_schedule_id,
                     current: s.current_number,
-                    max: s.max_number
+                    max: s.max_number,
+                    storeId: s.storeId,
+                    storeName: s.storeName,
+                    storeAddress: s.storeAddress,
+                    storeImage: s.storeImage
                 }
             };
         });
 
-		// ✅ Render ra EJS
-		res.render('layouts/layout', {
-			page: 'pages/workSchedulePage.ejs',
-			pageTitle: 'Lịch làm việc nhân viên',
-			technicians: sampleData.technicians,
-			selectedTechnician: sampleData.selectedTechnician,
-			selectedDate: sampleData.selectedDate,
-			technicianName: sampleData.technicianName,
-			events
-		});
+        // ✅ Render ra EJS
+        res.render('layouts/layout', {
+            page: 'pages/work-schedule/workSchedulePage.ejs',
+            pageTitle: 'Lịch làm việc nhân viên',
+            technicians,
+            selectedTechnician: technicianId || '',
+            selectedDate: date || '',
+            technicianName: technicianName || 'Bạn chưa chọn kỹ thuật viên',
+            events,
+            breadcrumbs: [
+                { name: 'Trang chủ', url: '/admin/lich-lam-viec/danh-sach' },
+                { name: 'Lịch làm việc', active: true },
+            ],
+        });
 	} catch (error) {
 		console.error('Lỗi khi render trang lịch làm việc:', error);
 		res.status(500).render('layouts/layout', {
-			page: 'pages/errorPage.ejs',
+			page: 'pages/misc/errorPage.ejs',
 			pageTitle: 'Lỗi 500',
 			EM: 'Không thể tải trang lịch làm việc nhân viên.',
 			EC: -1

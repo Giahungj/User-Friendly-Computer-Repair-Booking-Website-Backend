@@ -1,74 +1,77 @@
-<div class="container mt-3">
-	<!-- Card 1: Tiêu đề và form lọc -->
-	<div class="card mb-3">
-		<div class="card-body d-flex justify-content-between align-items-center">
-			<h3 class="fw-semibold text-dark mb-0">Báo Cáo Tổng Quan</h3>
-			<form action="http://localhost:8080/reports/overview" method="get" class="d-flex align-items-center gap-2">
-				<label class="me-2 mb-0">Từ:</label>
-				<input type="date" name="fromDate" class="form-control form-control-sm me-2" value="<%= fromDate %>">
-				<label class="me-2 mb-0">Đến:</label>
-				<input type="date" name="toDate" class="form-control form-control-sm me-2" value="<%= toDate %>">
-				<button type="submit" class="btn btn-primary btn-sm">Xem</button>
-			</form>
+<div class="container py-5">
+	<!-- Card 1: Tiêu đề và bộ lọc -->
+	<div class="d-flex justify-content-between align-items-center mb-3">
+		<h1 class="text-cyan-700">Báo Cáo Tổng Quan</h1>
+		<form action="/reports/overview" method="get" class="d-flex align-items-end gap-2 flex-wrap">
+			<div class="form-floating">
+				<input type="date" class="form-control" id="fromDate" name="fromDate" value="<%= fromDate %>">
+				<label for="fromDate">Từ ngày</label>
+			</div>
+			<div class="form-floating">
+				<input type="date" class="form-control" id="toDate" name="toDate" value="<%= toDate %>">
+				<label for="toDate">Đến ngày</label>
+			</div>
+			<button type="submit" class="btn btn-cyan-700 text-white fw-medium">Xem</button>
+		</form>
+	</div>
+
+	<!-- Card 2: Thống kê chung -->
+	<div class="card mb-3 border-cyan-700">
+		<div class="card-body">
+			<h5 class="fw-semibold text-cyan-700 mb-3">Thống Kê Chung</h5>
+			<div class="row">
+				<div class="col-md-4">
+					<ul class="list-group list-group-flush">
+						<li class="list-group-item d-flex justify-content-between align-items-center">
+							<span>Tổng đơn:</span>
+							<span class="<%= !overviewReport.totalBookings ? 'text-danger' : 'fw-semibold text-cyan-700' %>">
+								<%= overviewReport.totalBookings %>
+							</span>
+						</li>
+						<li class="list-group-item d-flex justify-content-between align-items-center">
+							<span>Hoàn thành:</span>
+							<span class="<%= !overviewReport.completedRepairs ? 'text-danger' : 'fw-semibold text-cyan-700' %>">
+								<%= overviewReport.completedRepairs %>
+							</span>
+						</li>
+						<li class="list-group-item d-flex justify-content-between align-items-center">
+							<span>Đang thực hiện:</span>
+							<span class="<%= !overviewReport.ongoingRepairs ? 'text-danger' : 'fw-semibold text-cyan-700' %>">
+								<%= overviewReport.ongoingRepairs %>
+							</span>
+						</li>
+					</ul>
+				</div>
+				<div class="col-md-4">
+					<ul class="list-group list-group-flush">
+						<li class="list-group-item d-flex justify-content-between align-items-center">
+							<span>Đã hủy:</span>
+							<span class="<%= !overviewReport.canceledRepairs ? 'text-danger' : 'fw-semibold text-cyan-700' %>">
+								<%= overviewReport.canceledRepairs %>
+							</span>
+						</li>
+						<li class="list-group-item d-flex justify-content-between align-items-center">
+							<span>Chờ xử lý:</span>
+							<span class="<%= !overviewReport.pendingRepairs ? 'text-danger' : 'fw-semibold text-cyan-700' %>">
+								<%= overviewReport.pendingRepairs %>
+							</span>
+						</li>
+						<li class="list-group-item d-flex justify-content-between align-items-center">
+							<span>Tỷ lệ hoàn thành:</span>
+							<span class="<%= !overviewReport.completionRate ? 'text-danger' : 'fw-semibold text-cyan-700' %>">
+								<%= overviewReport.completionRate + '%' %>
+							</span>
+						</li>
+					</ul>
+				</div>
+			</div>
 		</div>
 	</div>
 
-	<div class="card mb-3">
-        <div class="card-body">
-            <h5 class="card-title fw-medium text-dark mb-3">Thống Kê Chung</h5>
-            <div class="row">
-                <div class="col-md-4">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>Tổng đơn:</span>
-                            <span class="<%= !overviewReport.totalBookings ? 'text-danger' : '' %>">
-                                <%= overviewReport.totalBookings%>
-                            </span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>Hoàn thành:</span>
-                            <span class="<%= !overviewReport.completedRepairs ? 'text-danger' : '' %>">
-                                <%= overviewReport.completedRepairs%>
-                            </span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>Đang thực hiện:</span>
-                            <span class="<%= !overviewReport.ongoingRepairs ? 'text-danger' : '' %>">
-                                <%= overviewReport.ongoingRepairs%>
-                            </span>
-                        </li>
-                    </ul>
-                </div>
-                <div class="col-md-4">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>Đã hủy:</span>
-                            <span class="<%= !overviewReport.canceledRepairs ? 'text-danger' : '' %>">
-                                <%= overviewReport.canceledRepairs%>
-                            </span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>Chờ xử lý:</span>
-                            <span class="<%= !overviewReport.pendingRepairs ? 'text-danger' : '' %>">
-                                <%= overviewReport.pendingRepairs %>
-                            </span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>Tỷ lệ hoàn thành:</span>
-                            <span class="<%= !overviewReport.completionRate ? 'text-danger' : '' %>">
-                                <%= overviewReport.completionRate + '%' %>
-                            </span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-
 	<!-- Card 3: Biểu đồ -->
-	<div class="card mb-3">
+	<div class="card mb-3 border-cyan-700">
 		<div class="card-body">
-			<h5 class="card-title fw-medium text-dark mb-3">Biểu Đồ Thống Kê Theo Ngày</h5>
+			<h5 class="fw-semibold text-cyan-700 mb-3">Biểu Đồ Thống Kê Theo Ngày</h5>
 			<div class="row">
 				<div class="col-md-6">
 					<canvas id="barChart" class="p-3"></canvas>
@@ -79,7 +82,19 @@
 			</div>
 		</div>
 	</div>
+
+	<!-- Footer -->
+	<div class="text-end text-muted small mt-3">
+		Phiên bản hệ thống 1.0 • Cập nhật: --
+	</div>
 </div>
+
+<style>
+	.text-cyan-700 { color: #0e7490 !important; }
+	.bg-cyan-700 { background-color: #0e7490 !important; }
+	.btn-cyan-700 { background-color: #0e7490; border: none; }
+	.btn-cyan-700:hover { background-color: #0c6177; }
+</style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>

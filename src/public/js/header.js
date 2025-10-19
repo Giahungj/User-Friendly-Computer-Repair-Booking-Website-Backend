@@ -12,17 +12,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Hiệu ứng hover cho header
-    const header = document.getElementById('mainHeader');
-    if (header) {
-        header.addEventListener('mouseenter', function() {
-            this.style.backgroundColor = '#f8f9fa';
-        });
-        header.addEventListener('mouseleave', function() {
-            this.style.backgroundColor = '#17a2b8';
-        });
-    }
-
     // Hiệu ứng hover cho thông tin người dùng
     const userInfo = document.getElementById('userInfo');
     if (userInfo) {

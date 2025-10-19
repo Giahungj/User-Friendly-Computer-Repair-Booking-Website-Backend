@@ -119,6 +119,13 @@ $colors: (
         }
     }
 
+// // ==================================== MÀU VIỀN =======================================================
+    @each $color-name, $color-value in $colors {
+        .border-#{$color-name} {
+            border-color: $color-value;
+        }
+    }
+
     body {
         font-family:'Helvetica', 'Open Sans', 'Arial', sans-serif;
     }
@@ -213,4 +220,12 @@ $colors: (
     height: 100%;
     background: rgba(255, 255, 255, 0.2);
     transition: all 0.4s ease;
+}
+
+.workschedule-cardhover {
+  transition: all 0.3s ease-in-out;
+}
+
+.workschedule-card:hover {
+  transform: translateY(-3px);
 }

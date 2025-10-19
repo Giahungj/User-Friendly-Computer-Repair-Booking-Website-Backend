@@ -1,3 +1,4 @@
+import { where } from 'sequelize/lib/sequelize';
 import db from '../../models';
 import { Op } from 'sequelize';
 
@@ -172,8 +173,124 @@ const getBookingsByTechnicianId = async (technicianId) => {
 };
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const getRepairBookingsByStoreId = async ({ date, storeId }) => {
+	try {
+		const { count, rows } = await db.RepairBooking.findAndCountAll({
+			where: { booking_date: date },
+			include: [
+				{
+					model: db.WorkSchedule,
+					include: [
+						{ model: db.Technician, include: [
+							{ model: db.Store, where: { store_id: storeId } }
+						] },
+
+					]
+				}
+			]
+		});
+
+		const totalOrders = count;
+		const processedOrders = rows.filter(b => b.status === 'completed').length;
+		const activeTechnicians = new Set(rows.map(b => b.WorkSchedule?.technician_id)).size;
+		const openStores = 1; // hoặc lấy từ bảng Store nếu có trạng thái mở
+
+		return {
+			EC: 0,
+			EM: 'Lấy thống kê nhanh thành công',
+			DT: {
+				quickStats: {
+					totalOrders,
+					processedOrders,
+					activeTechnicians,
+					openStores
+				}
+			}
+		};
+	} catch (error) {
+		console.error('Lỗi getAllRepairBooking:', error);
+		return { EC: -1, EM: 'Lỗi khi lấy danh sách đơn', DT: [] };
+	}
+};
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const getLateRepairBookings = async ({ date, storeId }) => {
+	try {
+		const today = new Date();
+		const threeDaysAgo = new Date(today);
+		threeDaysAgo.setDate(today.getDate() - 3); 
+
+		// 1. Lấy danh sách kỹ thuật viên thuộc store
+		const technicians = await db.Technician.findAll({
+			where: { store_id: storeId },
+			attributes: ['technician_id']
+		});
+		const technicianIds = technicians.map(t => t.technician_id);
+
+		// 2. Lấy danh sách lịch làm việc của kỹ thuật viên đó
+		const schedules = await db.WorkSchedule.findAll({
+			where: { technician_id: { [Op.in]: technicianIds } },
+			attributes: ['work_schedule_id']
+		});
+		const scheduleIds = schedules.map(s => s.work_schedule_id);
+
+		// 3. Lấy danh sách đơn đặt lịch trễ quá 3 ngày
+		const bookings = await db.RepairBooking.findAll({
+			where: {
+				booking_date: { [Op.lte]: threeDaysAgo },
+				status: { [Op.notIn]: ['completed', 'cancelled'] },
+				work_schedule_id: { [Op.in]: scheduleIds }
+			},
+			include: [
+				{
+					model: db.WorkSchedule,
+					include: [
+						{
+							model: db.Technician,
+							include: [
+								{ model: db.Store },
+								{ model: db.User }
+							]
+						}
+					]
+				},
+				{
+					model: db.Customer,
+					include: [{ model: db.User }]
+				}
+			]
+		});
+
+		const result = bookings.map(b => {
+			const bookingDate = new Date(b.booking_date);
+			const diffDays = Math.floor((today - bookingDate) / (1000 * 60 * 60 * 24));
+
+			return {
+				bookingId: b.booking_id,
+				technicianName: b.WorkSchedule?.Technician?.User?.name || null,
+				customerName: b.Customer?.User?.name || null,
+				status: b.status || null,
+				daysLate: diffDays,
+				bookingDate: b.booking_date
+			};
+		});
+
+		return {
+			EC: 0,
+			EM: 'Lấy danh sách đơn trễ hơn 3 ngày thành công',
+			DT: result
+		};
+	} catch (error) {
+		console.error('Lỗi getLateRepairBookings:', error);
+		return { EC: -1, EM: 'Lỗi khi lấy danh sách đơn trễ', DT: [] };
+	}
+};
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 export default {
     getAllRepairBooking,
 	getRepairBookingById,
-	getBookingsByTechnicianId
+	getBookingsByTechnicianId,
+	getRepairBookingsByStoreId,
+	getLateRepairBookings
 }

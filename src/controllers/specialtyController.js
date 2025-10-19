@@ -7,7 +7,7 @@ const renderSpecialtyListPage = async (req, res) => {
 		const result = await specialtyService.getAllSpecialties(page);
 		if (result.EC === 0) {
 			return res.render('layouts/layout', {
-				page: 'pages/specialtyListPage.ejs',
+				page: 'pages/specialty/specialtyListPage.ejs',
 				pageTitle: 'Danh sách chuyên môn',
 				specialties: result.DT.specialties,
 				totalSpecialties: result.DT.total,
@@ -18,7 +18,7 @@ const renderSpecialtyListPage = async (req, res) => {
 			});
 		} else {
 			return res.render('layouts/layout', {
-				page: 'pages/errorPage.ejs',
+				page: 'pages/misc/errorPage.ejs',
 				pageTitle: 'Lỗi',
 				EM: result.EM,
 				EC: result.EC
@@ -27,7 +27,7 @@ const renderSpecialtyListPage = async (req, res) => {
 	} catch (error) {
 		console.error('Lỗi khi lấy danh sách chuyên môn:', error);
 		return res.render('layouts/layout', {
-			page: 'pages/errorPage.ejs',
+			page: 'pages/misc/errorPage.ejs',
 			pageTitle: 'Lỗi 500',
 			EM: 'Không thể tải danh sách chuyên môn.',
 			EC: -1
@@ -39,13 +39,13 @@ const renderSpecialtyListPage = async (req, res) => {
 const renderAddSpecialtyPage = async (req, res) => {
     try {
         return res.render('layouts/layout', {
-            page: 'pages/addSpecialtyPage.ejs',
+            page: 'pages/specialty/addSpecialtyPage.ejs',
             pageTitle: 'Thêm chuyên môn kỹ thuật viên',
 		});
     } catch (error) {
         console.error("Lỗi khi render trang thêm chuyên môn kỹ thuật viên:", error);
         return res.render('layouts/layout', {
-            page: 'pages/errorPage.ejs',
+            page: 'pages/misc/errorPage.ejs',
             pageTitle: 'Lỗi 500',
             EM: "Không thể tải trang thêm chuyên môn kỹ thuật viên.",
             EC: -1,
@@ -59,7 +59,7 @@ const handleAddSpecialty = async (req, res) => {
 		if (!req.body || Object.keys(req.body).length === 0) {
 			console.warn('⚠️ Không nhận được dữ liệu từ form!');
 			return res.status(400).render('layouts/layout', {
-				page: 'pages/addSpecialtyPage.ejs',
+				page: 'pages/specialty/addSpecialtyPage.ejs',
 				pageTitle: 'Thêm chuyên môn',
 				EM: 'Không nhận được dữ liệu từ form.',
 				EC: -1
@@ -74,7 +74,7 @@ const handleAddSpecialty = async (req, res) => {
 			return res.redirect('/admin/chuyen-mon/danh-sach');
 		} else {
 			return res.status(400).render('layouts/layout', {
-				page: 'pages/addSpecialtyPage.ejs',
+				page: 'pages/specialty/addSpecialtyPage.ejs',
 				pageTitle: 'Thêm chuyên môn',
 				EM: result.EM,
 				EC: result.EC
@@ -83,7 +83,7 @@ const handleAddSpecialty = async (req, res) => {
 	} catch (error) {
 		console.error("Lỗi khi thêm chuyên môn:", error);
 		return res.render('layouts/layout', {
-			page: 'pages/errorPage.ejs',
+			page: 'pages/misc/errorPage.ejs',
 			pageTitle: 'Lỗi 500',
 			EM: "Không thể thêm chuyên môn.",
 			EC: -1
@@ -98,7 +98,7 @@ const renderUpdateSpecialtyPage = async (req, res) => {
 		const result = await specialtyService.getSpecialtyById(specialtyId);
 		if (result.EC === 0) {
 			return res.render('layouts/layout', {
-				page: 'pages/updateSpecialtyPage.ejs',
+				page: 'pages/specialty/updateSpecialtyPage.ejs',
 				pageTitle: 'Cập nhật chuyên môn',
 				specialty: result.DT,
 				EM: result.EM,
@@ -106,7 +106,7 @@ const renderUpdateSpecialtyPage = async (req, res) => {
 			});
 		} else {
 			return res.render('layouts/layout', {
-				page: 'pages/errorPage.ejs',
+				page: 'pages/misc/errorPage.ejs',
 				pageTitle: 'Lỗi',
 				EM: result.EM,
 				EC: result.EC
@@ -115,7 +115,7 @@ const renderUpdateSpecialtyPage = async (req, res) => {
 	} catch (error) {
 		console.error("Lỗi khi thêm chuyên môn:", error);
 		return res.render('layouts/layout', {
-			page: 'pages/errorPage.ejs',
+			page: 'pages/misc/errorPage.ejs',
 			pageTitle: 'Lỗi 500',
 			EM: "Không thể thêm chuyên môn.",
 			EC: -1
@@ -128,7 +128,7 @@ const handleUpdateSpecialty = async (req, res) => {
 	try {
 		if (!req.body || Object.keys(req.body).length === 0) {
 			return res.render('layouts/layout', {
-				page: 'pages/errorPage.ejs',
+				page: 'pages/misc/errorPage.ejs',
 				pageTitle: 'Lỗi 500',
 				EM: "Không thể cập nhật chuyên môn.",
 				EC: -1
@@ -145,7 +145,7 @@ const handleUpdateSpecialty = async (req, res) => {
 			return res.redirect('/admin/chuyen-mon/danh-sach');
 		} else {
 			return res.render('layouts/layout', {
-				page: 'pages/addSpecialtyPage.ejs',
+				page: 'pages/specialty/addSpecialtyPage.ejs',
 				pageTitle: 'Thêm chuyên môn',
 				EM: result.EM,
 				EC: result.EC
@@ -154,7 +154,7 @@ const handleUpdateSpecialty = async (req, res) => {
 	} catch (error) {
 		console.error("Lỗi khi thêm chuyên môn:", error);
 		return res.render('layouts/layout', {
-			page: 'pages/errorPage.ejs',
+			page: 'pages/misc/errorPage.ejs',
 			pageTitle: 'Lỗi 500',
 			EM: "Không thể thêm chuyên môn.",
 			EC: -1
