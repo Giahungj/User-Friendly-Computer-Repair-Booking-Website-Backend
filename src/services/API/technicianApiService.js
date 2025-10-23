@@ -1,8 +1,8 @@
 import db from '../../models';
 import bcrypt from 'bcryptjs';
 import { Op, fn, col } from "sequelize";
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+import checkApiService from "./checkApiService";
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Lấy kỹ thuật viên cơ bản
 async function getTechniciansBase() {
@@ -18,6 +18,7 @@ async function getTechniciansBase() {
 }
 
 // Lấy chuyên môn của kỹ thuật viên
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 async function getTechnicianSpecialties(technicianId) {
 	return await db.Specialty.findAll({
 		include: [{
@@ -31,6 +32,7 @@ async function getTechnicianSpecialties(technicianId) {
 }
 
 // Lấy lịch làm việc hôm nay
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 async function getTodaySchedules(technicianId) {
 	const today = new Date().toISOString().split('T')[0];
 	return await db.WorkSchedule.findAll({
@@ -41,6 +43,7 @@ async function getTodaySchedules(technicianId) {
 }
 
 // Đếm số lịch khám của kỹ thuật viên
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 async function countRepairBookings(technicianId) {
 	return await db.RepairBooking.count({
         include: [{
@@ -51,6 +54,7 @@ async function countRepairBookings(technicianId) {
 }
 
 // Hàm chính lấy danh sách + sắp xếp ưu tiên
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const getAllTechnicians = async () => {
 	const technicians = await getTechniciansBase();
 	if (!technicians || technicians.length === 0) {
@@ -88,8 +92,7 @@ const getAllTechnicians = async () => {
 		DT: { technicians: result },
 	};
 }
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const getTechnicianById = async (technicianId) => {
     try {
@@ -144,8 +147,7 @@ const getTechnicianById = async (technicianId) => {
         };
     }
 };
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const getSimilarTechniciansApiSerrvice = async (technicianId) => {
     try {
@@ -216,17 +218,19 @@ const getSimilarTechniciansApiSerrvice = async (technicianId) => {
         };
     }
 };
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-const getTechnicianSchedulesForStoreManagerApiService = async () => {
+const getTechnicianSchedulesForStoreManagerApiService = async (storeManagerId) => {
     try {
+        console.log("==================================================== storeManagerId ====================================================")
+        console.log("storeManagerId: ", storeManagerId)
         const schedules = await db.WorkSchedule.findAll({
             attributes: ['work_schedule_id', 'work_date', 'current_number', 'max_number', 'shift'],
             include: [
                 {
                     model: db.Technician,
                     attributes: ['technician_id'],
+                    required: true,
                     include: [
                         {
                             model: db.User,
@@ -234,7 +238,9 @@ const getTechnicianSchedulesForStoreManagerApiService = async () => {
                         },
                         {
                             model: db.Store,
-                            attributes: ['store_id', 'store_manager_id'],
+                            where: { store_manager_id: storeManagerId },
+                            attributes: ['store_id', 'store_manager_id', 'name'],
+                            required: true
                         }
                     ]
                 }
@@ -248,6 +254,12 @@ const getTechnicianSchedulesForStoreManagerApiService = async () => {
                 DT: []
             };
         }
+
+        schedules.forEach(s => {
+            const technician = s.Technician;
+            const store = technician?.Store;  // dùng alias mặc định
+            console.log(`Lịch: ${s.work_schedule_id}, KTV: ${technician?.technician_id}, Store: ${store?.store_id} - Manager: ${store?.store_manager_id}`);
+        });
 
         return {
             EM: "Lấy lịch làm việc của kỹ thuật viên thành công",
@@ -263,17 +275,16 @@ const getTechnicianSchedulesForStoreManagerApiService = async () => {
         };
     }
 };
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const getAllTechniciansForStoreManagerApiService = async (storeManagerId) => {
     try {   
-         const technicians = await db.Technician.findAll({
+        const technicians = await db.Technician.findAll({
             attributes: ['technician_id', 'avg_rating', 'createdAt', 'updatedAt'],
             include: [
                 {
                     model: db.User,
-                    attributes: ['name', 'phone', 'email', 'avatar']
+                    attributes: ['name', 'phone', 'email', 'avatar', 'updatedAt']
                 },
                 {
                     model: db.Store,
@@ -282,10 +293,14 @@ const getAllTechniciansForStoreManagerApiService = async (storeManagerId) => {
                 },
                 {
                     model: db.Specialty,
-                    attributes: ['specialty_id', 'name'],
+                    attributes: ['specialty_id', 'name', 'updatedAt'],
                     through: { attributes: [] }
                 }
             ],
+            order: [
+                ['updatedAt', 'DESC'],
+                [db.User, 'updatedAt', 'ASC']
+            ]
         });
 
         if (!technicians || technicians.length === 0) {
@@ -392,8 +407,7 @@ const getAvailableTechniciansForStoreManagerApiService = async (storeManagerId) 
         };
     }
 };
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const createTechnicianForStoreManagerApiService = async ({ storeManagerId, storeId, name, email, phone, password, avatar, specialties }) => {
 	const transaction = await db.sequelize.transaction();
@@ -443,51 +457,174 @@ const createTechnicianForStoreManagerApiService = async ({ storeManagerId, store
 		return { EM: "Không thể tạo kỹ thuật viên", EC: -1, DT: {} };
 	}
 };
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-const updateTechnicianForStoreManagerApiService = async ({ storeManagerId, technicianId, name, email, phone, avatar, specialties }) => {
-	const transaction = await db.sequelize.transaction();
-	try {
-		const technician = await db.Technician.findOne({
-			where: { technician_id: technicianId },
-			include: [{ model: db.User }],
-			transaction
-		});
+const updateTechnicianBasicInfoForStoreManager = async ({storeManagerId, technicianId, payload}) => {
+    try {
+        const isBelong = await checkApiService.checkTechnicianBelongsToManager( storeManagerId, technicianId );
+        if (!isBelong) {
+            return {
+                EC: 1,
+                EM: "Kỹ thuật viên không thuộc quyền quản lý của bạn, không thể chỉnh sửa.",
+                DT: {}
+            };
+        }
 
-		if (!technician) {
-			await transaction.rollback();
-			return { EM: "Không tìm thấy kỹ thuật viên", EC: -1, DT: {} };
-		}
+        const transaction = await db.sequelize.transaction();
+        try {
+            const technician = await db.Technician.findOne({
+                where: { technician_id: technicianId },
+                include: [{ model: db.User }],
+                transaction
+            });
 
-		await technician.User.update(
-			{ name, email, phone, avatar },
-			{ transaction }
-		);
+            if (!technician) {
+                await transaction.rollback();
+                return { EM: "Không tìm thấy kỹ thuật viên", EC: -1, DT: {} };
+            }
 
-		if (Array.isArray(specialties)) {
-			const foundSpecialties = await db.Specialty.findAll({
-				where: { specialty_id: specialties },
-				transaction
-			});
-			await technician.setSpecialties(foundSpecialties, { transaction });
-		}
+            await technician.User.update(
+                { 
+                    name: payload.name,
+                    email: payload.email,
+                    phone: payload.phone
+                },
+                { transaction }
+            );
 
-		await transaction.commit();
 
-		return {
-			EM: `Cập nhật kỹ thuật viên #${technician.technician_id} thành công`,
-			EC: 0,
-			DT: { technician_id: technician.technician_id, user_id: technician.user_id }
-		};
-	} catch (error) {
-		await transaction.rollback();
-		console.error("updateTechnicianForStoreManagerApiService error:", error.message);
-		return { EM: error.message || "Lỗi server", EC: -1, DT: {} };
-	}
+            await technician.changed('updatedAt', true);
+            await technician.update({ updatedAt: new Date() }, { transaction });
+
+            await transaction.commit();
+
+            return {
+                EM: `Cập nhật kỹ thuật viên #${technician.technician_id} thành công`,
+                EC: 0,
+                DT: { technician_id: technician.technician_id, user: technician.User.name }
+            };
+        } catch (error) {
+            await transaction.rollback();
+            console.error("updateTechnicianBasicInfoForStoreManager error:", error.message);
+            return { EM: error.message || "Lỗi server", EC: -1, DT: {} };
+        }
+    } catch (error) {
+        console.error("Lỗi khi kiểm tra quyền quản lý kỹ thuật viên:", error);
+        return { EM: "Lỗi kiểm tra quyền quản lý", EC: -1, DT: {} };
+    }
 };
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const updateTechnicianSpecialtiesForStoreManager = async ({storeManagerId, technicianId, specialties}) => {
+    try {
+        const isBelong = await checkApiService.checkTechnicianBelongsToManager( storeManagerId, technicianId );
+        if (!isBelong) {
+            return {
+                EC: 1,
+                EM: "Kỹ thuật viên không thuộc quyền quản lý của bạn, không thể chỉnh sửa.",
+                DT: {}
+            };
+        }
+
+        const transaction = await db.sequelize.transaction();
+        try {
+            const technician = await db.Technician.findOne({
+                where: { technician_id: technicianId },
+                transaction
+            });
+            if (!technician) {
+                await transaction.rollback();
+                return { EM: "Không tìm thấy kỹ thuật viên", EC: -1, DT: {} };
+            }
+
+            // Xóa toàn bộ chuyên môn cũ
+            await db.TechnicianSpecialty.destroy({
+                where: { technician_id: technicianId },
+                transaction
+            });
+
+            // Thêm lại chuyên môn mới nếu có
+            if (specialties && specialties.length > 0) {
+                const specialtyIds = Array.isArray(specialties) ? specialties : [specialties];
+                const specialtyData = specialtyIds.map(s => ({
+                    technician_id: technician.technician_id,
+                    specialty_id: s.specialty_id || s // hỗ trợ cả object hoặc id
+                }));
+                await db.TechnicianSpecialty.bulkCreate(specialtyData, { transaction });
+            }
+            await technician.changed('updatedAt', true);
+            await technician.update({ updatedAt: new Date() }, { transaction });
+            await transaction.commit();
+
+            return {
+                EM: `Cập nhật chuyên môn cho kỹ thuật viên #${technician.technician_id} thành công`,
+                EC: 0,
+                DT: { technician_id: technician.technician_id, specialties }
+            };
+        } catch (error) {
+            await transaction.rollback();
+            console.error("updateTechnicianBasicInfoForStoreManager error:", error.message);
+            return { EM: error.message || "Lỗi server", EC: -1, DT: {} };
+        }
+    } catch (error) {
+        console.error("Lỗi khi kiểm tra quyền quản lý kỹ thuật viên:", error);
+        return { EM: "Lỗi kiểm tra quyền quản lý", EC: -1, DT: {} };
+    }
+};
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const craeteTechnicianTransferRequestByStoreManager = async ({storeManagerId, technicianId, transferRequestData}) => {
+    try {
+        const isBelong = await checkApiService.checkTechnicianBelongsToManager( storeManagerId, technicianId );
+        if (!isBelong) {
+            return {
+                EC: 1,
+                EM: "Kỹ thuật viên không thuộc quyền quản lý của bạn, không thể chỉnh sửa.",
+                DT: {}
+            };
+        }
+
+        transferRequestData.technician_id = technicianId;
+        transferRequestData.store_manager_id = storeManagerId;
+
+        console.log("+++++++++++++++++++++++++++++++++++ TRANSFER REQUEST +++++++++++++++++++++++++++++++++++")
+        console.log("transferRequestData: ", transferRequestData)
+        
+        const transaction = await db.sequelize.transaction();
+            try {
+                const technician = await db.Technician.findOne({
+                    where: { technician_id: technicianId },
+                    transaction
+                });
+                if (!technician) {
+                    await transaction.rollback();
+                    return { EM: "Không tìm thấy kỹ thuật viên", EC: -1, DT: {} };
+                }
+
+                const newRequest = await db.TransferRequest.create({
+                    ...transferRequestData, // chứa from_store_id, to_store_id, reason, technician_id, store_manager_id
+                    status: "pending"
+                }, { transaction });
+
+                await transaction.commit();
+
+                return {
+                    EM: `Tạo yêu cầu chuyển cửa hàng cho kỹ thuật viên #${technicianId} thành công`,
+                    EC: 0,
+                    DT: newRequest
+                };
+            } catch (error) {
+                await transaction.rollback();
+                console.error("createTechnicianTransferRequestByStoreManager error:", error.message);
+                return { EM: error.message || "Lỗi server", EC: -1, DT: {} };
+            }
+
+    } catch (error) {
+        console.error("Lỗi khi kiểm tra quyền quản lý kỹ thuật viên:", error);
+        return { EM: "Lỗi kiểm tra quyền quản lý", EC: -1, DT: {} };
+    }
+};
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 export default {
     getAllTechnicians,
@@ -498,5 +635,7 @@ export default {
     getAvailableTechniciansForStoreManagerApiService,
     
     createTechnicianForStoreManagerApiService,
-    updateTechnicianForStoreManagerApiService,
+    updateTechnicianBasicInfoForStoreManager,
+    updateTechnicianSpecialtiesForStoreManager,
+    craeteTechnicianTransferRequestByStoreManager,
 }

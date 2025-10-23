@@ -98,7 +98,7 @@ const initWebRoutes = (app) => {
 
 	app.use("/", router);
     
-    app.use('/*', errorController.renderNotFoundPage)
+    // app.use('/*', errorController.renderNotFoundPage)
 };
 
 export default initWebRoutes;

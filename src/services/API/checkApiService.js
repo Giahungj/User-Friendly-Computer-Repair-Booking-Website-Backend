@@ -57,8 +57,39 @@ const checkPassword = (inputPassord, hashPassword) => {
 }
 
 // ---------------------------------------------------------
+const checkTechnicianBelongsToManager = async ( storeManagerId, technicianId ) => {
+    try {
+        if (!storeManagerId || !technicianId) {
+			console.error("❌ Thiếu storeManagerId hoặc technicianId khi gọi checkTechnicianBelongsToManager");
+			return false;
+		}
+        const store = await db.Store.findOne({
+            where: { store_manager_id: storeManagerId },
+            include: [
+                {
+                    model: db.Technician,
+                    where: { technician_id: technicianId }
+                }
+            ],
+        });
+        if (store) {
+            console.log("✅ Technician thuộc quyền quản lý:");
+            console.log(JSON.stringify(store, null, 2));
+        } else {
+            console.log("❌ Không tìm thấy kỹ thuật viên thuộc quyền quản lý này.");
+        }
+
+        return !!store;
+    } catch (error) {
+        console.error("Lỗi khi kiểm tra kỹ thuật viên thuộc quyền quản lý:", error);
+        return false;
+    }
+};
+
+// ---------------------------------------------------------
 export default {
     checkEmail,
     checkPhoneNumber,
-    checkPassword
+    checkPassword,
+    checkTechnicianBelongsToManager
 }

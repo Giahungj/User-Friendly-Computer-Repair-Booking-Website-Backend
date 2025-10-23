@@ -21,7 +21,7 @@
 				</select>
 				<label for="filterBranch">Chi nhánh</label>
 			</div>
-			<button type="submit" class="btn h-100 btn-cyan-700 text-white fw-semibold px-3">Xem</button>
+			<button type="submit" class="btn dashboard-card text-white fw-semibold px-3">Xem</button>
 		</form>
 	</div>
 
@@ -34,7 +34,7 @@
 					<h5 class="fw-semibold text-cyan-700 mb-3">Thống kê nhanh</h5>
 					<div class="row">
 						<div class="col-6 col-md-3 mb-2">
-							<div class="card text-center bg-cyan-700 text-white">
+							<div class="dashboard-card card text-center bg-cyan-700 text-white">
 								<div class="card-body p-2">
 									<div class="fw-bold fs-5"><%= data.quickStats?.totalOrders || 0 %></div>
 									<small>Tổng đơn</small>
@@ -42,7 +42,7 @@
 							</div>
 						</div>
 						<div class="col-6 col-md-3 mb-2">
-							<div class="card text-center bg-cyan-700 text-white">
+							<div class="dashboard-card card text-center bg-cyan-700 text-white">
 								<div class="card-body p-2">
 									<div class="fw-bold fs-5"><%= data.quickStats?.processedOrders || 0 %></div>
 									<small>Đơn xử lý</small>
@@ -50,7 +50,7 @@
 							</div>
 						</div>
 						<div class="col-6 col-md-3 mb-2">
-							<div class="card text-center bg-cyan-700 text-white">
+							<div class="dashboard-card card text-center bg-cyan-700 text-white">
 								<div class="card-body p-2">
 									<div class="fw-bold fs-5"><%= data.quickStats?.activeTechnicians || 0 %></div>
 									<small>KTV hoạt động</small>
@@ -58,7 +58,7 @@
 							</div>
 						</div>
 						<div class="col-6 col-md-3 mb-2">
-							<div class="card text-center bg-cyan-700 text-white">
+							<div class="dashboard-card card text-center bg-cyan-700 text-white">
 								<div class="card-body p-2">
 									<div class="fw-bold fs-5"><%= data.quickStats?.openStores || 0 %></div>
 									<small>Cửa hàng mở</small>
@@ -117,22 +117,22 @@
 					<div class="row g-2">
 						<div class="col-6">
 							<a href="/admin/dat-lich/danh-sach" class="text-decoration-none">
-								<div class="card bg-cyan-700 text-white text-center p-3">Đơn hàng</div>
+								<div class="dashboard-card card bg-cyan-700 text-white text-center p-3">Đơn hàng</div>
 							</a>
 						</div>
 						<div class="col-6">
 							<a href="/admin/ky-thuat-vien/danh-sach" class="text-decoration-none">
-								<div class="card bg-cyan-700 text-white text-center p-3">Kỹ thuật viên</div>
+								<div class="dashboard-card card bg-cyan-700 text-white text-center p-3">Kỹ thuật viên</div>
 							</a>
 						</div>
 						<div class="col-6">
 							<a href="/admin/cua-hang/danh-sach" class="text-decoration-none">
-								<div class="card bg-cyan-700 text-white text-center p-3">Cửa hàng</div>
+								<div class="dashboard-card card bg-cyan-700 text-white text-center p-3">Cửa hàng</div>
 							</a>
 						</div>
 						<div class="col-6">
 							<a href="/reports/overview?fromDate=2025-01-01&toDate=2025-12-31" class="text-decoration-none">
-								<div class="card bg-cyan-700 text-white text-center p-3">Báo cáo</div>
+								<div class="dashboard-card card bg-cyan-700 text-white text-center p-3">Báo cáo</div>
 							</a>
 						</div>
 					</div>
@@ -202,6 +202,11 @@
 							</button>
 						</li>
 						<li class="nav-item" role="presentation">
+							<button class="nav-link border-cyan-700" id="leave-tab" data-bs-toggle="tab" data-bs-target="#request" type="button" role="tab">
+								Yêu cầu
+							</button>
+						</li>
+						<li class="nav-item" role="presentation">
 							<button class="nav-link border-cyan-700" id="leave-tab" data-bs-toggle="tab" data-bs-target="#leave" type="button" role="tab">
 								KTV nghỉ
 							</button>
@@ -265,6 +270,32 @@
 							</ul>
 						</div>
 
+						<!-- Tab: Yêu cầu -->
+						<div class="tab-pane fade" id="request" role="tabpanel">
+							<ul class="list-group list-group-flush">
+								<% if (data?.alerts?.transferRequests?.length) { %>
+									<% data.alerts.transferRequests.forEach(t => { %>
+										<li class="list-group-item d-flex justify-content-between align-items-center">
+											<div class="d-flex justify-content-between align-items-center">
+												<i class="fa-solid fa-file-lines text-cyan-700 me-4"></i>
+												<div>
+													<div><b class="text-cyan-800 text-uppercase">Đổi cửa hàng</b></div>
+													<div><b class="text-cyan-800">Cửa hàng trưởng:</b> <%= t.storeManager.name %></div>
+													<div><b class="text-cyan-800">Kỹ thuật viên:</b> <%= t.technician.name %></div>
+													<div><b class="text-cyan-800">Trạng thái:</b> <%= t.status %></div>
+												</div>
+											</div>
+											<div>
+												<a href="#">đi đến</a>
+											</div>
+										</li>
+									<% }) %>
+								<% } else { %>
+									<li class="list-group-item text-muted fst-italic">Không có kỹ thuật viên nghỉ hôm nay</li>
+								<% } %>
+							</ul>
+						</div>
+
 						<!-- Tab: Lỗi đồng bộ -->
 						<div class="tab-pane fade" id="sync" role="tabpanel" style="max-height: 17.58em; overflow-y: auto;">
 							<ul class="list-group list-group-flush">
@@ -309,17 +340,17 @@
 	}
 
 	/* --- Thẻ truy cập nhanh --- */
-	.card.bg-cyan-700, .btn {
+	.dashboard-card {
 		background-color: #087990 !important;
 		transition: transform 0.2s ease, box-shadow 0.2s ease;
 		cursor: pointer;
 	}
-	.card.bg-cyan-700:hover, .btn:hover {
+	.dashboard-card:hover {
 		transform: translateY(-4px);
 		box-shadow: 0 4px 10px #1f91a8;
 		background-color: #0999b5 !important;
 	}
-	.card.bg-cyan-700:active, .btn:active {
+	.dashboard-card:active {
 		transform: scale(0.9);
 	}
 </style>

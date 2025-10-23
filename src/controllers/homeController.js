@@ -3,6 +3,7 @@ import workScheduleService from '../services/newservices/workScheduleService';
 import technicianService from '../services/newservices/technicianService';
 import storeService from '../services/newservices/storeService';
 import syncService from '../services/newservices/syncService';
+import transferRequestService from '../services/newservices/transferRequestService.js';
 import chartService from "../services/newservices/chartService.js";
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -13,7 +14,7 @@ const getHomePage = async (req, res) => {
         const currentDate = date || new Date().toISOString().split("T")[0];
         const currentStoreId = storeId || 2;
         
-        const [bookings, schedules, technicians, stores, lateOrders, leaveTechnicians, syncErrors, performance ] = await Promise.all([
+        const [bookings, schedules, technicians, stores, lateOrders, leaveTechnicians, syncErrors, performance, transferRequests ] = await Promise.all([
             repairBookingService.getRepairBookingsByStoreId({ date: currentDate, storeId: currentStoreId }),
             workScheduleService.getSchedulesByDateAndStore({ date: currentDate, storeId: currentStoreId }),
             technicianService.getTechnicianRatings({ date: currentDate, storeId: currentStoreId }),
@@ -21,7 +22,8 @@ const getHomePage = async (req, res) => {
             repairBookingService.getLateRepairBookings({ date: currentDate, storeId: currentStoreId }),         
             technicianService.getLeaveTechnicians({ date: currentDate, storeId: currentStoreId }), 
             syncService.getSyncErrors(),
-            chartService.getStoreStatistics({ date: currentDate, storeId: currentStoreId })
+            chartService.getStoreStatistics({ date: currentDate, storeId: currentStoreId }),
+            transferRequestService.transferRequests()
         ]);
         
         const currentStore = stores.DT.find(s => s.storeId === Number(currentStoreId)) || { 
@@ -40,6 +42,7 @@ const getHomePage = async (req, res) => {
             alerts: {
                 lateOrders: lateOrders.DT,
                 technicianLeaves: leaveTechnicians.DT,
+                transferRequests: transferRequests.DT,
                 syncErrors: syncErrors.DT
             }
 		};

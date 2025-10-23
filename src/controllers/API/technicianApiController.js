@@ -82,12 +82,12 @@ const readSimilarTechniciansApiController = async (req, res) => {
         return res.status(500).json({ EC: -1, EM: 'Lỗi server', DT: [] });
     }
 };
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const readTechnicianSchedulesForStoreManagerApiController = async (req, res) => {
     try {
-        const data = await technicianApiService.getTechnicianSchedulesForStoreManagerApiService();
+        const storeManagerId = parseInt(req.params.storeManagerId);
+        const data = await technicianApiService.getTechnicianSchedulesForStoreManagerApiService(storeManagerId);
         if (!data || data.DT.length === 0) {
             return res.status(200).json({
                 EM: "Không tìm thấy lịch làm việc của kỹ thuật viên",
@@ -225,10 +225,77 @@ const handleCreateTechnicianForStoreManagerApiController = async (req, res) => {
 		return res.status(500).json({ EM: error.message || "Lỗi máy chủ", EC: "-1", DT: {} });
 	}
 };
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const handleUpdateTechnicianBasicInfoForStoreManager = async (req, res) => {
+	try {
+		const storeManagerId = parseInt(req.params.storeManagerId);
+		const technicianId  = parseInt(req.params.technicianId);
+
+		if (!storeManagerId || !technicianId) {
+			return res.status(400).json({ EM: "Đây không phải chức năng bạn có thể sử dụng!", EC: -1, DT: {} });
+		}
+
+        const data = await technicianApiService.updateTechnicianBasicInfoForStoreManager({
+            storeManagerId: storeManagerId,
+            technicianId: technicianId,
+            payload: req.body
+        });
+		return res.status(200).json(data);
+	} catch (error) {
+		console.error("updateTechnicianForStoreManager error:", error.message);
+		return res.status(500).json({ EM: error.message || "Lỗi máy chủ", EC: -1, DT: {} });
+	}
+};
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const handleUpdateTechnicianSpecialtiesForStoreManager = async (req, res) => {
+	try {
+		console.log("==== [DEBUG] Update Technician ====");
+		const storeManagerId = parseInt(req.params.storeManagerId);
+		const technicianId  = parseInt(req.params.technicianId);
+
+		if (!storeManagerId || !technicianId) {
+			return res.status(200).json({ EM: "Đây không phải chức năng bạn có thể sử dụng!", EC: -1, DT: {} });
+		}
+
+		console.log("storeManagerId:", storeManagerId);
+        console.log("technicianId:", technicianId);
+        console.log("Body nhận được:", req.body);
+
+        const specialties = req.body?.specialties || [];
+
+        if (specialties.length === 0) {
+            return res.status(200).json({
+                EM: "Danh sách chuyên môn không được để trống.",
+                EC: 1,
+                DT: {}
+            });
+        }
+
+        if (specialties.length > 5) {
+            return res.status(200).json({
+                EM: "Một kỹ thuật viên không thể có quá 5 chuyên môn.",
+                EC: 1,
+                DT: {}
+            });
+        }
+
+		const data = await technicianApiService.updateTechnicianSpecialtiesForStoreManager({
+			storeManagerId: storeManagerId,
+            technicianId: technicianId,
+            specialties: specialties
+		});
+
+		return res.status(200).json(data);
+	} catch (error) {
+		console.error("updateTechnicianForStoreManager error:", error.message);
+		return res.status(500).json({ EM: error.message || "Lỗi máy chủ", EC: -1, DT: {} });
+	}
+};
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-const handleUpdateTechnicianForStoreManagerApiController = async (req, res) => {
+const handleTechnicianTransferRequestByStoreManager = async (req, res) => {
 	try {
 		console.log("==== [DEBUG] Update Technician ====");
 		const storeManagerId = parseInt(req.params.storeManagerId);
@@ -239,27 +306,17 @@ const handleUpdateTechnicianForStoreManagerApiController = async (req, res) => {
 		console.log("Body nhận được:", req.body);
 
 		if (!storeManagerId || !technicianId) {
-			return res.status(400).json({ EM: "Thiếu storeManagerId hoặc technicianId", EC: -1, DT: {} });
+			return res.status(200).json({ EM: "Thiếu storeManagerId hoặc technicianId", EC: -1, DT: {} });
 		}
 
-		// Chuẩn hóa payload từ body
-		const { User, Specialties } = req.body;
-
-		const payload = {
-			name: User?.name || null,
-			email: User?.email || null,
-			phone: User?.phone || null,
-			avatar: User?.avatar || null,
-			specialties: Array.isArray(Specialties) 
-				? Specialties.map(sp => sp.specialty_id) 
-				: []
-		};
-
-		console.log("Payload chuẩn hóa:", payload);
-
-		// TODO: gọi service thực hiện update
-		const data = await technicianApiService.updateTechnicianForStoreManagerApiService({
-			storeManagerId, technicianId, ...payload
+        const transferRequestData = req.body || {};
+		if (!transferRequestData) {
+			return res.status(200).json({ EM: "Không có nội dung của yêu cầu", EC: -1, DT: {} });
+		}
+		const data = await technicianApiService.craeteTechnicianTransferRequestByStoreManager({
+			storeManagerId: storeManagerId,
+            technicianId: technicianId,
+            transferRequestData: transferRequestData
 		});
 
 		return res.status(200).json(data);
@@ -268,8 +325,7 @@ const handleUpdateTechnicianForStoreManagerApiController = async (req, res) => {
 		return res.status(500).json({ EM: error.message || "Lỗi máy chủ", EC: -1, DT: {} });
 	}
 };
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 export default {
     readTechnicians, 
@@ -281,5 +337,7 @@ export default {
     readTechnicianSchedulesForStoreManagerApiController,
 
     handleCreateTechnicianForStoreManagerApiController,
-    handleUpdateTechnicianForStoreManagerApiController,
+    handleUpdateTechnicianBasicInfoForStoreManager,
+    handleUpdateTechnicianSpecialtiesForStoreManager,
+    handleTechnicianTransferRequestByStoreManager,
 }

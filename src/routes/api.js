@@ -14,7 +14,7 @@ import ratingApiController from "../controllers/API/ratingApiController";
 import bookingApiController from "../controllers/API/bookingApiController";
 import technicianBookingApiController from "../controllers/API/technicianBookingApiController";
 import statisticApiController from "../controllers/API/statisticApiController";
-import notificationApiService from "../controllers/API/notificationApiController";
+import notificationApiiController from "../controllers/API/notificationApiController";
 
 const router = express.Router();
 
@@ -33,8 +33,8 @@ const initApiRoutes = (app) => {
 	router.post('/sign-in-phone', loginApiController.signInByPhone);
 
 	// Notification
-	router.get('/notifications/:userId', notificationApiService.readUserNotifications);
-	router.get('/notifications/:notificationId/danh-dau-da-doc', notificationApiService.markAsReadNotifications);
+	router.get('/notifications/:userId', notificationApiiController.readUserNotifications);
+	router.get('/notifications/:notificationId/danh-dau-da-doc', notificationApiiController.markAsReadNotifications);
 
 	// Booking
 	router.get('/dat-lich/tao-lich-moi/:workScheduleId/:userId/lay-du-lieu', bookingApiController.readDataForCreateBookingApiController);
@@ -87,12 +87,16 @@ const initApiRoutes = (app) => {
 	router.post('/sign-in-phone/store-manager', loginApiController.signInByPhoneForStoreManager);
 
 	// Technician Management
-	router.get('/cua-hang-truong/ky-thuat-vien/lich-lam-viec', technicianApiController.readTechnicianSchedulesForStoreManagerApiController);
+	router.get('/cua-hang-truong/:storeManagerId/ky-thuat-vien/lich-lam-viec', technicianApiController.readTechnicianSchedulesForStoreManagerApiController);
 	router.get('/cua-hang-truong/:storeManagerId/ky-thuat-vien/con-trong', technicianApiController.readAvailableTechniciansForStoreManagerApiController);
 	router.get('/cua-hang-truong/:storeManagerId/ky-thuat-vien/doi-lich', technicianApiController.readAvailableTechniciansForStoreManagerApiController);
 	router.get('/cua-hang-truong/:storeManagerId/ky-thuat-vien/danh-sach', technicianApiController.readAllTechniciansForStoreManagerApiController);
 	router.post('/cua-hang-truong/:storeManagerId/ky-thuat-vien/tao-moi', upload.single('avatar'), technicianApiController.handleCreateTechnicianForStoreManagerApiController);
-	router.put('/cua-hang-truong/ky-thuat-vien/:technicianId/cap-nhat', technicianApiController.handleUpdateTechnicianForStoreManagerApiController);
+	router.put('/cua-hang-truong/:storeManagerId/ky-thuat-vien/:technicianId/cap-nhat/thong-tin-co-ban', technicianApiController.handleUpdateTechnicianBasicInfoForStoreManager);
+	router.put('/cua-hang-truong/:storeManagerId/ky-thuat-vien/:technicianId/cap-nhat/thong-tin-chuyen-mon', technicianApiController.handleUpdateTechnicianSpecialtiesForStoreManager);
+	
+	// Transfer Request 
+	router.post('/cua-hang-truong/:storeManagerId/ky-thuat-vien/:technicianId/yeu-cau/doi-cua-hang', technicianApiController.handleTechnicianTransferRequestByStoreManager);
 
 	// Booking Management
 	router.get('/cua-hang-truong/:storeManagerId/don-dat-lich/danh-sach', bookingApiController.readAllBookingForStoreManagerApiController);

@@ -4,9 +4,9 @@ import session from "express-session";
 import path from "path";
 import dotenv from "dotenv";
 import cors from "cors"; 
-import { Server } from "socket.io";
+// import { Server } from "socket.io";
 import http from "http";
-import syncData from "./utils/syncData";
+// import syncData from "./utils/syncData";
 // Import các middleware
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
@@ -59,8 +59,6 @@ const server = http.createServer(app);
 
 // export const getIO = () => io;
 
-// Middleware cấu hình cho Express
-app.use(methodOverride('_method'));
 
 // Cấu hình session
 app.use(session({
@@ -71,14 +69,14 @@ app.use(session({
 
 // Cấu hình CORS
 app.use(cors({
-    origin: "http://localhost:3000", // Cho phép frontend React truy cập
+    origin: ["http://localhost:3000", "http://127.0.0.1:3000"], // Cho phép frontend React truy cập
     methods: "GET, POST, PUT, DELETE",
     credentials: true // Cho phép gửi cookie nếu có
 }));
 
 // Cấu hình flash messages
-app.use(flash());
-app.use(flashMiddleware);
+// app.use(flash());
+// app.use(flashMiddleware);
 
 // Xác định trang đăng nhập
 app.use((req, res, next) => {
@@ -89,7 +87,7 @@ app.use((req, res, next) => {
 // Middleware xử lý body, cookie và method override
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser());
+// app.use(cookieParser());
 app.use(methodOverride('_method'));
 
 // Cấu hình file static (tệp tĩnh)
