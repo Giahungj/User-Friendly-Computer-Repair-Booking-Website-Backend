@@ -2,9 +2,11 @@ import db from '../../models';
 import { Op } from "sequelize"
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-const getAllStore = async (page = 1, searchQuery = '') => {
+const getAllStore = async (page = 1, searchQuery = '', getAll = false) => {
 	try {
-		const offset = (page - 1) * 20;
+		const limit = getAll ? null : 20;
+		const offset = getAll ? null : (page - 1) * 20;
+
 		const whereClause = {};
 		if (searchQuery) {
 			whereClause[Op.or] = [
@@ -13,6 +15,7 @@ const getAllStore = async (page = 1, searchQuery = '') => {
 				{ '$Store.phone$': { [Op.like]: `%${searchQuery}%` } },
 			];
 		}
+
 		const { count, rows } = await db.Store.findAndCountAll({
 			attributes: ['store_id', 'name', 'address', 'phone', 'createdAt'],
 			where: whereClause,
@@ -23,7 +26,7 @@ const getAllStore = async (page = 1, searchQuery = '') => {
 				required: false
 			}],
 			order: [['updatedAt', 'DESC']],
-			limit: 20,
+			limit,
 			offset,
 			raw: true,
 			nest: true
@@ -35,7 +38,7 @@ const getAllStore = async (page = 1, searchQuery = '') => {
 			DT: {
 				stores: rows,
 				total: count,
-				totalPages: Math.ceil(count / 20)
+				totalPages: getAll ? 1 : Math.ceil(count / 20)
 			}
 		};
 	} catch (error) {

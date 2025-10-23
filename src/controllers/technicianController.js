@@ -53,6 +53,9 @@ const renderTechnicianListPage = async (req, res) => {
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const renderChangeStorePage = async (req, res) => {
 	try {
+		const page = 1;
+		const searchQuery = '';
+		const getAll = true
 		const {technicianId} = req.params;
 		if (!technicianId) {
 			return res.status(400).render('layouts/layout', {
@@ -63,7 +66,7 @@ const renderChangeStorePage = async (req, res) => {
 			});
 		}
 		const technicianData = await technicianService.getTechnicianById(technicianId);
-		const storeData = await storeService.getAllStore();
+		const storeData = await storeService.getAllStore(page, searchQuery, getAll);
 
 		if (technicianData.EC === 0 && storeData.EC === 0) {
 			return res.render('layouts/layout', {
