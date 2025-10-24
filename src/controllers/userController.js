@@ -14,7 +14,11 @@ const renderUserListPage = async (req, res) => {
 				totalPages: result.DT.totalPages,
 				searchQuery: searchQuery,
 				EM: result.EM,
-				EC: result.EC
+				EC: result.EC,
+				breadcrumbs: [
+					{ name: 'Trang chủ', url: '/' },
+					{ name: 'Tài khoản', active: true },
+				],
 			});
 		} else {
 			return res.status(400).render('layouts/layout', {
@@ -47,7 +51,12 @@ const renderUserDetailPage = async (req, res) => {
 				pageTitle: 'Chi tiết tài khoản',
 				user: result.DT,
 				EM: result.EM,
-				EC: result.EC
+				EC: result.EC,
+				breadcrumbs: [
+					{ name: 'Trang chủ', url: '/' },
+					{ name: 'Tài khoản', url: '/admin/tai-khoan/danh-sach' },
+					{ name: result.DT.User?.name || `Mã ${user_id}`, url: '' }
+				]
 			});
 		} else {
 			return res.status(404).render('layouts/layout', {

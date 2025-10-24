@@ -23,7 +23,7 @@ const getHomePage = async (req, res) => {
             technicianService.getLeaveTechnicians({ date: currentDate, storeId: currentStoreId }), 
             syncService.getSyncErrors(),
             chartService.getStoreStatistics({ date: currentDate, storeId: currentStoreId }),
-            transferRequestService.transferRequests()
+            transferRequestService.transferRequests({})
         ]);
         
         const currentStore = stores.DT.find(s => s.storeId === Number(currentStoreId)) || { 

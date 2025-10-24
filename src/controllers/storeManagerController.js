@@ -17,7 +17,11 @@ const renderStoreManagerListPage = async (req, res) => {
 				searchQuery: searchQuery,
 				currentPage: page,
 				EM: result.EM,
-				EC: result.EC
+				EC: result.EC,
+				breadcrumbs: [
+					{ name: 'Trang chủ', url: '/' },
+					{ name: 'Cửa  trưởng', active: true },
+				],
 			});
 		} else {
 			return res.status(400).render('layouts/layout', {

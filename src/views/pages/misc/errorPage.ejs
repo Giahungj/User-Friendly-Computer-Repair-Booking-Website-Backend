@@ -1,25 +1,33 @@
 <div class="container py-5">
-	<div class="d-flex flex-column justify-content-center align-items-center text-center">
-		<% if (EC === -1) { %>
-			<div class="mb-3" style="font-size: 4rem; color: #006064;"><span class="material-icons">error</span></div>
-			<h1 class="mb-3" style="color: #006064;">Lỗi hệ thống!</h1>
-		<% } else if (EC === 1) { %>
-			<div class="mb-3" style="font-size: 4rem; color: #006064;"><span class="material-icons">warning</span></div>
-			<h1 class="mb-3" style="color: #006064;">Cảnh báo!</h1>
-		<% } else { %>
-			<div class="mb-3" style="font-size: 4rem; color: #006064;"><span class="material-icons">info</span></div>
-			<h1 class="mb-3" style="color: #006064;">Thông báo!</h1>
-		<% } %>
+	<div class="card p-4 mx-auto animate__animated animate__zoomIn" style="max-width: 500px; border: none; background: linear-gradient(135deg, #ffffff, #c1d2d3);">
+		<div class="d-flex flex-column justify-content-center align-items-center text-center">
+			<% if (EC === -1) { %>
+				<div class="mb-1" style="font-size: 4rem; color: #c62828;">
+					<span class="material-icons fw-bold text-uppercase">error</span>
+				</div>
+			<% } else if (EC === 1) { %>
+				<div class="mb-1" style="font-size: 4rem; color: #ef6c00;">
+					<span class="material-icons fw-bold text-uppercase">warning</span>
+				</div>
+			<% } else { %>
+				<div class="mb-1" style="font-size: 4rem; color: #006064;">
+					<span class="material-icons fw-bold text-uppercase">info</span>
+				</div>
+			<% } %>
 
-		<p class="lead mb-4" style="color: #006064;"><strong>Thông báo:</strong> <%= EM || "Đã có lỗi xảy ra, vui lòng thử lại sau!" %></p>
+			<p class="mb-3" style="color: #006064;"><span class="fw-bold">Thông báo:</span> <%= EM || "Đã có lỗi xảy ra, vui lòng thử lại sau!" %></p>
 
-		<div class="d-flex gap-2">
-            <a href="/" class="btn btn-outline-secondary btn-lg" style="border-color:#006064; color:#006064;">
-                <i class="fas fa-sync-alt"></i> Quay lại trang chủ
-            </a>
-            <a href="javascript:history.back()" class="btn btn-outline-secondary btn-lg" style="border-color:#006064; color:#006064;">
-                <i class="fas fa-arrow-left"></i> Quay lại trang trước
-            </a>
-        </div>
+			<div class="d-flex flex-column flex-sm-row gap-2 w-100">
+				<a href="/" class="btn btn-primary btn-lg" style="background-color: #006064; border: none; flex: 1;">
+					<i class="fas fa-sync-alt"></i> Trang chủ
+				</a>
+				<a href="javascript:history.back()" class="btn btn-outline-light btn-lg" style="border-color: #006064; color: #006064; flex: 1;">
+					<i class="fas fa-arrow-left"></i> Quay lại
+				</a>
+			</div>
+		</div>
 	</div>
 </div>
+<style>
+@import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
+</style>

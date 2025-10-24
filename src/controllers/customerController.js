@@ -16,7 +16,11 @@ const renderCustomerListPage = async (req, res) => {
 				currentPage: page,
 				searchQuery: searchQuery,
 				EM: result.EM,
-				EC: result.EC
+				EC: result.EC,
+				breadcrumbs: [
+					{ name: 'Trang chủ', url: '/' },
+					{ name: 'Khách hàng', active: true },
+				],
 			});
 		} else {
 			return res.status(400).render('layouts/layout', {
@@ -50,7 +54,12 @@ const renderCustomerDetailPage = async (req, res) => {
 				pageTitle: 'Chi tiết khách hàng',
 				customer: result.DT,
 				EM: result.EM,
-				EC: result.EC
+				EC: result.EC,
+				breadcrumbs: [
+					{ name: 'Trang chủ', url: '/' },
+					{ name: 'Khách hàng', url: '/admin/khach-hang/danh-sach' },
+					{ name: result.DT.User?.name || `Mã ${customer_id}`, url: '' }
+				]
 			});
 		} else {
 			return res.status(404).render('layouts/layout', {

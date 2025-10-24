@@ -1,0 +1,90 @@
+<%
+	const selectedFilters = {
+		status: filters?.status || '',
+		technicianId: filters?.technicianId || '',
+		storeManagerId: filters?.storeManagerId || '',
+		fromDate: filters?.fromDate || '',
+		toDate: filters?.toDate || ''
+	};
+	const uniqueTechs = [];
+	const techIds = new Set();
+	transferRequests.forEach(t => {
+		if (!techIds.has(t.technician.id)) {
+		techIds.add(t.technician.id);
+		uniqueTechs.push(t.technician);
+		}
+	});
+
+	const uniqueManagers = [];
+	const managerIds = new Set();
+	transferRequests.forEach(t => {
+		if (!managerIds.has(t.storeManager.id)) {
+		managerIds.add(t.storeManager.id);
+		uniqueManagers.push(t.storeManager);
+		}
+	});
+%>
+
+<!-- Nút mở bộ lọc -->
+<button class="btn btn-secondary border-0 bg-cyan-700 text-white shadow-sm mb-3" type="button" data-bs-toggle="collapse"
+	data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse"
+>
+	<i class="fa-solid fa-filter"></i> Bộ lọc nâng cao
+</button>
+
+<!-- Nội dung collapse -->
+<div class="collapse" id="filterCollapse">
+	<div class="card mb-3 border-cyan-700 shadow-sm">
+		<div class="card-body">
+			<form method="GET" action="/admin/don-yeu-cau/danh-sach">
+				<div class="row g-2 align-items-center">
+
+					<div class="col">
+						<select name="status" class="form-select ">
+							<option value="">-- Trạng thái yêu cầu --</option>
+							<option value="pending" <%= selectedFilters.status === 'pending' ? 'selected' : '' %>>Đang chờ duyệt</option>
+							<option value="approved" <%= selectedFilters.status === 'approved' ? 'selected' : '' %>>Đã duyệt</option>
+							<option value="rejected" <%= selectedFilters.status === 'rejected' ? 'selected' : '' %>>Từ chối</option>
+						</select>
+					</div>
+
+					<div class="col">
+					<select name="technicianId" class="form-select">
+						<option value="">-- Kỹ thuật viên --</option>
+						<% uniqueTechs.forEach(tech => { %>
+							<option value="<%= tech.id %>" <%= selectedFilters.technicianId == tech.id ? 'selected' : '' %>>
+								<%= tech.name %>
+							</option>
+						<% }) %>
+					</select>
+					</div>
+
+					<div class="col">
+					<select name="storeManagerId" class="form-select">
+						<option value="">-- Cửa hàng trưởng --</option>
+						<% uniqueManagers.forEach(mgr => { %>
+							<option value="<%= mgr.id %>" <%= selectedFilters.storeManagerId == mgr.id ? 'selected' : '' %>>
+								<%= mgr.name %>
+							</option>
+						<% }) %>
+					</select>
+					</div>
+
+					<div class="col">
+						<input type="date" name="fromDate" class="form-control " value="<%= selectedFilters.fromDate %>">
+					</div>
+
+					<div class="col">
+						<input type="date" name="toDate" class="form-control " value="<%= selectedFilters.toDate %>">
+					</div>
+
+					<div class="col-2">
+						<button class="btn btn-secondary border-0 bg-cyan-700 text-white shadow-sm w-100" type="submit">
+							<i class="fa-solid fa-magnifying-glass"></i> Lọc
+						</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

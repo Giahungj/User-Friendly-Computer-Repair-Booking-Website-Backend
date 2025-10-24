@@ -13,16 +13,12 @@
 
    <!-- Tiêu đề trang -->
     <div class="d-flex justify-content-between align-items-center">
-        <h1 class="mb-4 text-cyan-700">Danh sách đơn đặt lịch</h1>
+        <h1 class="mb-4 text-cyan-700 text-uppercase">Danh sách đơn đặt lịch</h1>
     </div>
 
     <!-- Card: Tìm kiếm và bộ lọc -->
-    <div class="card mb-3 border-cyan-700">
-        <div class="card-body">
-            <%- include('../../partials/search/searchRepairBooking') %>
-            <%- include('../../partials/filters/filterRepairBookingForm') %>
-        </div>
-    </div>
+    <%- include('../../partials/search/searchRepairBooking') %>
+    <%- include('../../partials/filters/filterRepairBookingForm') %>
 
     <!-- Card: Bảng danh sách -->
     <div class="card border-cyan-700">

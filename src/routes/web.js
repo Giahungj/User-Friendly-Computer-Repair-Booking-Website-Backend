@@ -10,6 +10,7 @@ import storeManagerController from '../controllers/storeManagerController';
 import specialtyController from '../controllers/specialtyController.js';
 import workScheduleController from '../controllers/workScheduleController.js';
 import repairBookingController from '../controllers/repairBookingController';
+import transferRequestController from '../controllers/transferRequestController.js';
 import userController from '../controllers/userController';
 import storeController from '../controllers/storeController.js';
 import reportsController from '../controllers/reportsController.js';
@@ -31,23 +32,28 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 const initWebRoutes = (app) => {
-   // Trang chủ
+   // Trang chủ =======================================================================================================================
     router.get('/', homeController.getHomePage);
     router.get('/overview', homeController.getBookingStats);
     router.get('/bookings/statistics', homeController.getBookingStats);
     router.get('/customers/statistics', homeController.getCustomerStats);
     
-    // Thống kê
+    // Thống kê =======================================================================================================================
     router.post('/reports/export', homeController.exportReport);
     router.get('/reports/performance', reportsController.getPerformanceReport)
     router.get("/reports/performance/export", reportsController.exportPerformanceReport);
     router.get("/reports/overview", reportsController.getOverviewReport);
 
-	// 📅 Đặt lịch
+    // Đơn yêu cầu =======================================================================================================================
+	router.get("/admin/don-yeu-cau/danh-sach", transferRequestController.renderTransferRequestListPage);
+	router.get("/admin/don-yeu-cau/:transferRequestId/chi-tiet", transferRequestController.renderTransferRequestDetailPage);
+	router.post("/admin/don-yeu-cau/:transferRequestId/phan-hoi", transferRequestController.handleTransferRequestUpdate);
+
+	// Đặt lịch =======================================================================================================================
 	router.get("/admin/dat-lich/danh-sach", repairBookingController.renderRepairBookingListPage);
 	router.get("/admin/dat-lich/:id/chi-tiet", repairBookingController.renderRepairBookingDetailPage);
 
-    // 🧑‍💼 Cửa hàng trưởng
+    // Cửa hàng trưởng =======================================================================================================================
     router.get("/admin/cua-hang-truong/danh-sach", storeManagerController.renderStoreManagerListPage);
     router.get("/admin/cua-hang-truong/them-moi", storeManagerController.renderAddStoreManagerPage);
     router.post("/admin/cua-hang-truong/them-moi", upload.single('avatar'), storeManagerController.handleAddStoreManager);
@@ -55,7 +61,7 @@ const initWebRoutes = (app) => {
     router.get("/admin/cua-hang-truong/:storeManagerId/cap-nhat", storeManagerController.renderEditStoreManagerPage);
     router.post("/admin/cua-hang-truong/:user_id/cap-nhat", upload.single('avatar'),storeManagerController.handleEditStoreManagerPage);
 
-	// 👨‍🔧 Kỹ thuật viên
+	// Kỹ thuật viên =======================================================================================================================
     router.get("/admin/ky-thuat-vien/them-moi", technicianController.renderAddTechnicianPage);
     router.post("/admin/ky-thuat-vien/them-moi", upload.single('avatar'), technicianController.handleAddTechnician);
 	router.get("/admin/ky-thuat-vien/danh-sach", technicianController.renderTechnicianListPage);
@@ -64,18 +70,18 @@ const initWebRoutes = (app) => {
 	router.post("/admin/ky-thuat-vien/:technicianId/doi-cua-hang", technicianController.handleChangeStorePage);
     router.get("/admin/ky-thuat-vien", technicianController.renderTechnicianListByQuery);
    
-	// 👤 Khách hàng
+	// Khách hàng =======================================================================================================================
 	router.get("/admin/khach-hang/danh-sach", customerController.renderCustomerListPage);
 	router.get("/admin/khach-hang/:id/chi-tiet", customerController.renderCustomerDetailPage);
 
-    // 👨‍💼 Tài khoản
+    // Tài khoản =======================================================================================================================
     router.get("/admin/tai-khoan/danh-sach", userController.renderUserListPage);
     router.get("/admin/tai-khoan/:id/chi-tiet", userController.renderUserDetailPage);
 
-    // 👨‍💼 Lịch làm việc
+    // Lịch làm việc
     router.get("/admin/lich-lam-viec/danh-sach", workScheduleController.renderWorkSchedulePage);
 
-    // 🏪 Cửa hàng
+    // Cửa hàng =======================================================================================================================
     router.get("/admin/cua-hang/danh-sach", storeController.renderStoreListPage);
     router.get("/admin/cua-hang/them-moi", storeController.renderAddStorePage);
     router.post("/admin/cua-hang/them-moi", upload.single('image'), storeController.handleAddStore);
@@ -83,13 +89,12 @@ const initWebRoutes = (app) => {
     router.get("/admin/cua-hang/:storeId/cap-nhat", storeController.renderStoreUpdatePage);
     router.post("/admin/cua-hang/:storeId/cap-nhat", upload.single('store_image'), storeController.handleUpdateStore);
     
-    // 📚 Chuyên môn
+    // Chuyên môn =======================================================================================================================
     router.get("/admin/chuyen-mon/danh-sach", specialtyController.renderSpecialtyListPage);
     router.get("/admin/chuyen-mon/them-moi", specialtyController.renderAddSpecialtyPage);
     router.get("/admin/chuyen-mon/:specialtyId/cap-nhat", specialtyController.renderUpdateSpecialtyPage);
     router.post("/admin/chuyen-mon/:specialtyId/cap-nhat", upload.single('image'), specialtyController.handleUpdateSpecialty);
     router.post("/admin/chuyen-mon/them-moi", upload.single('image'), specialtyController.handleAddSpecialty);
-    
    
     // Admin routes
     router.get('/admin-login', AuthAdminController.getAdminLoginPage)

@@ -1,14 +1,19 @@
 <div class="container py-5">
+    <!-- Breadcrumb (có thể tái sử dụng) -->
+    <% if (typeof breadcrumbs !== 'undefined' && breadcrumbs.length) { %>
+        <%- include('../../partials/common/breadcrumb', { breadcrumbs }) %>
+    <% } %>
+
     <!-- Card 1: Tiêu đề -->
       <div class="d-flex justify-content-between align-items-center">
-        <h1 class="mb-4 text-cyan-700">Danh Sách Chuyên Môn</h1>
+        <h1 class="mb-4 text-cyan-700 text-uppercase">Danh Sách Chuyên Môn</h1>
         <a href="/admin/chuyen-mon/them-moi" class="btn btn-outline-secondary bg-cyan-700 text-white">
             <i class="fa-solid fa-plus me-1"></i> Thêm chuyên môn
         </a>
     </div>
 
     <!-- Card 2: Table -->
-    <div class="card mb-3">
+    <div class="card border-cyan-700">
         <div class="card-body">
             <% if (EC === 0 && specialties.length > 0) { %>
                 <table class="table table-hover align-middle text-center">

@@ -14,7 +14,11 @@ const renderSpecialtyListPage = async (req, res) => {
 				currentPage: page,
 				totalPages: result.DT.totalPages,
 				EM: result.EM,
-				EC: result.EC
+				EC: result.EC,
+				breadcrumbs: [
+					{ name: 'Trang chủ', url: '/' },
+					{ name: 'Chuyên môn', active: true },
+				],
 			});
 		} else {
 			return res.render('layouts/layout', {
@@ -102,7 +106,13 @@ const renderUpdateSpecialtyPage = async (req, res) => {
 				pageTitle: 'Cập nhật chuyên môn',
 				specialty: result.DT,
 				EM: result.EM,
-				EC: result.EC
+				EC: result.EC,
+				breadcrumbs: [
+					{ name: 'Trang chủ', url: '/' },
+					{ name: 'Chuyên môn', url: '/admin/chuyen-mon/danh-sach'  },
+					{ name: result.DT.name || ``, url: '' },
+					{ name: 'Cập nhật', url: '', active: true }
+				],
 			});
 		} else {
 			return res.render('layouts/layout', {

@@ -1,0 +1,90 @@
+<%
+    function highlight(text, keyword) {
+        if (!keyword) return text;
+        const regex = new RegExp(`(${keyword})`, 'gi');
+        return text.replace(regex, '<strong class="text-danger">$1</strong>');
+    }
+
+    function formatStatus(status) {
+        switch(status) {
+            case 'pending':
+                return { text: 'Đang chờ xử lý', class: 'bg-warning text-white' };
+            case 'approved':
+                return { text: 'Đã xử lý', class: 'bg-success text-white' };
+            default:
+                return { text: status || '-', class: 'bg-danger text-white' };
+        }
+    };
+%>
+
+<div class="container py-5">
+    <!-- Breadcrumb (có thể tái sử dụng) -->
+    <% if (typeof breadcrumbs !== 'undefined' && breadcrumbs.length) { %>
+        <%- include('../../partials/common/breadcrumb', { breadcrumbs }) %>
+    <% } %>
+
+    <!-- Tiêu đề trang -->
+    <div class="d-flex justify-content-between align-items-center">
+        <h1 class="mb-4 text-cyan-700 text-uppercase">Danh sách đơn yêu cầu</h1>
+    </div>
+
+    <!-- Card: Tìm kiếm và bộ lọc -->
+    <%- include('../../partials/search/searchTransferRequest') %>
+    <%- include('../../partials/filters/filterTransferRequestForm') %>
+
+    <!-- Card: Bảng danh sách -->
+    <div class="card border-cyan-700">
+        <div class="card-body">
+            <% if (Array.isArray(transferRequests) && transferRequests.length > 0) { %>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light text-center">
+                            <tr>
+                                <th>#</th>
+                                <th>Cửa hàng trưởng</th>
+                                <th>Kỹ thuật viên</th>
+                                <th>Trạng thái</th>
+                                <th>Chuyển</th>
+                                <th>Lý do</th>
+                                <th>Thời gian</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% transferRequests.forEach((item, index) => { %>
+                                <tr>
+                                    <td class="text-center"><%= (currentPage - 1) * 20 + index + 1 %></td>
+                                    <td><%= item.storeManager?.name %></td>
+                                    <td><%= item.technician?.name %></td>
+                                    <td class="<%= formatStatus(item.status).class %>">
+                                        <%- highlight(formatStatus(item.status).text, searchQuery) %>
+                                    </td>
+                                    <td>
+                                        Từ: <%= item.fromStore?.name %><br>
+                                        Đến: <%= item.toStore?.name %>
+                                    </td>
+                                    <td><%- highlight(item.reason || '', searchQuery) %></td>
+                                    <td><%= new Date(item.createdAt).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }) %></td>
+                                    <td class="text-center">
+                                        <a href="/admin/don-yeu-cau/<%= item.transferRequestId %>/chi-tiet" class="btn btn-sm btn-outline-primary" title="Xem">Xem</a>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <div class="alert alert-info mb-0">Không có đơn yêu cầu nào</div>
+            <% } %>
+
+            <!-- Phân trang -->
+            <% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>
+                <%- include('../../partials/common/pagination', {
+                    currentPage: currentPage,
+                    totalPages: totalPages,
+                    baseUrl: '/admin/don-yeu-cau/danh-sach'
+                }) %>
+            <% } %>
+        </div>
+    </div>
+</div>

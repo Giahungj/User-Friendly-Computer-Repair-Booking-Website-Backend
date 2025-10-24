@@ -23,6 +23,10 @@ const renderRepairBookingListPage = async (req, res) => {
 				totalPages: result.DT.totalPages,
 				searchQuery: searchQuery,
 				filters,
+				breadcrumbs: [
+					{ name: 'Trang chủ', url: '/' },
+					{ name: 'Đơn đặt lịch', active: true },
+				],
 				currentPage: page,
 				EM: result.EM,
 				EC: result.EC
