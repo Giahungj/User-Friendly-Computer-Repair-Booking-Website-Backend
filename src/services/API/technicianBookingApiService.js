@@ -123,10 +123,11 @@ const technicianWorkScheduleDetail = async (scheduleId) => {
 const technicianRatings = async (technicianId) => {
 	try {
 		const ratings = await db.Rating.findAll({
+			attributes: ['rating_id', 'rating', 'comment', 'images', 'createdAt', 'updatedAt'],
 			include: [
 				{ model: db.Customer, include: [{ model: db.User }] },
 				{
-					model: db.Technician,   // lưu ý spelling đúng: Technician
+					model: db.Technician,
 					where: { technician_id: technicianId },
 				},
 			]

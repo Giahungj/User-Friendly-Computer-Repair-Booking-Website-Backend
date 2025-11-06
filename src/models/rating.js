@@ -6,6 +6,8 @@ module.exports = (sequelize, DataTypes) => {
         static associate(models) {
             Rating.belongsTo(models.Customer, { foreignKey: 'customer_id' });
             Rating.belongsTo(models.Technician, { foreignKey: 'technician_id' });
+            Rating.belongsTo(models.RepairBooking, { foreignKey: 'booking_id' });
+            Rating.hasMany(models.Reply, { foreignKey: 'rating_id' });
         }
     }
 
@@ -22,6 +24,10 @@ module.exports = (sequelize, DataTypes) => {
         customer_id: {
             type: DataTypes.INTEGER,
             allowNull: false
+        },
+        booking_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
         },
         rating: {
             type: DataTypes.DECIMAL(3, 1),

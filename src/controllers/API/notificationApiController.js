@@ -20,9 +20,9 @@ const readUserNotifications = async (req, res) => {
 // --------------------------------------------------
 const markAsReadNotifications = async (req, res) => {
     try {
-        const { notificationId } = req.params
-        if (!notificationId) { return res.json({EM: "Không tìm thấy dữ liệu!", EC: 1, DT: [] })};
-        await notificationApiService.markAsReadNotificationsByNotificationId(notificationId);
+        const { userId } = req.params
+        if (!userId) { return res.json({EM: "Không tìm thấy dữ liệu!", EC: 1, DT: [] })};
+        await notificationApiService.markAsReadNotificationsByUserId(userId);
     } catch (error) {
         return res.status(500).json({
             EM: "Something went wrong on the server!",

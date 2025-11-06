@@ -207,42 +207,42 @@ const updateTransferRequest = async ({ storeManagerId, technicianId, transferReq
 
 		await transaction.commit();
 
-		// console.log("=> Lấy user_id của StoreManager và Technician");
-		// const [storeManagerUser, technicianUser] = await Promise.all([
-		// 	db.StoreManager.findOne({
-		// 		where: { store_manager_id: storeManagerId },
-		// 		attributes: ['user_id'],
-		// 	}),
-		// 	db.Technician.findOne({
-		// 		where: { technician_id: technicianId },
-		// 		attributes: ['user_id'],
-		// 	})
-		// ]);
+		console.log("=> Lấy user_id của StoreManager và Technician");
+		const [storeManagerUser, technicianUser] = await Promise.all([
+			db.StoreManager.findOne({
+				where: { store_manager_id: storeManagerId },
+				attributes: ['user_id'],
+			}),
+			db.Technician.findOne({
+				where: { technician_id: technicianId },
+				attributes: ['user_id'],
+			})
+		]);
 
-		// if (!storeManagerUser || !technicianUser) {
-		// 	console.log("=> Không tìm thấy user_id tương ứng");
-		// 	await transaction.rollback();
-		// 	return { EC: 3, EM: 'Không tìm thấy user_id tương ứng', DT: null };
-		// }
+		if (!storeManagerUser || !technicianUser) {
+			console.log("=> Không tìm thấy user_id tương ứng");
+			await transaction.rollback();
+			return { EC: 3, EM: 'Không tìm thấy user_id tương ứng', DT: null };
+		}
 
-		// const storeManagerUserId = storeManagerUser.user_id;
-		// const technicianUserId = technicianUser.user_id;
-		// console.log("=> storeManagerUserId:", storeManagerUserId, "technicianUserId:", technicianUserId);
+		const storeManagerUserId = storeManagerUser.user_id;
+		const technicianUserId = technicianUser.user_id;
+		console.log("=> storeManagerUserId:", storeManagerUserId, "technicianUserId:", technicianUserId);
 
-		// console.log("=> Gửi thông báo đến storeManager và technician");
-		// await notificationApiService.createNotification(
-		// 	storeManagerUserId,
-		// 	'Đơn yêu cầu của bạn đã được xử lý! Vui lòng kiểm tra',
-		// 	'',
-		// 	transaction
-		// );
+		console.log("=> Gửi thông báo đến storeManager và technician");
+		await notificationApiService.createNotification(
+			storeManagerUserId,
+			'Đơn yêu cầu của bạn đã được xử lý! Vui lòng kiểm tra',
+			'/cua-hang-truong/don-yeu-cau/danh-sach',
+			transaction
+		);
 
-		// await notificationApiService.createNotification(
-		// 	technicianUserId,
-		// 	'Bạn vừa được quản trị viên xử lý chuyển cửa hàng làm việc! Vui lòng kiểm tra',
-		// 	'',
-		// 	transaction
-		// );
+		await notificationApiService.createNotification(
+			technicianUserId,
+			'Bạn vừa được quản trị viên xử lý chuyển cửa hàng làm việc! Vui lòng kiểm tra',
+			'',
+			transaction
+		);
 
 		const transfer = await transferRequest(transferRequestId);
 
@@ -259,5 +259,5 @@ const updateTransferRequest = async ({ storeManagerId, technicianId, transferReq
 export default {
     transferRequests,
 	transferRequest,
-	updateTransferRequest
+	updateTransferRequest,
 }

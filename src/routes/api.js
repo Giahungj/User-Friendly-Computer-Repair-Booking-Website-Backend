@@ -7,6 +7,7 @@ import forgotPasswordApiController from "../controllers/API/forgotPasswordApiCon
 import registerApiController from "../controllers/API/registerApiController";
 import accountApiController from "../controllers/API/accountApiController";
 import technicianApiController from "../controllers/API/technicianApiController";
+import transferRequestApiController from "../controllers/API/transferRequestApiController";
 import specialtyApiController from "../controllers/API/specialtyApiController";
 import storeApiController from "../controllers/API/storeApiController";
 import workScheduleApiController from "../controllers/API/workScheduleApiController";
@@ -34,7 +35,7 @@ const initApiRoutes = (app) => {
 
 	// Notification
 	router.get('/notifications/:userId', notificationApiiController.readUserNotifications);
-	router.get('/notifications/:notificationId/danh-dau-da-doc', notificationApiiController.markAsReadNotifications);
+	router.get('/thong-bao/nguoi-dung/:userId/danh-dau-da-doc', notificationApiiController.markAsReadNotifications);
 
 	// Booking
 	router.get('/dat-lich/tao-lich-moi/:workScheduleId/:userId/lay-du-lieu', bookingApiController.readDataForCreateBookingApiController);
@@ -55,8 +56,12 @@ const initApiRoutes = (app) => {
 	router.get('/ky-thuat-vien/danh-sach', technicianApiController.readTechnicians);
 	router.get('/ky-thuat-vien/:id/thong-tin/chi-tiet', technicianApiController.readTechnicianDetail);
 	router.get('/ky-thuat-vien/:id/thong-tin/lich-lam-viec', workScheduleApiController.readWorkScheduleByTechnician);
-	router.get('/ky-thuat-vien/:id/thong-tin/danh-gia', ratingApiController.readTechnicianRatingsApiController);
+	router.get('/ky-thuat-vien/:id/thong-tin/danh-gia', ratingApiController.readTechnicianRatings);
 	router.get('/ky-thuat-vien/:technicianId/thong-tin/ky-thuat-vien-tuong-tu', technicianApiController.readSimilarTechniciansApiController);
+
+	// Rating
+	router.get('/danh-gia/:reviewId', ratingApiController.readRating);
+	router.post('/danh-gia/tao-moi', upload.array("images", 10), ratingApiController.handleCraeteNewRating);
 
 	// =========================
 	// KỸ THUẬT VIÊN
@@ -77,7 +82,7 @@ const initApiRoutes = (app) => {
 	router.get('/hoso/:technicianId', technicianBookingApiController.getTechnicianProfile);
 
 	// Rating
-	router.get('/danhgia/:technicianId', technicianBookingApiController.getTechnicianRatings);
+	router.get('/danh-gia/ky-thuat-vien/:technicianId', technicianBookingApiController.getTechnicianRatings);
 
 	// =========================
 	// CỬA HÀNG TRƯỞNG
@@ -96,6 +101,7 @@ const initApiRoutes = (app) => {
 	router.put('/cua-hang-truong/:storeManagerId/ky-thuat-vien/:technicianId/cap-nhat/thong-tin-chuyen-mon', technicianApiController.handleUpdateTechnicianSpecialtiesForStoreManager);
 	
 	// Transfer Request 
+	router.get('/cua-hang-truong/:storeManagerId/yeu-cau/danh-sach', transferRequestApiController.readTransferRequestsByStoreManager);
 	router.post('/cua-hang-truong/:storeManagerId/ky-thuat-vien/:technicianId/yeu-cau/doi-cua-hang', technicianApiController.handleTechnicianTransferRequestByStoreManager);
 
 	// Booking Management
@@ -107,11 +113,13 @@ const initApiRoutes = (app) => {
 	// Work Schedule Management
 	router.post('/cua-hang-truong/lich-lam-viec/tao-moi', workScheduleApiController.handleCreateWorkScheduleForStoreManagerApiController);
 
+	// Rating
+	router.get('/cua-hang-truong/:storeManagerId/danh-gia/danh-sach', ratingApiController.readRatingsForStoreManager);
+
 	// Statistics
 	router.get('/cua-hang-truong/:storeManagerId/thong-ke/so-lieu/tong-quat', statisticApiController.getBookingSummary);
 	router.get('/cua-hang-truong/:storeManagerId/thong-ke/danh-sach/lich-hen', statisticApiController.getBookingList);
 	router.get('/cua-hang-truong/:storeManagerId/thong-ke/bieu-do/duong', statisticApiController.getBookingsTrendData);
-
 
 	// =========================
 	// TÀI KHOẢN

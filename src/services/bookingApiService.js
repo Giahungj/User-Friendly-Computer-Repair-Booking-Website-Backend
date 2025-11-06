@@ -262,49 +262,56 @@ const updateBookingApiService = async ({ bookingId, issueDescription, issueImage
 };
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const getBookingByIdApiService = async (bookingId) => {
-    try {
-        const fullBooking = await db.RepairBooking.findOne({
-		where: { booking_id: bookingId },
-		attributes: [
-			'booking_id', 'issue_description', 'device_type', 'model', 'brand',
-			'issue_image', 'booking_date', 'booking_time', 'status'
-		],
-		include: [
-			{
-				model: db.WorkSchedule,
-				attributes: ['work_schedule_id', 'work_date', 'shift', 'max_number', 'current_number'],
-				include: [{
-					model: db.Technician,
-					attributes: ['technician_id'],
+	try {
+		const fullBooking = await db.RepairBooking.findOne({
+			where: { booking_id: bookingId },
+			attributes: [
+				'booking_id', 'issue_description', 'device_type', 'model', 'brand',
+				'issue_image', 'booking_date', 'booking_time', 'status'
+			],
+			include: [
+				{
+					model: db.WorkSchedule,
+					attributes: ['work_schedule_id', 'work_date', 'shift', 'max_number', 'current_number'],
+					include: [{
+						model: db.Technician,
+						attributes: ['technician_id'],
+						include: [
+							{ model: db.Store, attributes: ['store_id', 'name', 'address', 'store_image'] },
+							{ model: db.User, attributes: ['user_id', 'name', 'email', 'phone', 'avatar'] }
+						]
+					}]
+				},
+				{
+					model: db.Customer,
+					attributes: ['customer_id'],
 					include: [
-						{ model: db.Store, attributes: ['store_id', 'name', 'address', 'store_image'] },
-						{ model: db.User, attributes: ['user_id', 'name', 'email', 'phone', 'avatar'] }
+						{ model: db.User, attributes: ['user_id', 'name', 'email', 'phone'] }
 					]
-				}]
-			},
-			{
-				model: db.Customer,
-				attributes: ['customer_id'],
-				include: [
-					{ model: db.User, attributes: ['user_id', 'name', 'email', 'phone'] }
-				]
-			},
-			{
-				model: db.RepairHistory,
-				attributes: ['history_id', 'notes', 'action_date', 'createdAt', 'status'],
-				order: [['action_date', 'DESC']]
-			}
-		]
-	});
+				},
+				{
+					model: db.RepairHistory,
+					attributes: ['history_id', 'notes', 'action_date', 'createdAt', 'status'],
+					order: [['action_date', 'DESC']]
+				},
+				{
+					model: db.Rating, 
+					attributes: ['rating_id', 'technician_id', 'customer_id', 'booking_id', 'rating', 'comment', 'images']
+				}
+			]
+		});
 
-	return fullBooking
-		? { EC: 0, EM: "Lấy thông tin lịch hẹn thành công", DT: fullBooking }
-		: { EC: 1, EM: "Không tìm thấy lịch hẹn", DT: {} };
-    } catch (error) {
-        console.error("getBookingByIdApiService error:", error);
-        return { EC: -1, EM: "Lỗi truy vấn", DT: {} };
-    }
+		if (!fullBooking) {
+			return { EC: 1, EM: "Không tìm thấy lịch hẹn", DT: {} };
+		}
+
+		return { EC: 0, EM: "Lấy thông tin lịch hẹn thành công", DT: fullBooking };
+	} catch (error) {
+		console.error('getBookingByIdApiService error:', error);
+		return { EC: -1, EM: "Lỗi server", DT: {} };
+	}
 };
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const getCustomerBookingsApiService = async (userId) => {
     try {

@@ -24,14 +24,14 @@ const getUserNotificationsByUserId = async (userId) => {
 };
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-const markAsReadNotificationsByNotificationId = async (notificationId) => {
+const markAsReadNotificationsByUserId = async (userId) => {
     try {
         await db.Notification.update(
             { is_read: 1 },
-            { where: { notification_id: notificationId } }
+            { where: { user_id: userId } }
         );
     } catch (error) {
-        console.error("Lỗi trong markAsReadNotificationsByNotificationId:", error);
+        console.error("Lỗi trong markAsReadNotificationsByUserId:", error);
         return { EC: -1, EM: "Có lỗi xảy ra, vui lòng thử lại!", DT: [] };
     }
 };
@@ -73,5 +73,5 @@ const createNotification = async (userId, message, action = null) => {
 export default { 
     getUserNotificationsByUserId,
     createNotification,
-    markAsReadNotificationsByNotificationId
+    markAsReadNotificationsByUserId
 };

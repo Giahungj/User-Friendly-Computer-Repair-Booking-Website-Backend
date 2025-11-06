@@ -144,6 +144,5 @@ export default {
     getOverview,
     getBookingStats,
     getCustomerStats,
-    exportReport
-    
+    exportReport,
 }

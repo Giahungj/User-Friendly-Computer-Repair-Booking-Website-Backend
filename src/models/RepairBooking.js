@@ -13,6 +13,11 @@ module.exports = (sequelize, DataTypes) => {
 			RepairBooking.hasMany(models.RepairHistory, {
 				foreignKey: 'booking_id'
 			});
+			RepairBooking.hasOne(models.Rating, {
+				foreignKey: 'booking_id',
+				onDelete: 'CASCADE',
+				onUpdate: 'CASCADE'
+			});
 		}
 	}
 
